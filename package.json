@@ -64,7 +64,6 @@
         "react-table": "^7.7.0",
         "react-toast-notifications": "^2.4.0",
         "stream-browserify": "^3.0.0",
-        "user-agent-data-types": "^0.3.0",
         "uuid": "^8.3.2"
     },
     "devDependencies": {
