@@ -18,8 +18,8 @@ import Products from '../domain/products'
 import Settings from '../domain/settings'
 
 const IndexPage = () => {
-    useHotkeys('g + o', () => navigate('/a/orders'))
-    useHotkeys('g + p', () => navigate('/a/products'))
+    useHotkeys('g + o', () => { navigate('/a/orders') })
+    useHotkeys('g + p', () => { navigate('/a/products') })
     return (
         <Layout>
             <SEO title="Medusa" />

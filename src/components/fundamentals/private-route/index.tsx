@@ -15,6 +15,7 @@ const PrivateRoute = ({ component: Component, location, ...rest }: any) => {
                 setLoading(false)
             })
             .catch((_err: any) => {
+                console.log(_err)
                 navigate('/login')
             })
     }
