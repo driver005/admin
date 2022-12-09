@@ -17154,6 +17154,7 @@ __metadata:
     react-country-flag: ^3.0.2
     react-currency-input-field: ^3.6.4
     react-datepicker: ^4.8.0
+    react-device-detect: ^2.2.2
     react-dnd: ^16.0.1
     react-dnd-html5-backend: ^16.0.1
     react-dom: ^18.2.0
@@ -17173,6 +17174,7 @@ __metadata:
     tailwindcss: ^3.0.6
     tailwindcss-radix: ^2.5.0
     typescript: ^4.5.4
+    user-agent-data-types: ^0.3.0
     uuid: ^8.3.2
     webpack: ^5.65.0
   languageName: unknown
@@ -20616,6 +20618,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-device-detect@npm:^2.2.2":
+  version: 2.2.2
+  resolution: "react-device-detect@npm:2.2.2"
+  dependencies:
+    ua-parser-js: ^1.0.2
+  peerDependencies:
+    react: ">= 0.14.0"
+    react-dom: ">= 0.14.0"
+  checksum: d9245cf5a1c1e565e88523ed6be580497d1f6a972fb100a81092943bb7e44afdcdbae0d67bebe7424c4ba5b27a5d13df7894d122307f070fc26062704f7ec788
+  languageName: node
+  linkType: hard
+
 "react-dnd-html5-backend@npm:^16.0.1":
   version: 16.0.1
   resolution: "react-dnd-html5-backend@npm:16.0.1"
@@ -23943,6 +23957,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ua-parser-js@npm:^1.0.2":
+  version: 1.0.32
+  resolution: "ua-parser-js@npm:1.0.32"
+  checksum: 79a80efd9c21511fdafc042ab748e0e93c8cdb0e8925bf6d48ad7dbb08e808c60fcecd49e679670def44ef428c005aa1810810f6773e7d8135a7817338080813
+  languageName: node
+  linkType: hard
+
 "uglify-js@npm:^3.1.4":
   version: 3.17.0
   resolution: "uglify-js@npm:3.17.0"
@@ -24433,6 +24454,13 @@ __metadata:
   version: 3.1.1
   resolution: "use@npm:3.1.1"
   checksum: 08a130289f5238fcbf8f59a18951286a6e660d17acccc9d58d9b69dfa0ee19aa038e8f95721b00b432c36d1629a9e32a464bf2e7e0ae6a244c42ddb30bdd8b33
+  languageName: node
+  linkType: hard
+
+"user-agent-data-types@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "user-agent-data-types@npm:0.3.0"
+  checksum: 73a61ddfba17e7289a1312fc98c4f1f98d6353e6ace3e3159b36735e6a679b05bcb2afdfb8e602d690a89e6af44669783045ed9059f4bd0890f8e0ee8a772ee5
   languageName: node
   linkType: hard
 

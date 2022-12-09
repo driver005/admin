@@ -12,6 +12,9 @@
         "allowJs": false,
         "noImplicitAny": true,
         "skipLibCheck": true,
+        "types": [
+            "./node_modules/user-agent-data-types"
+        ]
     },
     "exclude": ["node_modules", "public", ".cache"]
 }
