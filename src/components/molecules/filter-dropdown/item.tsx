@@ -14,42 +14,7 @@ import InputField from '../input'
 
 const DAY_IN_SECONDS = 86400
 
-type PopoverOptionsProps = {
-    options: any[]
-    onClick: any
-    selectedItem: any
-}
-
-type RightPopoverProps = {
-    trigger: any
-    children: React.ReactNode
-}
-
-interface DateFilterProps {
-    options: any[]
-    open: boolean
-    setFilter: any
-    existingDate: any
-    existingFilter?: any
-    filterTitle: string
-}
-
-interface FilterDropdownItemProps {
-    options: any[]
-    open: boolean
-    setFilter: any
-    existingDate?: any
-    existingFilter?: any
-    filterTitle: string
-    filters: any[]
-    isLoading?: boolean
-    hasMore?: boolean
-    hasPrev?: boolean
-    onShowNext?: any
-    onShowPrev?: any
-}
-
-const FilterDropdownItem: React.FC<FilterDropdownItemProps> = ({
+const FilterDropdownItem = ({
     filterTitle,
     options,
     filters,
@@ -63,7 +28,7 @@ const FilterDropdownItem: React.FC<FilterDropdownItemProps> = ({
 }) => {
     const prefilled = useMemo(() => {
         try {
-            const toReturn = filters.reduce((acc: any, f: string | number) => {
+            const toReturn = filters.reduce((acc, f) => {
                 acc[f] = true
                 return acc
             }, {})
@@ -93,7 +58,7 @@ const FilterDropdownItem: React.FC<FilterDropdownItemProps> = ({
         }
     }, [open])
 
-    const onCheck = (filter: string) => {
+    const onCheck = (filter) => {
         const checkedState = checked
 
         if (!checkedState[filter]) {
@@ -103,7 +68,7 @@ const FilterDropdownItem: React.FC<FilterDropdownItemProps> = ({
         }
 
         const newFilter = Object.entries(checkedState).reduce(
-            (acc: any, [key, value]) => {
+            (acc, [key, value]) => {
                 if (value === true) {
                     acc.push(key)
                 }
@@ -140,8 +105,9 @@ const FilterDropdownItem: React.FC<FilterDropdownItemProps> = ({
                 >
                     <div className="flex items-center">
                         <div
-                            className={`w-5 h-5 flex justify-center text-grey-0 border-grey-30 border rounded-base ${open && 'bg-violet-60'
-                                }`}
+                            className={`w-5 h-5 flex justify-center text-grey-0 border-grey-30 border rounded-base ${
+                                open && 'bg-violet-60'
+                            }`}
                         >
                             <span className="self-center">
                                 {open && <CheckIcon size={16} />}
@@ -151,6 +117,7 @@ const FilterDropdownItem: React.FC<FilterDropdownItemProps> = ({
                             id={filterTitle}
                             className="hidden"
                             checked={open}
+                            readOnly
                             type="checkbox"
                         />
                         <span className="ml-2">{filterTitle}</span>
@@ -185,7 +152,7 @@ const FilterDropdownItem: React.FC<FilterDropdownItemProps> = ({
                             filterTitle={filterTitle}
                         />
                     ) : (
-                        options.map((el: any, i: number) => {
+                        options.map((el, i) => {
                             let value: string
                             let label: string
 
@@ -212,9 +179,10 @@ const FilterDropdownItem: React.FC<FilterDropdownItemProps> = ({
                                     onClick={() => onCheck(value)}
                                 >
                                     <div
-                                        className={`w-5 h-5 flex justify-center text-grey-0 border-grey-30 border mr-2 rounded-base ${checked[value] === true &&
+                                        className={`w-5 h-5 flex justify-center text-grey-0 border-grey-30 border mr-2 rounded-base ${
+                                            checked[value] === true &&
                                             'bg-violet-60'
-                                            }`}
+                                        }`}
                                     >
                                         <span className="self-center">
                                             {checked[value] === true && (
@@ -229,6 +197,7 @@ const FilterDropdownItem: React.FC<FilterDropdownItemProps> = ({
                                         name={label}
                                         value={value}
                                         checked={checked[value] === true}
+                                        readOnly
                                         style={{ marginRight: '5px' }}
                                     />
                                     {label}
@@ -254,11 +223,11 @@ const FilterDropdownItem: React.FC<FilterDropdownItemProps> = ({
 
 export default FilterDropdownItem
 
-const parseDateFilter = (filter: any) => {
+const parseDateFilter = (filter) => {
     if (!filter) {
         return {}
     }
-    const dateEntries: any = Object.entries(filter)
+    const dateEntries = Object.entries(filter)
 
     /**
      * From a query object we need to figure out which date filter that is
@@ -349,13 +318,12 @@ const parseDateFilter = (filter: any) => {
     return {}
 }
 
-const DateFilter: React.FC<DateFilterProps> = ({
+const DateFilter = ({
     options,
     open,
     setFilter,
     existingDate,
     existingFilter,
-    filterTitle
 }) => {
     const initialVals = useMemo(() => {
         const parsed = parseDateFilter(existingDate)
@@ -375,7 +343,7 @@ const DateFilter: React.FC<DateFilterProps> = ({
     const [daysMonthsValue, setDaysMonthsValue] = useState(
         initialVals.daysMonthsValue
     )
-    const [startDate, setStartDate]: any = useState(initialVals.value)
+    const [startDate, setStartDate] = useState(initialVals.value)
 
     useEffect(() => {
         switch (currentFilter) {
@@ -493,8 +461,8 @@ const DateFilter: React.FC<DateFilterProps> = ({
                                     <label>
                                         {startDate
                                             ? moment(startDate).format(
-                                                'MM.DD.YYYY'
-                                            )
+                                                  'MM.DD.YYYY'
+                                              )
                                             : '-'}
                                     </label>
                                     <span className="text-grey-50">
@@ -505,7 +473,7 @@ const DateFilter: React.FC<DateFilterProps> = ({
                         >
                             <CalendarComponent
                                 date={startDate}
-                                onChange={(date: React.SetStateAction<Date | null>) => {
+                                onChange={(date) => {
                                     setStartDate(date)
                                 }}
                             />
@@ -531,7 +499,7 @@ const DateFilter: React.FC<DateFilterProps> = ({
             >
                 <PopoverOptions
                     options={options}
-                    onClick={(filter: any) => setCurrentFilter(filter)}
+                    onClick={(filter) => setCurrentFilter(filter)}
                     selectedItem={currentFilter}
                 />
             </RightPopover>
@@ -542,12 +510,10 @@ const DateFilter: React.FC<DateFilterProps> = ({
     )
 }
 
-
-
-const PopoverOptions = ({ options, onClick, selectedItem }: PopoverOptionsProps) => {
+const PopoverOptions = ({ options, onClick, selectedItem }) => {
     return (
         <>
-            {options.map((item: any) => (
+            {options.map((item) => (
                 <div
                     onClick={(e) => {
                         e.stopPropagation()
@@ -582,7 +548,7 @@ const PopoverOptions = ({ options, onClick, selectedItem }: PopoverOptionsProps)
     )
 }
 
-const RightPopover = ({ trigger, children }: RightPopoverProps) => (
+const RightPopover = ({ trigger, children }) => (
     <RadixPopover.Root>
         <RadixPopover.Trigger className="w-full my-1">
             {trigger}

@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import { ComponentMeta } from '@storybook/react'
 import React from 'react'
 import Button from '.'
 import HappyIcon from '../icons/happy-icon'
@@ -22,7 +22,7 @@ export default {
     },
 } as ComponentMeta<typeof Button>
 
-const Template: ComponentStory<typeof Button> = (args) => <Button {...args}>Action</Button>
+const Template = (args) => <Button {...args}>Action</Button>
 
 export const PrimaryLarge = Template.bind({})
 PrimaryLarge.args = {
@@ -144,7 +144,7 @@ GhostSmallLoading.args = {
     loading: true,
 }
 
-const TemplateWithIcon: ComponentStory<typeof Button> = (args) => (
+const TemplateWithIcon = (args) => (
     <Button {...args}>
         <HappyIcon size={20} /> Action
     </Button>

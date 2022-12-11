@@ -57,19 +57,19 @@ type QueryObject = Partial<Pick<FilterState, 'q'>> &
  * Transform and merge state values with provided `toQuery` object and
  * return an object containing params.
  */
-function buildQueryObject(state: FilterState, toQuery?: QueryObject) {
-    const query: any = toQuery || {}
+function buildQueryObject(state: FilterState, toQuery: QueryObject) {
+    toQuery = toQuery || {}
     for (const [key, value] of Object.entries(state)) {
         if (key === 'q') {
             if (typeof value === 'string') {
                 if (value) {
-                    query['q'] = value
+                    toQuery['q'] = value
                 } else {
-                    delete query['q']
+                    delete toQuery['q']
                 }
             }
         } else if (key === 'offset' || key === 'limit') {
-            query[key] = value
+            toQuery[key] = value
         }
     }
 
@@ -87,15 +87,13 @@ function getRepresentationObject(state: FilterState) {
  * Get transformed params from state along with additional params.
  */
 function getQueryObject(state: FilterState) {
-    return buildQueryObject(state, {
-        ...state.additionalFilters,
-    } as QueryObject)
+    return buildQueryObject(state, { ...state.additionalFilters })
 }
 
 /*
  * Transform query string into object representation.
  */
-function parseQueryString(
+function parseQueryString<T>(
     queryString: string,
     defaults: Partial<FilterState>
 ): FilterState {

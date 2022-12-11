@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-const offsetTopRelativeTo = (element: any, ancestor: any) => {
+const offsetTopRelativeTo = (element, ancestor) => {
     const elementCoords = element.getBoundingClientRect()
     const ancestorCoords = ancestor.getBoundingClientRect()
     return Math.abs(elementCoords.top - ancestorCoords.top)
@@ -19,7 +19,7 @@ const useKeyboardNavigationList = ({ length = 0 }) => {
         return {
             'aria-activedescendant': `result-item-${selected}`,
             'aria-controls': 'results-list',
-            onKeyDown: (e: any) => {
+            onKeyDown: (e) => {
                 if (e.key === 'ArrowDown') {
                     e.preventDefault()
                     setSelected(({ index }) => ({
@@ -37,16 +37,17 @@ const useKeyboardNavigationList = ({ length = 0 }) => {
         }
     }
 
-    const getLIProps = ({ index, ...props }: any) => {
+    const getLIProps = ({ index, ...props }) => {
         return {
             tabIndex: index,
             role: 'option',
             id: `result-item-${index}`,
+            key: index,
             'aria-selected': selected === index,
-            ref: (el: any) => {
+            ref: (el) => {
                 liRefs.current[index] = el
             },
-            onMouseEnter: (e: any) => {
+            onMouseEnter: (e) => {
                 setSelected({ index, source: 'hover' })
             },
             ...props,
@@ -62,7 +63,7 @@ const useKeyboardNavigationList = ({ length = 0 }) => {
         }
     }
 
-    const enterHandler = (e: any) => {
+    const enterHandler = (e) => {
         if (e.key === 'Enter') {
             setPressed(true)
         }

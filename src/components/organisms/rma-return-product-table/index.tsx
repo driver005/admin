@@ -11,15 +11,15 @@ type RMAReturnProductsTableProps = {
     isAdditionalItems?: boolean
     order: any
     itemsToAdd: any[]
-    handleToAddQuantity: (value: any, index: number) => void
-    handleRemoveItem: (index: number) => void
+    handleToAddQuantity: (value, index) => void
+    handleRemoveItem: (index) => void
 }
 
-const extractPrice = (prices: any[], order: any) => {
-    let price = prices.find((ma: any) => ma.region_id === order.region_id)
+const extractPrice = (prices, order) => {
+    let price = prices.find((ma) => ma.region_id === order.region_id)
 
     if (!price) {
-        price = prices.find((ma: any) => ma.currency_code === order.currency_code)
+        price = prices.find((ma) => ma.currency_code === order.currency_code)
     }
 
     if (price) {

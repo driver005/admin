@@ -37,7 +37,7 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
     orderId,
 }) => {
     const [toFulfill, setToFulfill] = useState<string[]>([])
-    const [quantities, setQuantities]: any = useState({})
+    const [quantities, setQuantities] = useState({})
     const [noNotis, setNoNotis] = useState(false)
     const [metadata, setMetadata] = useState<MetadataField[]>([
         { key: '', value: '' },
@@ -52,6 +52,11 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
     const createSwapFulfillment = useAdminFulfillSwap(orderId)
     const createClaimFulfillment = useAdminFulfillClaim(orderId)
 
+    const isSubmitting =
+        createOrderFulfillment.isLoading ||
+        createSwapFulfillment.isLoading ||
+        createClaimFulfillment.isLoading
+
     const notification = useNotification()
 
     const createFulfillment = () => {
@@ -64,7 +69,7 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
 
         let action: actionType = createOrderFulfillment
         let successText = 'Successfully fulfilled order'
-        let requestObj: any
+        let requestObj
 
         const preparedMetadata = metadata.reduce((acc, next) => {
             if (next.key) {
@@ -155,8 +160,9 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
                             onClick={() => setNoNotis(!noNotis)}
                         >
                             <div
-                                className={`w-5 h-5 flex justify-center text-grey-0 border-grey-30 border rounded-base ${!noNotis && 'bg-violet-60'
-                                    }`}
+                                className={`w-5 h-5 flex justify-center text-grey-0 border-grey-30 border rounded-base ${
+                                    !noNotis && 'bg-violet-60'
+                                }`}
                             >
                                 <span className="self-center">
                                     {!noNotis && <CheckIcon size={16} />}
@@ -187,8 +193,9 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
                                 size="large"
                                 className="w-32 text-small justify-center"
                                 variant="primary"
-                                disabled={!toFulfill?.length}
+                                disabled={!toFulfill?.length || isSubmitting}
                                 onClick={createFulfillment}
+                                loading={isSubmitting}
                             >
                                 Complete
                             </Button>

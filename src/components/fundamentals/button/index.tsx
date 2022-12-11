@@ -19,7 +19,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         },
         ref
     ) => {
-        const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        const handleClick = (e) => {
             if (!loading && attributes.onClick) {
                 attributes.onClick(e)
             }

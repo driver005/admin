@@ -1,112 +1,176 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Controller } from 'react-hook-form'
-import { countries } from '../../utils/countries'
+import { Option } from '../../types/shared'
+import FormValidator from '../../utils/form-validator'
+import { NestedForm } from '../../utils/nested-form'
 import Input from '../molecules/input'
-import Select from '../molecules/select'
+import { NextSelect } from '../molecules/select/next-select'
+
+export type AddressPayload = {
+    first_name: string
+    last_name: string
+    company: string | null
+    address_1: string
+    address_2: string | null
+    city: string
+    province: string | null
+    country_code: Option
+    postal_code: string
+    phone: string | null
+}
+
+export enum AddressType {
+    SHIPPING = 'shipping',
+    BILLING = 'billing',
+}
+
+type AddressFormProps = {
+    form: NestedForm<AddressPayload>
+    countryOptions: Option[]
+    type: AddressType
+    required?: boolean
+}
 
 const AddressForm = ({
-    form = {},
-    country,
-    allowedCountries,
-    type = 'address',
-    openMenuOnFocus = true,
-}: any) => {
-    const countryOptions: any = countries
-        .map((c) => {
-            if (allowedCountries) {
-                const clean = allowedCountries.map((c: any) => c.toLowerCase())
-                if (clean.includes(c.alpha2.toLowerCase())) {
-                    return { label: c.name, value: c.alpha2.toLowerCase() }
-                } else {
-                    return null
-                }
-            } else {
-                return { label: c.name, value: c.alpha2.toLowerCase() }
-            }
-        })
-        .filter(Boolean)
-
-    form.register(`${type}.country_code`)
-
-    useEffect(() => {
-        const t: any = [type]
-        if (country && !form.getValues(`${t.country_code}`)) {
-            form.setValue(`${t.country_code}`, country)
-        }
-    }, [])
+    form,
+    countryOptions,
+    type,
+    required = true,
+}: AddressFormProps) => {
+    const {
+        register,
+        path,
+        control,
+        formState: { errors },
+    } = form
 
     return (
         <div>
             <span className="inter-base-semibold">General</span>
-            <div className="grid grid-cols-2 gap-x-base gap-y-base mt-4 mb-8">
+            <div className="grid grid-cols-2 gap-large mt-4 mb-8">
                 <Input
+                    {...register(path('first_name'), {
+                        required: required
+                            ? FormValidator.required('First name')
+                            : false,
+                        pattern: FormValidator.whiteSpaceRule('First name'),
+                    })}
                     placeholder="First Name"
                     label="First Name"
-                    required={true}
-                    {...form.register(`${type}.first_name`, { required: true })}
+                    required={required}
+                    errors={errors}
                 />
                 <Input
+                    {...form.register(path('last_name'), {
+                        required: required
+                            ? FormValidator.required('Last name')
+                            : false,
+                        pattern: FormValidator.whiteSpaceRule('Last name'),
+                    })}
                     placeholder="Last Name"
                     label="Last Name"
-                    required={true}
-                    {...form.register(`${type}.last_name`, { required: true })}
+                    required={required}
+                    errors={errors}
                 />
                 <Input
-                    placeholder="Email"
-                    label="Email"
-                    type="email"
-                    required={true}
-                    {...form.register('email', { required: true })}
+                    {...form.register(path('company'), {
+                        pattern: FormValidator.whiteSpaceRule('Company'),
+                    })}
+                    placeholder="Company"
+                    label="Company"
+                    errors={errors}
                 />
                 <Input
+                    {...form.register(path('phone'))}
                     placeholder="Phone"
                     label="Phone"
-                    required={true}
-                    {...form.register(`${type}.phone`, { required: true })}
+                    errors={errors}
                 />
             </div>
 
-            <span className="inter-base-semibold">{`${type !== 'address'
-                ? `${type.charAt(0).toUpperCase()}${type.slice(1)} `
-                : ''
-                }Address`}</span>
-            <div className="mt-4">
+            <span className="inter-base-semibold">{`${
+                type === AddressType.BILLING
+                    ? 'Billing Address'
+                    : AddressType.SHIPPING
+                    ? 'Shipping Address'
+                    : 'Address'
+            }`}</span>
+            <div className="grid grid-cols-1 gap-y-large mt-4">
                 <Input
+                    {...form.register(path('address_1'), {
+                        required: required
+                            ? FormValidator.required('Address 1')
+                            : false,
+                        pattern: FormValidator.whiteSpaceRule('Address 1'),
+                    })}
                     placeholder="Address 1"
                     label="Address 1"
-                    required={true}
-                    {...form.register(`${type}.address_1`, { required: true })}
+                    required={required}
+                    errors={errors}
                 />
-                <div className="grid grid-cols-2 gap-x-base gap-y-base mt-4">
+                <Input
+                    {...form.register(path('address_2'), {
+                        pattern: FormValidator.whiteSpaceRule('Address 2'),
+                    })}
+                    placeholder="Address 2"
+                    label="Address 2"
+                    errors={errors}
+                />
+                <div className="grid grid-cols-[144px_1fr] gap-large">
                     <Input
-                        placeholder="Province"
-                        label="Province"
-                        {...form.register(`${type}.province`)}
-                    />
-                    <Input
+                        {...form.register(path('postal_code'), {
+                            required: required
+                                ? FormValidator.required('Postal code')
+                                : false,
+                            pattern:
+                                FormValidator.whiteSpaceRule('Postal code'),
+                        })}
                         placeholder="Postal code"
                         label="Postal code"
-                        required={true}
-                        {...form.register(`${type}.postal_code`, { required: true })}
+                        required={required}
+                        autoComplete="off"
+                        errors={errors}
                     />
                     <Input
                         placeholder="City"
                         label="City"
-                        required={true}
-                        {...form.register(`${type}.city`, { required: true })}
+                        {...form.register(path('city'), {
+                            required: required
+                                ? FormValidator.required('City')
+                                : false,
+                            pattern: FormValidator.whiteSpaceRule('City'),
+                        })}
+                        required={required}
+                        errors={errors}
+                    />
+                </div>
+                <div className="grid grid-cols-2 gap-large">
+                    <Input
+                        {...form.register(path('province'), {
+                            pattern: FormValidator.whiteSpaceRule('Province'),
+                        })}
+                        placeholder="Province"
+                        label="Province"
+                        errors={errors}
                     />
                     <Controller
-                        name={`${type}.country_code`}
-                        control={form.control}
-                        render={({ field: { onChange, value } }: any) => {
+                        control={control}
+                        name={path('country_code')}
+                        rules={{
+                            required: required
+                                ? FormValidator.required('Country')
+                                : false,
+                        }}
+                        render={({ field: { value, onChange } }) => {
                             return (
-                                <Select
-                                    value={value}
-                                    onChange={onChange}
+                                <NextSelect
                                     label="Country"
-                                    required
+                                    required={required}
+                                    value={value}
                                     options={countryOptions}
-                                    openMenuOnFocus={openMenuOnFocus}
+                                    onChange={onChange}
+                                    name={path('country_code')}
+                                    errors={errors}
                                 />
                             )
                         }}

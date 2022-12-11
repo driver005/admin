@@ -9,7 +9,7 @@ import Actionables, { ActionType } from '../actionables'
 
 /* ---------------------------- CollapsibleTree ------------------------------------ */
 
-type CollapsibleTreeType = React.FC<{ children: React.ReactNode }> & {
+type CollapsibleTreeType = React.FC & {
     Parent: React.FC<CollapsibleTreeParentProps>
     Leaf: React.FC<CollapsibleTreeLeafProps>
     Content: React.FC<CollapsibleTreeContentProps>
@@ -25,7 +25,7 @@ type TCollapsibleTreeContext = {
 const CollapsibleTreeContext =
     React.createContext<TCollapsibleTreeContext | null>(null)
 
-const CollapsibleTree: CollapsibleTreeType = ({ children }) => {
+export const CollapsibleTree: CollapsibleTreeType = ({ children }) => {
     const [open, setOpen] = React.useState(false)
 
     return (
@@ -84,7 +84,6 @@ CollapsibleTree.Content = CollapsibleTreeContent
 /* ---------------------------- CollapsibleTreeParent ------------------------------------ */
 
 type CollapsibleTreeParentProps = {
-    children: React.ReactNode
     actions?: ActionType[]
     className?: string
 }
@@ -135,7 +134,6 @@ CollapsibleTree.Parent = CollapsibleTreeParent
 
 type CollapsibleTreeLeafProps = {
     actions?: ActionType[]
-    children: React.ReactNode
     className?: string
 }
 
@@ -172,7 +170,7 @@ const CollapsibleTreeLeaf: React.FC<CollapsibleTreeLeafProps> = ({
 
 CollapsibleTree.Leaf = CollapsibleTreeLeaf
 
-const Container: React.FC<{ className?: string, children: React.ReactNode }> = ({
+const Container: React.FC<{ className?: string }> = ({
     children,
     className,
 }) => {
@@ -195,5 +193,3 @@ const Trigger = () => {
         </Button>
     )
 }
-
-export default CollapsibleTree

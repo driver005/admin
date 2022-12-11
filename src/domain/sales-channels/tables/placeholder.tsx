@@ -3,7 +3,7 @@ import React from 'react'
 import Button from '../../../components/fundamentals/button'
 import SidedMouthFaceIcon from '../../../components/fundamentals/icons/sided-mouth-face'
 
-function Placeholder({ showAddModal }: any) {
+function Placeholder({ showAddModal }) {
     return (
         <div className="h-full flex flex-col justify-center items-center">
             <span className="text-grey-50">

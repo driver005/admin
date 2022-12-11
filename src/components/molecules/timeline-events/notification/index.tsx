@@ -11,11 +11,7 @@ type NotificationProps = {
     event: NotificationEvent
 }
 
-type notificationTitleMapType = {
-    [key: string]: string
-}
-
-const notificationTitleMap: notificationTitleMapType = {
+const notificationTitleMap = {
     'order.items_returned': 'Return Received Notice Sent',
     'order.return_requested': 'Return Request Confirmation Sent',
     'order.placed': 'Order Confirmation Sent',

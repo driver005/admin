@@ -23,7 +23,7 @@ type TaxRate = {
 
 const DEFAULT_PAGESIZE = 10
 
-const TaxDetails = ({ id }: any) => {
+const TaxDetails = ({ id }) => {
     if (!id) {
         return null
     }
@@ -72,7 +72,7 @@ const TaxDetails = ({ id }: any) => {
 
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
         useTable({
-            columns: columns as any,
+            columns,
             data: tableEntries || [],
             manualPagination: true,
             autoResetPage: false,

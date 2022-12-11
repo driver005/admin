@@ -8,7 +8,7 @@ const useCollectionTableColumn = () => {
             {
                 Header: 'Title',
                 accessor: 'title',
-                Cell: ({ row: { original } }: any) => {
+                Cell: ({ row: { original } }) => {
                     return (
                         <div className="flex items-center">
                             {original.title}
@@ -19,12 +19,12 @@ const useCollectionTableColumn = () => {
             {
                 Header: 'Handle',
                 accessor: 'handle',
-                Cell: ({ cell: { value } }: any) => <div>/{value}</div>,
+                Cell: ({ cell: { value } }) => <div>/{value}</div>,
             },
             {
                 Header: 'Created At',
                 accessor: 'created_at',
-                Cell: ({ cell: { value } }: any) => (
+                Cell: ({ cell: { value } }) => (
                     <Tooltip
                         content={moment(value).format('DD MMM YYYY hh:mm A')}
                     >
@@ -35,7 +35,7 @@ const useCollectionTableColumn = () => {
             {
                 Header: 'Updated At',
                 accessor: 'updated_at',
-                Cell: ({ cell: { value } }: any) => (
+                Cell: ({ cell: { value } }) => (
                     <Tooltip
                         content={moment(value).format('DD MMM YYYY hh:mm A')}
                     >
@@ -46,7 +46,7 @@ const useCollectionTableColumn = () => {
             {
                 Header: 'Products',
                 accessor: 'products',
-                Cell: ({ cell: { value } }: any) => {
+                Cell: ({ cell: { value } }) => {
                     return <div>{value?.length || '-'}</div>
                 },
             },

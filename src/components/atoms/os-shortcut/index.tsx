@@ -1,5 +1,4 @@
 import React from 'react'
-import { osName } from "react-device-detect";
 
 type OSShortcutProps = {
     winModifiers: string | string[]
@@ -8,7 +7,11 @@ type OSShortcutProps = {
 }
 
 const OSShortcut = ({ winModifiers, macModifiers, keys }: OSShortcutProps) => {
-    const isMac = osName === "Mac OS"
+    const isMac =
+        typeof window !== 'undefined' &&
+        navigator?.platform?.toUpperCase().indexOf('MAC') >= 0
+            ? true
+            : false
 
     let modifiers: string
 

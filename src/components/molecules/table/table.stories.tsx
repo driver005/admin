@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import { ComponentMeta } from '@storybook/react'
 import React from 'react'
 import Table from './index'
 import TableSearch from './table-search'
@@ -9,9 +9,9 @@ export default {
     component: FilteringOption,
 } as ComponentMeta<typeof FilteringOption>
 
-const FilteringTemplate: ComponentStory<typeof FilteringOption> = (args) => <FilteringOption {...args} />
-const TableSearchTemplate: ComponentStory<typeof TableSearch> = (args) => <TableSearch {...args} />
-const TableTemplate: ComponentStory<typeof Table.Row> = (args) => (
+const FilteringTemplate = (args) => <FilteringOption {...args} />
+const TableSearchTemplate = (args) => <TableSearch {...args} />
+const TableTemplate = (args) => (
     <Table>
         <Table.Head>
             <Table.HeadRow>
@@ -34,7 +34,7 @@ const TableTemplate: ComponentStory<typeof Table.Row> = (args) => (
     </Table>
 )
 
-const TableWithFilterAndSearchTemplate: ComponentStory<typeof FilteringOption> = (args) => (
+const TableWithFilterAndSearchTemplate = (args) => (
     <Table
         filteringOptions={[
             {
@@ -124,7 +124,7 @@ TableComponentWithLinkRows.args = {
 
 export const TableSearchField = TableSearchTemplate.bind({})
 TableSearchField.args = {
-    onSearch: (term: any) => console.log(term),
+    onSeach: (value) => console.log(value),
     placeholder: 'Search value',
 }
 

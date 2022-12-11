@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import { ComponentMeta } from '@storybook/react'
 import React from 'react'
 import BannerCard from '.'
 import EditIcon from '../../fundamentals/icons/edit-icon'
@@ -10,7 +10,7 @@ export default {
     component: BannerCard,
 } as ComponentMeta<typeof BannerCard>
 
-const Template: ComponentStory<any> = ({ cardArgs, descriptionArgs, text }) => (
+const Template = ({ cardArgs, descriptionArgs, text }) => (
     <BannerCard {...cardArgs}>
         <BannerCard.Description {...descriptionArgs}>
             {text}

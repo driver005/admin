@@ -1,20 +1,20 @@
 import React from 'react'
 
 import IndeterminateCheckbox from '../../../components/molecules/indeterminate-checkbox'
-import ImagePlaceholder from '../../../components/fundamentals/icons/image-placeholder'
+import ImagePlaceholder from '../../../components/fundamentals/image-placeholder'
 
 export const SALES_CHANNEL_PRODUCTS_TABLE_COLUMNS = [
     {
         width: 30,
         id: 'selection',
-        Header: ({ getToggleAllPageRowsSelectedProps }: any) => (
+        Header: ({ getToggleAllPageRowsSelectedProps }) => (
             <span className="flex justify-center">
                 <IndeterminateCheckbox
                     {...getToggleAllPageRowsSelectedProps()}
                 />
             </span>
         ),
-        Cell: ({ row }: any) => {
+        Cell: ({ row }) => {
             return (
                 <span
                     onClick={(e) => e.stopPropagation()}
@@ -30,7 +30,7 @@ export const SALES_CHANNEL_PRODUCTS_TABLE_COLUMNS = [
     {
         Header: 'Name',
         accessor: 'title',
-        Cell: ({ row: { original } }: any) => {
+        Cell: ({ row: { original } }) => {
             return (
                 <div className="flex items-center">
                     <div className="h-[40px] w-[30px] my-1.5 flex items-center mr-4">
@@ -53,7 +53,7 @@ export const SALES_CHANNEL_PRODUCTS_TABLE_COLUMNS = [
     {
         Header: 'Collection',
         accessor: 'collection',
-        Cell: ({ cell: { value } }: any) => {
+        Cell: ({ cell: { value } }) => {
             return <div>{value?.title || '-'}</div>
         },
     },

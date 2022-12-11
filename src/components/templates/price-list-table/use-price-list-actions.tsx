@@ -8,9 +8,8 @@ import UnpublishIcon from '../../fundamentals/icons/unpublish-icon'
 import { ActionType } from '../../molecules/actionables'
 import { isActive } from './utils'
 import PublishIcon from '../../fundamentals/icons/publish-icon'
-import { PriceListStatus } from '../../../domain/pricing/pricing-form/types'
 
-const usePriceListActions = (priceList: any) => {
+const usePriceListActions = (priceList) => {
     const dialog = useImperativeDialog()
     const notification = useNotification()
     const updatePrice = useAdminUpdatePriceList(priceList?.id)
@@ -39,13 +38,14 @@ const usePriceListActions = (priceList: any) => {
     const onUpdate = () => {
         updatePrice.mutate(
             {
-                status: PriceListStatus[isActive(priceList) ? 'DRAFT' : 'ACTIVE'],
+                status: isActive(priceList) ? 'draft' : 'active',
             },
             {
                 onSuccess: () => {
                     notification(
                         'Success',
-                        `Successfully ${isActive(priceList) ? 'unpublished' : 'published'
+                        `Successfully ${
+                            isActive(priceList) ? 'unpublished' : 'published'
                         } price list`,
                         'success'
                     )

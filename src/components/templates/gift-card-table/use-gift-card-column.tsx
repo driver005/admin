@@ -9,9 +9,9 @@ const useGiftCardTableColums = () => {
     const columns = useMemo(
         () => [
             {
-                Header: <Table.HeadCell className="pl-2">Code</Table.HeadCell>,
+                Header: <div className="pl-2">Code</div>,
                 accessor: 'code',
-                Cell: ({ cell: { value }, index }: any) => (
+                Cell: ({ cell: { value }, index }) => (
                     <Table.Cell
                         key={index}
                         className="text-grey-90 group-hover:text-violet-60 w-[20%] pl-2"
@@ -23,7 +23,7 @@ const useGiftCardTableColums = () => {
             {
                 Header: 'Order',
                 accessor: 'order_id',
-                Cell: ({ row, cell: { value }, index }: any) => (
+                Cell: ({ row, cell: { value }, index }) => (
                     <Table.Cell
                         key={index}
                         className="text-grey-90 group-hover:text-violet-60 w-[10%] pl-2"
@@ -39,7 +39,7 @@ const useGiftCardTableColums = () => {
             {
                 Header: 'Original Amount',
                 accessor: 'value',
-                Cell: ({ row, cell: { value }, index }: any) => (
+                Cell: ({ row, cell: { value }, index }) => (
                     <Table.Cell key={index}>
                         {row.original.region ? (
                             formatAmountWithSymbol({
@@ -60,7 +60,7 @@ const useGiftCardTableColums = () => {
             {
                 Header: 'Balance',
                 accessor: 'balance',
-                Cell: ({ row, cell: { value }, index }: any) => (
+                Cell: ({ row, cell: { value }, index }) => (
                     <Table.Cell key={index}>
                         {value ? (
                             row.original.region ? (
@@ -89,7 +89,7 @@ const useGiftCardTableColums = () => {
                     </div>
                 ),
                 accessor: 'created_at',
-                Cell: ({ cell: { value }, index }: any) => (
+                Cell: ({ cell: { value }, index }) => (
                     <Table.Cell className="pr-2" key={index}>
                         <div className="flex rounded-rounded w-full justify-end">
                             {moment(value).format('MMM Do YYYY')}

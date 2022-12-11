@@ -1,70 +1,82 @@
 import { useAdminCreateTaxRate } from 'medusa-react'
-import React, { useContext, useEffect } from 'react'
+import React, { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import Button from '../../../components/fundamentals/button'
-import Actionables from '../../../components/molecules/actionables'
 import PlusIcon from '../../../components/fundamentals/icons/plus-icon'
-import EditIcon from '../../../components/fundamentals/icons/edit-icon'
-import Input from '../../../components/molecules/input'
-import Badge from '../../../components/fundamentals/badge'
 import Modal from '../../../components/molecules/modal'
 import LayeredModal, {
     LayeredModalContext,
 } from '../../../components/molecules/modal/layered-modal'
 import useNotification from '../../../hooks/use-notification'
 import { getErrorMessage } from '../../../utils/error-messages'
-import TaxRuleSelector from './tax-rule-selector'
+import { nestedForm } from '../../../utils/nested-form'
+import {
+    EditTaxRateDetails,
+    EditTaxRateFormType,
+} from './edit-tax-rate-details'
 import { TaxRuleItem } from './tax-rule-item'
+import TaxRuleSelector from './tax-rule-selector'
 
-interface NewTaxRate {
-    regionId: any
-    onDismiss: any
+type NewTaxRateProps = {
+    regionId: string
+    onDismiss: () => void
 }
 
-const NewTaxRate: React.FC<NewTaxRate> = ({ regionId, onDismiss }) => {
-    const createTaxRate = useAdminCreateTaxRate()
-    const { register, setValue, handleSubmit, watch } = useForm({
+type NewTaxRateFormData = {
+    details: EditTaxRateFormType
+    shipping_options: string[]
+    product_types: string[]
+    products: string[]
+}
+
+const NewTaxRate = ({ regionId, onDismiss }: NewTaxRateProps) => {
+    const { mutate, isLoading } = useAdminCreateTaxRate()
+    const form = useForm<NewTaxRateFormData>({
         defaultValues: {
-            name: '',
-            rate: 0,
-            code: '1000',
-            region_id: '',
             products: [],
             product_types: [],
             shipping_options: [],
         },
     })
+    const { setValue, handleSubmit, watch } = form
     const notification = useNotification()
 
     const layeredModalContext = useContext(LayeredModalContext)
 
-    const onSave = (data: any) => {
-        createTaxRate.mutate(data, {
-            onSuccess: () => {
-                notification(
-                    'Success',
-                    'Successfully created tax rate.',
-                    'success'
-                )
-                onDismiss()
+    const onSave = handleSubmit((data) => {
+        mutate(
+            {
+                product_types: data.product_types,
+                products: data.products,
+                shipping_options: data.shipping_options,
+                name: data.details.name,
+                code: data.details.code,
+                rate: data.details.rate,
+                region_id: regionId,
             },
-            onError: (error) => {
-                notification('Error', getErrorMessage(error), 'error')
-            },
-        })
-    }
+            {
+                onSuccess: () => {
+                    notification(
+                        'Success',
+                        'Successfully created tax rate.',
+                        'success'
+                    )
+                    onDismiss()
+                },
+                onError: (error) => {
+                    notification('Error', getErrorMessage(error), 'error')
+                },
+            }
+        )
+    })
 
-    useEffect(() => {
-        register('region_id')
-        setValue('region_id', regionId)
-        register('products')
-        register('product_types')
-        register('shipping_options')
-    }, [])
+    const [products, product_types, shipping_options] = watch([
+        'products',
+        'product_types',
+        'shipping_options',
+    ])
 
-    const rules: any = watch(['products', 'product_types', 'shipping_options'])
-
-    const handleOverridesSelected = (rule: any) => {
+    const handleOverridesSelected = (rule) => {
         switch (rule.type) {
             case 'products':
                 setValue('products', rule.items)
@@ -86,7 +98,7 @@ const NewTaxRate: React.FC<NewTaxRate> = ({ regionId, onDismiss }) => {
             context={layeredModalContext}
             handleClose={onDismiss}
         >
-            <form onSubmit={handleSubmit(onSave)}>
+            <form onSubmit={onSave}>
                 <Modal.Body>
                     <Modal.Header handleClose={onDismiss}>
                         <div>
@@ -96,163 +108,136 @@ const NewTaxRate: React.FC<NewTaxRate> = ({ regionId, onDismiss }) => {
                         </div>
                     </Modal.Header>
                     <Modal.Content>
-                        <div>
-                            <p className="inter-base-semibold mb-base">
-                                Details
-                            </p>
-                            <Input
-                                label="Name"
-                                placeholder="Rate name"
-                                {...register('name', { required: true })}
-                                className="mb-base min-w-[335px] w-full"
-                            />
-                            <Input
-                                type="number"
-                                min={0}
-                                max={100}
-                                step={0.01}
-                                label="Rate"
-                                placeholder="12"
-                                {...register(
-                                    'rate',
-                                    {
-                                        min: 0,
-                                        max: 100,
-                                        required: true,
-                                    })}
-                                className="mb-base min-w-[335px] w-full"
-                            />
-                            <Input
-                                placeholder="1000"
-                                label="Code"
-                                {...register('code', { required: true })}
-                                className="mb-base min-w-[335px] w-full"
-                            />
-                        </div>
+                        <EditTaxRateDetails
+                            form={nestedForm(form, 'details')}
+                        />
                         <div>
                             <p className="inter-base-semibold mb-base">
                                 Overrides
                             </p>
-                            {(rules.product_types?.length > 0 ||
-                                rules.products?.length > 0 ||
-                                rules.shipping_options?.length > 0) && (
-                                    <div className="flex flex-col gap-base">
-                                        {rules.products.length > 0 && (
-                                            <TaxRuleItem
-                                                onDelete={() =>
-                                                    handleOverridesSelected({
-                                                        type: 'products',
-                                                        items: [],
-                                                    })
-                                                }
-                                                onEdit={() => {
-                                                    layeredModalContext.push(
-                                                        SelectOverridesScreen(
-                                                            layeredModalContext.pop,
-                                                            regionId,
-                                                            handleOverridesSelected,
-                                                            {
-                                                                items: rules.products,
-                                                                type: 'products',
-                                                            }
-                                                        )
+                            {(product_types.length > 0 ||
+                                products.length > 0 ||
+                                shipping_options.length > 0) && (
+                                <div className="flex flex-col gap-base">
+                                    {products.length > 0 && (
+                                        <TaxRuleItem
+                                            onDelete={() =>
+                                                handleOverridesSelected({
+                                                    type: 'products',
+                                                    items: [],
+                                                })
+                                            }
+                                            onEdit={() => {
+                                                layeredModalContext.push(
+                                                    SelectOverridesScreen(
+                                                        layeredModalContext.pop,
+                                                        regionId,
+                                                        handleOverridesSelected,
+                                                        {
+                                                            items: products,
+                                                            type: 'products',
+                                                        }
                                                     )
-                                                }}
-                                                index={1}
-                                                name="Product Rules"
-                                                description={`Applies to ${rules.products.length
-                                                    } product${rules.products.length > 1
-                                                        ? 's'
-                                                        : ''
-                                                    }`}
-                                            />
-                                        )}
-                                        {rules.product_types.length > 0 && (
-                                            <TaxRuleItem
-                                                onDelete={() =>
-                                                    handleOverridesSelected({
-                                                        type: 'product_types',
-                                                        items: [],
-                                                    })
-                                                }
-                                                onEdit={() => {
-                                                    layeredModalContext.push(
-                                                        SelectOverridesScreen(
-                                                            layeredModalContext.pop,
-                                                            regionId,
-                                                            handleOverridesSelected,
-                                                            {
-                                                                items: rules.product_types,
-                                                                type: 'product_types',
-                                                            }
-                                                        )
-                                                    )
-                                                }}
-                                                index={2}
-                                                name="Product Type Rules"
-                                                description={`Applies to ${rules.product_types.length
-                                                    } product type${rules.product_types.length > 1
-                                                        ? 's'
-                                                        : ''
-                                                    }`}
-                                            />
-                                        )}
-                                        {rules.shipping_options.length > 0 && (
-                                            <TaxRuleItem
-                                                onDelete={() =>
-                                                    handleOverridesSelected({
-                                                        type: 'shipping_options',
-                                                        items: [],
-                                                    })
-                                                }
-                                                onEdit={() => {
-                                                    layeredModalContext.push(
-                                                        SelectOverridesScreen(
-                                                            layeredModalContext.pop,
-                                                            regionId,
-                                                            handleOverridesSelected,
-                                                            {
-                                                                items: rules.shipping_options,
-                                                                type: 'shipping_options',
-                                                            }
-                                                        )
-                                                    )
-                                                }}
-                                                index={3}
-                                                name="Shipping Option Rules"
-                                                description={`Applies to ${rules.shipping_options.length
-                                                    } shipping option${rules.shipping_options.length >
-                                                        1
-                                                        ? 's'
-                                                        : ''
-                                                    }`}
-                                            />
-                                        )}
-                                    </div>
-                                )}
-                            {!(
-                                rules.product_types?.length > 0 &&
-                                rules.products?.length > 0 &&
-                                rules.shipping_options?.length > 0
-                            ) && (
-                                    <Button
-                                        type="button"
-                                        onClick={() => {
-                                            layeredModalContext.push(
-                                                SelectOverridesScreen(
-                                                    layeredModalContext.pop,
-                                                    regionId,
-                                                    handleOverridesSelected
                                                 )
+                                            }}
+                                            index={1}
+                                            name="Product Rules"
+                                            description={`Applies to ${
+                                                products.length
+                                            } product${
+                                                products.length > 1 ? 's' : ''
+                                            }`}
+                                        />
+                                    )}
+                                    {product_types.length > 0 && (
+                                        <TaxRuleItem
+                                            onDelete={() =>
+                                                handleOverridesSelected({
+                                                    type: 'product_types',
+                                                    items: [],
+                                                })
+                                            }
+                                            onEdit={() => {
+                                                layeredModalContext.push(
+                                                    SelectOverridesScreen(
+                                                        layeredModalContext.pop,
+                                                        regionId,
+                                                        handleOverridesSelected,
+                                                        {
+                                                            items: product_types,
+                                                            type: 'product_types',
+                                                        }
+                                                    )
+                                                )
+                                            }}
+                                            index={2}
+                                            name="Product Type Rules"
+                                            description={`Applies to ${
+                                                product_types.length
+                                            } product type${
+                                                product_types.length > 1
+                                                    ? 's'
+                                                    : ''
+                                            }`}
+                                        />
+                                    )}
+                                    {shipping_options.length > 0 && (
+                                        <TaxRuleItem
+                                            onDelete={() =>
+                                                handleOverridesSelected({
+                                                    type: 'shipping_options',
+                                                    items: [],
+                                                })
+                                            }
+                                            onEdit={() => {
+                                                layeredModalContext.push(
+                                                    SelectOverridesScreen(
+                                                        layeredModalContext.pop,
+                                                        regionId,
+                                                        handleOverridesSelected,
+                                                        {
+                                                            items: shipping_options,
+                                                            type: 'shipping_options',
+                                                        }
+                                                    )
+                                                )
+                                            }}
+                                            index={3}
+                                            name="Shipping Option Rules"
+                                            description={`Applies to ${
+                                                shipping_options.length
+                                            } shipping option${
+                                                shipping_options.length > 1
+                                                    ? 's'
+                                                    : ''
+                                            }`}
+                                        />
+                                    )}
+                                </div>
+                            )}
+                            {!(
+                                product_types.length > 0 &&
+                                products.length > 0 &&
+                                shipping_options.length > 0
+                            ) && (
+                                <Button
+                                    type="button"
+                                    onClick={() => {
+                                        layeredModalContext.push(
+                                            SelectOverridesScreen(
+                                                layeredModalContext.pop,
+                                                regionId,
+                                                handleOverridesSelected
                                             )
-                                        }}
-                                        className="w-full mt-base"
-                                        size="medium"
-                                        variant="secondary"
-                                    >
-                                        <PlusIcon /> Add Overrides
-                                    </Button>
-                                )}
+                                        )
+                                    }}
+                                    className="w-full mt-base"
+                                    size="medium"
+                                    variant="secondary"
+                                >
+                                    <PlusIcon /> Add Overrides
+                                </Button>
+                            )}
                         </div>
                     </Modal.Content>
                     <Modal.Footer>
@@ -271,6 +256,8 @@ const NewTaxRate: React.FC<NewTaxRate> = ({ regionId, onDismiss }) => {
                                 variant="primary"
                                 size="small"
                                 className="w-eventButton justify-center"
+                                loading={isLoading}
+                                disabled={isLoading}
                             >
                                 Create
                             </Button>
@@ -283,11 +270,11 @@ const NewTaxRate: React.FC<NewTaxRate> = ({ regionId, onDismiss }) => {
 }
 
 const SelectOverridesScreen = (
-    pop: any,
-    regionId: string,
-    onOverridesSelected: any,
+    pop,
+    regionId,
+    onOverridesSelected,
     options = {}
-): any => {
+) => {
     return {
         title: 'Add override',
         onBack: () => pop(),

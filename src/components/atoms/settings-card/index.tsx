@@ -1,30 +1,30 @@
-import { Link } from 'gatsby'
 import React from 'react'
+import { Link } from 'react-router-dom'
 import ChevronRightIcon from '../../fundamentals/icons/chevron-right-icon'
 
 type SettingsCardProps = {
-    icon: any
+    icon: React.ReactNode
     heading: string
     description: string
     to?: string
     externalLink?: string
-    disabled?: boolean
+    disabled: boolean
 }
 
 const SettingsCard: React.FC<SettingsCardProps> = ({
     icon,
     heading,
     description,
-    to = '',
+    to = null,
     externalLink = null,
     disabled = false,
 }) => {
     if (disabled) {
-        to = ''
+        to = null
     }
 
     return (
-        <Link to={to} className="flex items-center flex-1">
+        <Link to={to ?? ''} className="flex items-center flex-1">
             <button
                 className="flex items-center flex-1 group bg-grey-0 rounded-rounded p-large border border-grey-20 h-full"
                 disabled={disabled}

@@ -1,4 +1,4 @@
-import { ComponentMeta, Story } from '@storybook/react'
+import { ComponentMeta } from '@storybook/react'
 import React from 'react'
 import ArrowLeftIcon from './arrow-left-icon'
 import ArrowRightIcon from './arrow-right-icon'
@@ -20,12 +20,12 @@ import PercentIcon from './percent-icon'
 import PlusIcon from './plus-icon'
 import PublishIcon from './publish-icon'
 import SearchIcon from './search-icon'
+import SidedMouthFaceIcon from './sided-mouth-face'
 import TagIcon from './tag-icon'
 import TruckIcon from './truck-icon'
+import IconProps from './types/icon-type'
 import UnpublishIcon from './unpublish-icon'
 import UsersIcon from './users-icon'
-import SidedMouthFaceIcon from './sided-mouth-face'
-import IconProps from './types/icon-type'
 
 export default {
     title: 'Fundamentals/Icons/Overview',
@@ -68,7 +68,7 @@ const icons = [
     <SidedMouthFaceIcon />,
 ]
 
-const Template: Story<IconProps> = (args) => (
+const Template = (args: IconProps) => (
     <div className="grid grid-cols-6 gap-base">
         {icons.map((icon, key) => {
             return (
@@ -84,6 +84,7 @@ const Template: Story<IconProps> = (args) => (
 )
 
 export const Overview = Template.bind({})
+// @ts-ignore
 Overview.args = {
     size: '24',
     color: 'currentColor',

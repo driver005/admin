@@ -2,16 +2,7 @@ import React from 'react'
 import clsx from 'clsx'
 import { formatAmountWithSymbol } from '../../../../utils/prices'
 
-interface DisplayTotalProps {
-    totalAmount: number
-    totalTitle: any
-    currency: string
-    variant?: string
-    subtitle?: string
-    totalColor?: string
-}
-
-export const DisplayTotal: React.FC<DisplayTotalProps> = ({
+export const DisplayTotal = ({
     totalAmount,
     totalTitle,
     currency,

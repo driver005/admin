@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import { ComponentMeta } from '@storybook/react'
 import React from 'react'
 import PageDescription from '.'
 
@@ -7,7 +7,7 @@ export default {
     component: PageDescription,
 } as ComponentMeta<typeof PageDescription>
 
-const Template: ComponentStory<typeof PageDescription> = (args) => <PageDescription {...args} />
+const Template = (args) => <PageDescription {...args} />
 
 export const TitleAndSubtitle = Template.bind({})
 TitleAndSubtitle.args = {

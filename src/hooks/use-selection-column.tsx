@@ -1,41 +1,36 @@
 import React from 'react'
-import Checkbox, { CheckboxProps } from '../components/atoms/checkbox'
+import Checkbox from '../components/atoms/checkbox'
 import Table from '../components/molecules/table'
 
-type IndeterminateCheckboxProps = CheckboxProps & {
-    indeterminate: any
-}
+const IndeterminateCheckbox = React.forwardRef(
+    ({ indeterminate, ...rest }, ref) => {
+        const defaultRef = React.useRef()
+        const resolvedRef = ref || defaultRef
 
-const IndeterminateCheckbox = React.forwardRef<
-    HTMLInputElement,
-    IndeterminateCheckboxProps
->(({ indeterminate, label, ...rest }, ref) => {
-    const defaultRef = React.useRef()
-    const resolvedRef: any = ref || defaultRef
+        React.useEffect(() => {
+            resolvedRef.current.indeterminate = indeterminate
+        }, [resolvedRef, indeterminate])
 
-    React.useEffect(() => {
-        resolvedRef.current.indeterminate = indeterminate
-    }, [resolvedRef, indeterminate])
-
-    return (
-        <div onClickCapture={(e) => e.stopPropagation()}>
-            <Checkbox
-                className="justify-center"
-                label={label ? label : ''}
-                ref={resolvedRef}
-                {...rest}
-            />
-        </div>
-    )
-})
+        return (
+            <div onClickCapture={(e) => e.stopPropagation()}>
+                <Checkbox
+                    className="justify-center"
+                    label=""
+                    ref={resolvedRef}
+                    {...rest}
+                />
+            </div>
+        )
+    }
+)
 
 export const useSelectionColumn = () => {
     return {
         id: 'selection',
-        Header: ({ getToggleAllRowsSelectedProps }: any) => (
+        Header: ({ getToggleAllRowsSelectedProps }) => (
             <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
         ),
-        Cell: ({ row }: any) => (
+        Cell: ({ row }) => (
             <Table.Cell className="text-center">
                 <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
             </Table.Cell>

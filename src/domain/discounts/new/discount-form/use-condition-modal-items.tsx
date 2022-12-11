@@ -47,7 +47,7 @@ const useConditionModalItems = ({
                         ) : (
                             <AddProductConditionSelector onClose={onClose} />
                         ),
-                    } as any),
+                    }),
             },
             {
                 label: 'Customer group',
@@ -66,7 +66,7 @@ const useConditionModalItems = ({
                                 onClose={onClose}
                             />
                         ),
-                    } as any)
+                    })
                 },
             },
             {
@@ -82,7 +82,7 @@ const useConditionModalItems = ({
                         ) : (
                             <AddTagConditionSelector onClose={onClose} />
                         ),
-                    } as any),
+                    }),
             },
             {
                 label: 'Collection',
@@ -99,7 +99,7 @@ const useConditionModalItems = ({
                         ) : (
                             <AddCollectionConditionSelector onClose={onClose} />
                         ),
-                    } as any),
+                    }),
             },
             {
                 label: 'Type',
@@ -114,7 +114,7 @@ const useConditionModalItems = ({
                         ) : (
                             <AddTypeConditionSelector onClose={onClose} />
                         ),
-                    } as any),
+                    }),
             },
         ],
         [isDetails]

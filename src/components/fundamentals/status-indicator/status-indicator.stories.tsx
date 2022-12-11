@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import { ComponentMeta } from '@storybook/react'
 import React from 'react'
 import StatusIndicator from '.'
 
@@ -7,7 +7,7 @@ export default {
     component: StatusIndicator,
 } as ComponentMeta<typeof StatusIndicator>
 
-const Template: ComponentStory<typeof StatusIndicator> = (args) => <StatusIndicator {...args} />
+const Template = (args) => <StatusIndicator {...args} />
 
 export const Success = Template.bind({})
 Success.args = {

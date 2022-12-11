@@ -31,17 +31,17 @@ const AddProductsModal = ({
         products,
         isLoading,
         count = 0,
-    }: any = useAdminProducts(params.queryObject, {
+    } = useAdminProducts(params.queryObject, {
         keepPreviousData: true,
     })
 
     /* ************* State ************  */
 
-    const [selectedIds, setSelectedIds]: any = React.useState(
+    const [selectedIds, setSelectedIds] = React.useState(
         initialSelection.map((prod) => prod.id)
     )
     /* selectedItems hold the selected products across different pages */
-    const [selectedItems, setSelectedItems]: any = React.useState(initialSelection)
+    const [selectedItems, setSelectedItems] = React.useState(initialSelection)
 
     React.useEffect(() => {
         /**

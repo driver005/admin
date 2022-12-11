@@ -1,3 +1,4 @@
+import { Region } from '@medusajs/medusa'
 import { useAdminStoreTaxProviders, useAdminUpdateRegion } from 'medusa-react'
 import React, { useEffect, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -6,16 +7,29 @@ import Button from '../../../components/fundamentals/button'
 import IconTooltip from '../../../components/molecules/icon-tooltip'
 import Select from '../../../components/molecules/select'
 import useNotification from '../../../hooks/use-notification'
+import { Option } from '../../../types/shared'
 import { getErrorMessage } from '../../../utils/error-messages'
 
-export const RegionTaxForm = ({ region }: any) => {
+type RegionTaxFormProps = {
+    region: Region
+}
+
+type TaxProviderOption = Option | { label: string; value: null }
+
+type RegionTaxFormData = {
+    automatic_taxes: boolean
+    gift_cards_taxable: boolean
+    tax_provider_id: TaxProviderOption
+}
+
+export const RegionTaxForm = ({ region }: RegionTaxFormProps) => {
     const {
         register,
         handleSubmit,
         control,
         reset,
         formState: { isDirty },
-    } = useForm({
+    } = useForm<RegionTaxFormData>({
         defaultValues: {
             automatic_taxes: region.automatic_taxes,
             gift_cards_taxable: region.gift_cards_taxable,
@@ -62,6 +76,7 @@ export const RegionTaxForm = ({ region }: any) => {
                 })),
             ]
         }
+
         return [
             {
                 label: 'System Tax Provider',
@@ -70,7 +85,7 @@ export const RegionTaxForm = ({ region }: any) => {
         ]
     }, [tax_providers])
 
-    const onSubmit = (data: any) => {
+    const onSubmit = (data) => {
         const toSubmit = {
             ...data,
             tax_provider_id: data.tax_provider_id.value,
@@ -99,9 +114,8 @@ export const RegionTaxForm = ({ region }: any) => {
                 <Controller
                     name="tax_provider_id"
                     control={control}
-                    defaultValue={region.tax_provider_id}
                     rules={{ required: true }}
-                    render={({ field: { onChange, value } }: any) => (
+                    render={({ field: { value, onChange } }) => (
                         <Select
                             disabled={isProvidersLoading}
                             label="Tax Provider"

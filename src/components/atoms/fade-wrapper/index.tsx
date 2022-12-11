@@ -3,12 +3,12 @@ import React, { useEffect, useState } from 'react'
 
 type FadeProps = {
     isVisible: boolean
-    children: React.ReactNode
     isFullScreen?: boolean
     start?: string
     transitionClass?: string
     end?: string
     classname?: string
+    children?: React.ReactNode
 }
 
 const Fade: React.FC<FadeProps> = ({

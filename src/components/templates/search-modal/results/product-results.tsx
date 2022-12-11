@@ -1,9 +1,9 @@
 import clsx from 'clsx'
-import { Link } from 'gatsby'
 import React from 'react'
 import SectionCollapsible from '../section-collapsible'
 import { useAdminProducts } from 'medusa-react'
 import useKeyboardNavigationList from '../use-keyboard-navigation-list'
+import { Link } from 'react-router-dom'
 
 type ProductResultsProps = {
     products: ReturnType<typeof useAdminProducts>['products']
@@ -40,7 +40,7 @@ const ProductResults = ({
                             >
                                 <div className="flex items-center gap-x-3">
                                     <img
-                                        src={product.thumbnail || undefined}
+                                        src={product.thumbnail}
                                         className="h-[32px] w-[24px] object-cover rounded"
                                     />
                                     <p className="inter-small-regular text-grey-90">

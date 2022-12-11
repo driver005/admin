@@ -1,12 +1,13 @@
-import { navigate } from 'gatsby'
 import { useAdminDeleteCollection } from 'medusa-react'
 import * as React from 'react'
+import { useNavigate } from 'react-router-dom'
 import useImperativeDialog from '../../../hooks/use-imperative-dialog'
 import EditIcon from '../../fundamentals/icons/edit-icon'
 import TrashIcon from '../../fundamentals/icons/trash-icon'
 import { ActionType } from '../../molecules/actionables'
 
-const useCollectionActions = (collection: any) => {
+const useCollectionActions = (collection) => {
+    const navigate = useNavigate()
     const dialog = useImperativeDialog()
     const deleteCollection = useAdminDeleteCollection(collection?.id)
 
@@ -21,7 +22,7 @@ const useCollectionActions = (collection: any) => {
         }
     }
 
-    const getActions = (coll: any): ActionType[] => [
+    const getActions = (coll): ActionType[] => [
         {
             label: 'Edit',
             onClick: () => navigate(`/a/collections/${coll.id}`),

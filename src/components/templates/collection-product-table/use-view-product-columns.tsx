@@ -1,5 +1,5 @@
-import { Link } from 'gatsby'
 import React, { useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import { Column } from 'react-table'
 import Table from '../../molecules/table'
 import { decideStatus, SimpleProductType } from './utils'
@@ -9,7 +9,7 @@ const useViewProductColumns = () => {
         () => [
             {
                 id: 'selection',
-                Cell: ({ row }: any) => {
+                Cell: ({ row }) => {
                     return (
                         <Table.Cell className="w-[0%] pl-base pr-large">
                             <div>{row.index + 1}</div>

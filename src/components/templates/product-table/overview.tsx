@@ -1,21 +1,26 @@
+import { Product } from '@medusajs/medusa'
 import clsx from 'clsx'
-import { Link } from 'gatsby'
 import * as React from 'react'
+import { Link } from 'react-router-dom'
 import { getProductStatusVariant } from '../../../utils/product-status-variant'
 import Button from '../../fundamentals/button'
 import ListIcon from '../../fundamentals/icons/list-icon'
 import MoreHorizontalIcon from '../../fundamentals/icons/more-horizontal-icon'
 import TileIcon from '../../fundamentals/icons/tile-icon'
+import ImagePlaceholder from '../../fundamentals/image-placeholder'
 import StatusIndicator from '../../fundamentals/status-indicator'
 import Actionables from '../../molecules/actionables'
 import useProductActions from './use-product-actions'
 
-interface ProductOverviewProps {
-    products: any
-    toggleListView: any
+type ProductOverviewProps = {
+    products?: Product[]
+    toggleListView: () => void
 }
 
-const ProductOverview: React.FC<ProductOverviewProps> = ({ products, toggleListView }) => {
+const ProductOverview = ({
+    products,
+    toggleListView,
+}: ProductOverviewProps) => {
     return (
         <>
             <div className="flex justify-end border-t border-b border-grey-20 py-2.5 pr-xlarge">
@@ -38,7 +43,7 @@ const ProductOverview: React.FC<ProductOverviewProps> = ({ products, toggleListV
                 </div>
             </div>
             <div className="grid grid-cols-6">
-                {products.map((product: any) => (
+                {products?.map((product) => (
                     <ProductTile product={product} />
                 ))}
             </div>
@@ -46,7 +51,7 @@ const ProductOverview: React.FC<ProductOverviewProps> = ({ products, toggleListV
     )
 }
 
-const ProductTile = ({ product }: any) => {
+const ProductTile = ({ product }) => {
     const { getActions } = useProductActions(product)
 
     return (
@@ -71,10 +76,16 @@ const ProductTile = ({ product }: any) => {
                     />
                 </div>
                 <Link to={`${product.id}`}>
-                    <img
-                        className="min-h-[230px] block object-cover rounded-rounded"
-                        src={product.thumbnail}
-                    />
+                    {product.thumbnail ? (
+                        <img
+                            className="min-h-[230px] block object-cover rounded-rounded"
+                            src={product.thumbnail}
+                        />
+                    ) : (
+                        <div className="min-h-[230px] flex items-center justify-center bg-grey-5 rounded-rounded">
+                            <ImagePlaceholder />
+                        </div>
+                    )}
                     <div>
                         <div className="mt-base flex items-center justify-between">
                             <p className="inter-small-regular text-grey-90 line-clamp-1 mr-3">

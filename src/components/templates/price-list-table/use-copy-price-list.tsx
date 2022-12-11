@@ -1,13 +1,14 @@
-import { navigate } from 'gatsby'
 import { useAdminCreatePriceList } from 'medusa-react'
+import { useNavigate } from 'react-router-dom'
 import useNotification from '../../../hooks/use-notification'
 import { getErrorMessage } from '../../../utils/error-messages'
 
 const useCopyPriceList = () => {
+    const navigate = useNavigate()
     const notification = useNotification()
     const createPriceList = useAdminCreatePriceList()
 
-    const handleCopyPriceList = async (priceList: any) => {
+    const handleCopyPriceList = async (priceList) => {
         const copy: any = {
             name: `${priceList.name} Copy`,
             description: `${priceList.description}`,
@@ -16,13 +17,13 @@ const useCopyPriceList = () => {
             starts_at: priceList.starts_at,
             ends_at: priceList.ends_at,
             prices: priceList.prices,
-            customer_groups: (priceList.customer_groups || []).map((group: any) => ({
+            customer_groups: (priceList.customer_groups || []).map((group) => ({
                 id: group.id,
             })),
         }
 
         if (priceList.prices?.length) {
-            copy.prices = priceList.prices.map((price: any) => {
+            copy.prices = priceList.prices.map((price) => {
                 const copiedPrice: any = {
                     amount: price.amount,
                     variant_id: price.variant_id,

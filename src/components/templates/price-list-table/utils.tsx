@@ -11,7 +11,7 @@ const isPast = (date?: string) => {
     return date && new Date(date) < now
 }
 
-const getPriceListStatus = (priceList: any) => {
+const getPriceListStatus = (priceList) => {
     if (priceList.status === 'draft') {
         if (isFuture(priceList?.starts_at)) {
             return <StatusDot title="Scheduled" variant="warning" />
@@ -37,7 +37,7 @@ const formatPriceListGroups = (groups: string[] = []) => {
     return [show, more]
 }
 
-const isDraft = (priceList: any) => priceList?.status === 'draft'
-const isActive = (priceList: any) => priceList?.status === 'active'
+const isDraft = (priceList) => priceList?.status === 'draft'
+const isActive = (priceList) => priceList?.status === 'active'
 
 export { formatPriceListGroups, getPriceListStatus, isDraft, isActive }

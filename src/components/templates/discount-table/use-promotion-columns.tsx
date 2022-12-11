@@ -3,7 +3,6 @@ import React, { useMemo } from 'react'
 import { formatAmountWithSymbol } from '../../../utils/prices'
 import Badge from '../../fundamentals/badge'
 import StatusDot from '../../fundamentals/status-indicator'
-import Table from '../../molecules/table'
 
 enum PromotionStatus {
     SCHEDULED = 'SCHEDULED',
@@ -12,7 +11,7 @@ enum PromotionStatus {
     DISABLED = 'DISABLED',
 }
 
-const getPromotionStatus = (promotion: any) => {
+const getPromotionStatus = (promotion) => {
     if (!promotion.is_disabled) {
         const date = new Date()
         if (new Date(promotion.starts_at) > date) {
@@ -21,10 +20,10 @@ const getPromotionStatus = (promotion: any) => {
             (promotion.ends_at && new Date(promotion.ends_at) < date) ||
             (promotion.valid_duration &&
                 date >
-                end(
-                    parse(promotion.valid_duration),
-                    new Date(promotion.starts_at)
-                )) ||
+                    end(
+                        parse(promotion.valid_duration),
+                        new Date(promotion.starts_at)
+                    )) ||
             promotion.usage_count === promotion.usage_limit
         ) {
             return PromotionStatus.EXPIRED
@@ -35,7 +34,7 @@ const getPromotionStatus = (promotion: any) => {
     return PromotionStatus.DISABLED
 }
 
-const getPromotionStatusDot = (promotion: any) => {
+const getPromotionStatusDot = (promotion) => {
     const status = getPromotionStatus(promotion)
     switch (status) {
         case PromotionStatus.SCHEDULED:
@@ -51,7 +50,7 @@ const getPromotionStatusDot = (promotion: any) => {
     }
 }
 
-const getCurrencySymbol = (promotion: any) => {
+const getCurrencySymbol = (promotion) => {
     if (promotion.rule.type === 'fixed') {
         if (!promotion.regions?.length) {
             return ''
@@ -61,7 +60,7 @@ const getCurrencySymbol = (promotion: any) => {
     return ''
 }
 
-const getPromotionAmount = (promotion: any) => {
+const getPromotionAmount = (promotion) => {
     switch (promotion.rule.type) {
         case 'fixed':
             if (!promotion.regions?.length) {
@@ -84,69 +83,56 @@ export const usePromotionTableColumns = () => {
     const columns = useMemo(
         () => [
             {
-                Header: <Table.HeadCell className="pl-2">Code</Table.HeadCell>,
+                Header: <div className="pl-2">Code</div>,
                 accessor: 'code',
-                Cell: ({ cell: { value }, index }: any) => (
-                    <Table.Cell key={index}>
-                        <div className="overflow-hidden">
-                            <Badge
-                                className="rounded-rounded"
-                                variant="default"
-                            >
-                                <span className="inter-small-regular">
-                                    {value}
-                                </span>
-                            </Badge>
-                        </div>
-                    </Table.Cell>
+                Cell: ({ cell: { value } }) => (
+                    <div className="overflow-hidden">
+                        <Badge className="rounded-rounded" variant="default">
+                            <span className="inter-small-regular">{value}</span>
+                        </Badge>
+                    </div>
                 ),
             },
             {
                 Header: 'Description',
                 accessor: 'rule.description',
-                Cell: ({ cell: { value }, index }: any) => (
-                    <Table.Cell key={index}>{value}</Table.Cell>
-                ),
+                Cell: ({ cell: { value } }) => value,
             },
             {
                 Header: <div className="text-right">Amount</div>,
                 id: 'amount',
-                Cell: ({ row: { original }, index }: any) => {
+                Cell: ({ row: { original } }) => {
                     return (
-                        <Table.Cell className="text-right" key={index}>
+                        <div className="text-right">
                             {getPromotionAmount(original)}
-                        </Table.Cell>
+                        </div>
                     )
                 },
             },
             {
                 Header: <div className="w-[60px]" />,
                 id: 'currency',
-                Cell: ({ row: { original }, index }: any) => (
-                    <Table.Cell className="px-2 text-grey-40" key={index}>
+                Cell: ({ row: { original } }) => (
+                    <div className="px-2 text-grey-40">
                         {getCurrencySymbol(original)}
-                    </Table.Cell>
+                    </div>
                 ),
             },
             {
                 Header: 'Status',
                 accessor: 'ends_at',
-                Cell: ({ row: { original }, index }: any) => (
-                    <Table.Cell key={index}>
-                        {getPromotionStatusDot(original)}
-                    </Table.Cell>
+                Cell: ({ row: { original } }) => (
+                    <div>{getPromotionStatusDot(original)}</div>
                 ),
             },
             {
                 Header: () => <div className="text-right">Redemptions</div>,
                 accessor: 'usage_count',
-                Cell: ({ row: { original }, index }: any) => {
+                Cell: ({ row: { original } }) => {
                     return (
-                        <Table.Cell className="text-right" key={index}>
-                            {original.usage_limit > 0
-                                ? getUsageCount(original.usage_count)
-                                : '-'}
-                        </Table.Cell>
+                        <div className="text-right">
+                            {getUsageCount(original.usage_count)}
+                        </div>
                     )
                 },
             },

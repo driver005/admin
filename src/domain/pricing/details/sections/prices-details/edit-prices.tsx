@@ -18,12 +18,7 @@ const defaultQueryFilters = {
     offset: 0,
 }
 
-interface EditPricesProps {
-    close: any
-    id: string
-}
-
-const EditPrices: React.FC<EditPricesProps> = ({ close, id }) => {
+const EditPrices = ({ close, id }) => {
     const params = useQueryFilters(defaultQueryFilters)
     const [selectedProducts, setSelectedProducts] = React.useState<Product[]>(
         []
@@ -37,7 +32,7 @@ const EditPrices: React.FC<EditPricesProps> = ({ close, id }) => {
     }
 
     React.useEffect(() => {
-        setSelectedProducts((state: any) => merge(products as any, state))
+        setSelectedProducts((state) => merge(products, state))
     }, [products, merge])
 
     const debouncedSearch = React.useMemo(() => debounce(handleSearch, 300), [])

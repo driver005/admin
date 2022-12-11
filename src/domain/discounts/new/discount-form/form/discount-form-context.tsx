@@ -1,6 +1,7 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import {
+    AllocationType,
     ConditionMap,
     DiscountConditionOperator,
     DiscountConditionType,
@@ -9,23 +10,7 @@ import {
 } from '../../../types'
 import { DiscountFormValues } from './mappers'
 
-const defaultDiscount: DiscountFormValues = {
-    code: '',
-    rule: {
-        type: DiscountRuleType.PERCENTAGE,
-        value: 0,
-        description: '',
-    },
-    usage_limit: null,
-    valid_duration: null,
-    is_dynamic: false,
-    regions: [],
-    starts_at: new Date(),
-    ends_at: null,
-}
-
 type DiscountFormProviderProps = {
-    discount?: DiscountFormValues
     children?: React.ReactNode
 }
 
@@ -63,7 +48,6 @@ const defaultConditions: ConditionMap = {
 }
 
 export const DiscountFormProvider = ({
-    discount = defaultDiscount,
     children,
 }: DiscountFormProviderProps) => {
     const [hasExpiryDate, setHasExpiryDate] = useState(false)
@@ -92,7 +76,13 @@ export const DiscountFormProvider = ({
     }
 
     const methods = useForm<DiscountFormValues>({
-        defaultValues: discount,
+        defaultValues: {
+            rule: {
+                type: DiscountRuleType.PERCENTAGE,
+                allocation: AllocationType.TOTAL,
+            },
+        },
+        shouldUnregister: true,
     })
 
     const type = methods.watch('rule.type')
@@ -126,7 +116,7 @@ export const DiscountFormProvider = ({
         }
     }, [endsAt, hasExpiryDate])
 
-    const handleConfigurationChanged = (values: any) => {
+    const handleConfigurationChanged = (values) => {
         if (values.indexOf('ends_at') > -1 && !hasExpiryDate) {
             setHasExpiryDate(true)
         } else if (values.indexOf('ends_at') === -1 && hasExpiryDate) {
@@ -166,17 +156,18 @@ export const DiscountFormProvider = ({
     }
 
     const handleReset = () => {
-        setHasExpiryDate(discount.ends_at ? true : false)
-        setHasStartDate(discount.starts_at ? true : false)
         setConditions(defaultConditions)
         methods.reset({
-            ...discount,
+            rule: {
+                type: DiscountRuleType.PERCENTAGE,
+                allocation: AllocationType.TOTAL,
+            },
         })
     }
 
     useEffect(() => {
         handleReset()
-    }, [discount])
+    }, [])
 
     return (
         <FormProvider {...methods}>

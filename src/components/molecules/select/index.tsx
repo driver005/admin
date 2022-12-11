@@ -1,25 +1,26 @@
 import clsx from 'clsx'
-import React, { useContext, useEffect, useRef, useState } from 'react'
-import Select, {
-    ClearIndicatorProps,
-    components,
-    InputProps,
-    MenuProps,
-    MultiValueProps,
-    OptionProps,
-    PlaceholderProps,
-    SingleValueProps,
-} from 'react-select'
-import AsyncSelect from 'react-select/async'
-import AsyncCreatableSelect from 'react-select/async-creatable'
-import CreatableSelect from 'react-select/creatable'
-import ArrowDownIcon from '../../fundamentals/icons/arrow-down-icon'
-import CheckIcon from '../../fundamentals/icons/check-icon'
-import SearchIcon from '../../fundamentals/icons/search-icon'
-import XCircleIcon from '../../fundamentals/icons/x-circle-icon'
-import InputContainer from '../../fundamentals/input/input-container'
-import InputHeader, { InputHeaderProps } from '../../fundamentals/input/input-header'
+import React, {
+    useContext,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState,
+} from 'react'
+import Primitive from 'react-select'
+import AsyncPrimitive from 'react-select/async'
+import AsyncCreatablePrimitive from 'react-select/async-creatable'
+import CreatablePrimitive from 'react-select/creatable'
+import InputHeader, {
+    InputHeaderProps,
+} from '../../fundamentals/input/input-header'
 import { ModalContext } from '../modal'
+import { SelectComponents } from './select-components'
+
+export type SelectOption<T> = {
+    value: T
+    label: string
+    disabled?: boolean
+}
 
 type MultiSelectProps = InputHeaderProps & {
     // component props
@@ -31,13 +32,12 @@ type MultiSelectProps = InputHeaderProps & {
     // Multiselect props
     placeholder?: string
     isMultiSelect?: boolean
-    openMenuOnFocus?: boolean
     labelledBy?: string
     options: { label: string; value: string | null; disabled?: boolean }[]
     value:
-    | { label: string; value: string }[]
-    | { label: string; value: string }
-    | null
+        | { label: string; value: string }[]
+        | { label: string; value: string }
+        | null
     filterOptions?: (q: string) => any[]
     hasSelectAll?: boolean
     isLoading?: boolean
@@ -50,177 +50,6 @@ type MultiSelectProps = InputHeaderProps & {
     onCreateOption?: (value: string) => { value: string; label: string }
 }
 
-const MultiValueLabel = ({ ...props }: MultiValueProps) => {
-    const value = props.selectProps.value as any
-    const isLast = props.data === value[value.length - 1]
-
-    if (props.selectProps.menuIsOpen && props.selectProps.isSearchable) {
-        return <></>
-    }
-
-    return (
-        <div
-            className={clsx('bg-grey-5 mx-0 inter-base-regular p-0', {
-                "after:content-[',']": !isLast,
-            })}
-        >
-            {props.children}
-        </div>
-    )
-}
-
-const Menu = ({ className, ...props }: MenuProps) => {
-    return (
-        <components.Menu
-            className={clsx({
-                '-mt-1 z-60': !props.selectProps.isSearchable,
-            })}
-            {...props}
-        >
-            {props.children}
-        </components.Menu>
-    )
-}
-
-const Placeholder = (props: PlaceholderProps) => {
-    return props.selectProps.menuIsOpen ? null : (
-        <components.Placeholder {...props} />
-    )
-}
-
-const SingleValue = ({ children, ...props }: SingleValueProps) => {
-    if (props.selectProps.menuIsOpen && props.selectProps.isSearchable) {
-        return null
-    }
-
-    return (
-        <components.SingleValue {...props}>{children}</components.SingleValue>
-    )
-}
-
-const Input = (props: InputProps) => {
-    if (
-        props.isHidden ||
-        !props.selectProps.menuIsOpen ||
-        !props.selectProps.isSearchable
-    ) {
-        return <components.Input {...props} className="pointer-events-none" />
-    }
-
-    return (
-        <div className="w-full flex items-center h-full space-between">
-            <div className="w-full flex items-center">
-                <span className="text-grey-40 mr-2">
-                    <SearchIcon size={20} />
-                </span>
-                <components.Input {...props} />
-            </div>
-            <span className="text-grey-40 hover:bg-grey-5 cursor-pointer rounded">
-                {typeof props.value === 'string' && props.value !== '' && (
-                    <XCircleIcon size={20} />
-                )}
-            </span>
-        </div>
-    )
-}
-
-const ClearIndicator = ({ ...props }: ClearIndicatorProps) => {
-    if (props.selectProps.menuIsOpen && props.selectProps.isMulti) {
-        return <></>
-    }
-
-    const {
-        innerProps: { ref, ...restInnerProps },
-    }: any = props
-
-    return (
-        <div
-            onMouseDown={(e) => {
-                restInnerProps.onMouseDown(e)
-            }}
-            ref={ref}
-            className="hover:bg-grey-10 text-grey-40 rounded cursor-pointer"
-        >
-            <XCircleIcon size={20} />
-        </div>
-    )
-}
-
-const CheckboxAdornment: React.FC<{ isSelected: boolean }> = ({ isSelected }) => {
-    return (
-        <div
-            className={clsx(
-                `w-5 h-5 flex justify-center text-grey-0 border-grey-30 border rounded-base`,
-                {
-                    'bg-violet-60': isSelected,
-                }
-            )}
-        >
-            <span className="self-center">
-                {isSelected && <CheckIcon size={16} />}
-            </span>
-        </div>
-    )
-}
-
-const RadioAdornment: React.FC<{ isSelected: boolean }> = ({ isSelected }) => {
-    return (
-        <div
-            className={clsx(
-                'radio-outer-ring outline-0',
-                'shrink-0 w-[20px] h-[20px] rounded-circle',
-                {
-                    'shadow-[0_0_0_1px] shadow-[#D1D5DB]': !isSelected,
-                    'shadow-[0_0_0_2px] shadow-violet-60': isSelected,
-                }
-            )}
-        >
-            {isSelected && (
-                <div
-                    className={clsx(
-                        'group flex items-center justify-center w-full h-full relative',
-                        'after:absolute after:inset-0 after:m-auto after:block after:w-[12px] after:h-[12px] after:bg-violet-60 after:rounded-circle'
-                    )}
-                />
-            )}
-        </div>
-    )
-}
-
-const Option = ({ className, ...props }: OptionProps) => {
-    const data: any = props.data
-    return (
-        <components.Option
-            {...props}
-            className="my-1 py-0 py-0 px-2 bg-grey-0 active:bg-grey-0"
-        >
-            <div
-                className={`item-renderer h-full hover:bg-grey-10 py-2 px-2 cursor-pointer rounded`}
-            >
-                <div className="items-center h-full flex">
-                    {data.value !== 'all' &&
-                        data.label !== 'Select All' ? (
-                        <>
-                            {props.isMulti ? (
-                                <CheckboxAdornment {...props} />
-                            ) : (
-                                <RadioAdornment {...props} />
-                            )}
-                            <span className="ml-3 text-grey-90 inter-base-regular">
-                                {data.label}
-                            </span>
-                        </>
-                    ) : (
-                        <span className="text-grey-90 inter-base-regular">
-                            {data.label}
-                        </span>
-                    )}
-                </div>
-            </div>
-        </components.Option>
-    )
-}
-
 const SSelect = React.forwardRef(
     (
         {
@@ -231,12 +60,11 @@ const SSelect = React.forwardRef(
             value,
             onChange,
             className,
-            isMultiSelect = false,
-            openMenuOnFocus = true,
+            isMultiSelect,
             hasSelectAll,
             tooltipContent,
             tooltip,
-            enableSearch = false,
+            enableSearch = true,
             clearSelected = false,
             isCreatable,
             filterOptions,
@@ -251,9 +79,6 @@ const SSelect = React.forwardRef(
         const [isFocussed, setIsFocussed] = useState(false)
         const [scrollBlocked, setScrollBlocked] = useState(true)
 
-        const selectRef: any = useRef(null)
-        const containerRef = useRef(null)
-
         useEffect(() => {
             window.addEventListener('resize', () => {
                 setIsFocussed(false)
@@ -261,14 +86,13 @@ const SSelect = React.forwardRef(
             })
         }, [])
 
-        const onClick = () => {
-            if (!isFocussed) {
-                setIsFocussed(true)
-                selectRef?.current?.focus()
-            }
-        }
+        const selectRef = useRef(null)
 
-        const onClickOption = (val: any[], ...args: any[]) => {
+        useImperativeHandle(ref, () => selectRef.current)
+
+        const containerRef = useRef(null)
+
+        const onClickOption = (val, ...args) => {
             if (
                 val?.length &&
                 val?.find((option) => option.value === 'all') &&
@@ -285,7 +109,7 @@ const SSelect = React.forwardRef(
             }
         }
 
-        const handleOnCreateOption = (val: string) => {
+        const handleOnCreateOption = (val) => {
             if (onCreateOption) {
                 onCreateOption(val)
                 setIsFocussed(false)
@@ -310,49 +134,34 @@ const SSelect = React.forwardRef(
                     'w-full': fullWidth,
                 })}
             >
-                <InputContainer
+                <div
                     key={name}
-                    onFocusLost={() => {
-                        setIsFocussed(false)
-                        selectRef.current?.blur()
-                    }}
-                    onClick={onClick}
                     className={clsx(className, {
                         'bg-white rounded-t-rounded': isFocussed,
                     })}
                 >
-                    {isFocussed && enableSearch ? (
-                        <></>
-                    ) : (
-                        <div className="w-full flex text-grey-50 pr-0.5 justify-between pointer-events-none cursor-pointer">
-                            <InputHeader
-                                {...{
-                                    label,
-                                    required,
-                                    tooltip,
-                                    tooltipContent,
-                                }}
-                            />
-                            <ArrowDownIcon size={16} />
-                        </div>
-                    )}
+                    <div className="w-full flex text-grey-50 pr-0.5 justify-between pointer-events-none cursor-pointer mb-2">
+                        <InputHeader
+                            {...{ label, required, tooltip, tooltipContent }}
+                        />
+                    </div>
+
                     {
                         <GetSelect
-                            menuIsOpen={isFocussed}
                             isCreatable={isCreatable}
                             searchBackend={filterOptions}
                             options={
                                 hasSelectAll && isMultiSelect
                                     ? [
-                                        { value: 'all', label: 'Select All' },
-                                        ...options,
-                                    ]
+                                          { value: 'all', label: 'Select All' },
+                                          ...options,
+                                      ]
                                     : options
                             }
                             ref={selectRef}
                             value={value}
                             isMulti={isMultiSelect}
-                            openMenuOnFocus={false}
+                            openMenuOnFocus={isMultiSelect}
                             isSearchable={enableSearch}
                             isClearable={clearSelected}
                             onChange={onClickOption}
@@ -363,7 +172,7 @@ const SSelect = React.forwardRef(
                                 setScrollBlocked(true)
                                 setIsFocussed(false)
                             }}
-                            closeMenuOnScroll={(e: any) => {
+                            closeMenuOnScroll={(e) => {
                                 if (
                                     !scrollBlocked &&
                                     e.target?.contains(containerRef.current) &&
@@ -375,7 +184,7 @@ const SSelect = React.forwardRef(
                             closeMenuOnSelect={!isMultiSelect}
                             blurInputOnSelect={!isMultiSelect}
                             styles={{
-                                menuPortal: (base: any) => ({ ...base, zIndex: 60 }),
+                                menuPortal: (base) => ({ ...base, zIndex: 60 }),
                             }}
                             hideSelectedOptions={false}
                             menuPortalTarget={
@@ -387,45 +196,26 @@ const SSelect = React.forwardRef(
                             placeholder={placeholder}
                             className="react-select-container"
                             onCreateOption={handleOnCreateOption}
-                            components={{
-                                DropdownIndicator: () => null,
-                                IndicatorSeparator: () => null,
-                                MultiValueRemove: () => null,
-                                Placeholder,
-                                MultiValueLabel,
-                                Option,
-                                Input,
-                                Menu,
-                                SingleValue,
-                                ClearIndicator,
-                            }}
+                            components={SelectComponents}
                         />
                     }
                     {isFocussed && enableSearch && (
                         <div className="w-full h-5" />
                     )}
-                </InputContainer>
+                </div>
             </div>
         )
     }
 )
 
-type GetSelectProps = {
-    isCreatable: boolean
-    searchBackend: any
-    onCreateOption: any
-    handleClose: any
-    [key: string]: any
-}
-
-const GetSelect = React.forwardRef<any, GetSelectProps>(
+const GetSelect = React.forwardRef(
     (
         { isCreatable, searchBackend, onCreateOption, handleClose, ...props },
         ref
     ) => {
         if (isCreatable) {
             return searchBackend ? (
-                <AsyncCreatableSelect
+                <AsyncCreatablePrimitive
                     ref={ref}
                     defaultOptions={true}
                     onCreateOption={onCreateOption}
@@ -434,7 +224,7 @@ const GetSelect = React.forwardRef<any, GetSelectProps>(
                     {...props}
                 />
             ) : (
-                <CreatableSelect
+                <CreatablePrimitive
                     {...props}
                     isSearchable
                     ref={ref}
@@ -443,7 +233,7 @@ const GetSelect = React.forwardRef<any, GetSelectProps>(
             )
         } else if (searchBackend) {
             return (
-                <AsyncSelect
+                <AsyncPrimitive
                     ref={ref}
                     defaultOptions={true}
                     loadOptions={searchBackend}
@@ -451,7 +241,7 @@ const GetSelect = React.forwardRef<any, GetSelectProps>(
                 />
             )
         }
-        return <Select ref={ref} {...props} />
+        return <Primitive ref={ref} {...props} />
     }
 )
 

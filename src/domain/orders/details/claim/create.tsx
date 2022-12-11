@@ -1,4 +1,5 @@
 import {
+    Address,
     AdminPostOrdersOrderClaimsReq,
     Order,
     ProductVariant,
@@ -8,7 +9,6 @@ import clsx from 'clsx'
 import {
     useAdminCreateClaim,
     useAdminOrder,
-    useAdminRegion,
     useAdminShippingOptions,
 } from 'medusa-react'
 import React, { useContext, useEffect, useState } from 'react'
@@ -46,10 +46,10 @@ type ReturnRecord = Record<
         reason: {
             label: string
             value?:
-            | 'missing_item'
-            | 'wrong_item'
-            | 'production_failure'
-            | 'other'
+                | 'missing_item'
+                | 'wrong_item'
+                | 'production_failure'
+                | 'other'
         } | null
     }
 >
@@ -61,18 +61,19 @@ type CustomPrice = {
     standard: number
 }
 
-type AddressPayload =
+export type AddressPayload =
     | {
-        address_1: string
-        address_2: string
-        city: string
-        country_code: string
-        first_name: string
-        last_name: string
-        phone: string
-        postal_code: string
-        province: string
-    }
+          address_1: string
+          address_2: string
+          company: string
+          city: string
+          country_code: string
+          first_name: string
+          last_name: string
+          phone: string
+          postal_code: string
+          province: string
+      }
     | undefined
 
 const reasonOptions = [
@@ -99,7 +100,7 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
     const { refetch } = useAdminOrder(order.id)
     const [shippingAddress, setShippingAddress] =
         useState<AddressPayload>(undefined)
-    const [countries, setCountries] = useState<string[]>([])
+
     const [isReplace, toggleReplace] = useState(false)
     const [noNotification, setNoNotification] = useState(order.no_notification)
     const [toReturn, setToReturn] = useState<ReturnRecord>({})
@@ -130,7 +131,7 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
     // Includes both order items and swap items
     const [allItems, setAllItems] = useState<any[]>([])
 
-    const formatAddress = (address: any) => {
+    const formatAddress = (address) => {
         const addr = [address.address_1]
         if (address.address_2) {
             addr.push(address.address_2)
@@ -155,14 +156,6 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
             region_id: order.region_id,
         }
     )
-
-    const { region } = useAdminRegion(order.region_id)
-
-    useEffect(() => {
-        if (region) {
-            setCountries(region.countries.map((c) => c.iso_2))
-        }
-    }, [region])
 
     const { shipping_options: shippingOptions } = useAdminShippingOptions({
         region_id: order.region_id,
@@ -205,10 +198,8 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
         })
     }, [shippingMethod, showCustomPrice])
 
-    useEffect(() => console.log(shippingAddress), [shippingAddress])
-
     const onSubmit = () => {
-        const claim_items: any = Object.entries(toReturn).map(([key, value]) => {
+        const claim_items = Object.entries(toReturn).map(([key, value]) => {
             return {
                 item_id: key,
                 note: value.note ?? undefined,
@@ -241,9 +232,9 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
                     showCustomPrice.return && customOptionPrice.return
                         ? customOptionPrice.return * 100
                         : Math.round(
-                            returnShippingPrice ||
-                            0 / (1 + (order.tax_rate || 0 / 100))
-                        ),
+                              returnShippingPrice ||
+                                  0 / (1 + (order.tax_rate || 0 / 100))
+                          ),
             }
         }
 
@@ -278,7 +269,7 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
         setItemsToAdd(updated)
     }
 
-    const handleRemoveItem = (index: any) => {
+    const handleRemoveItem = (index) => {
         const updated = [...itemsToAdd]
         updated.splice(index, 1)
         setItemsToAdd(updated)
@@ -290,7 +281,7 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
             return
         }
 
-        const selectSo: any = returnShippingOptions?.find((s) => so.value === s.id)
+        const selectSo = returnShippingOptions?.find((s) => so.value === s.id)
         if (selectSo) {
             setReturnShippingMethod(selectSo)
             setReturnShippingPrice(
@@ -357,9 +348,9 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
                             value={
                                 returnShippingMethod
                                     ? {
-                                        label: returnShippingMethod.name,
-                                        value: returnShippingMethod.id,
-                                    }
+                                          label: returnShippingMethod.name,
+                                          value: returnShippingMethod.id,
+                                      }
                                     : null
                             }
                             onChange={handleReturnShippingSelected}
@@ -388,7 +379,7 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
                                 setUseCustomShippingPrice={(value) => {
                                     setCustomOptionPrice({
                                         ...customOptionPrice,
-                                        return: returnShippingMethod.amount || undefined,
+                                        return: returnShippingMethod.amount,
                                     })
 
                                     setShowCustomPrice({
@@ -518,7 +509,6 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
                                                             layeredModalContext.pop,
                                                             shippingAddress,
                                                             order,
-                                                            countries,
                                                             setShippingAddress
                                                         )
                                                     )
@@ -544,9 +534,10 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
                                                     layeredModalContext.push(
                                                         showEditAddressScreen(
                                                             layeredModalContext.pop,
-                                                            order.shipping_address,
+                                                            mapAddress(
+                                                                order.shipping_address
+                                                            ),
                                                             order,
-                                                            countries,
                                                             setShippingAddress
                                                         )
                                                     )
@@ -576,9 +567,9 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
                                     value={
                                         shippingMethod
                                             ? {
-                                                label: shippingMethod?.name,
-                                                value: shippingMethod?.id,
-                                            }
+                                                  label: shippingMethod?.name,
+                                                  value: shippingMethod?.id,
+                                              }
                                             : null
                                     }
                                     onChange={handleShippingSelected}
@@ -615,7 +606,7 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
                                                 )}
                                                 {showCustomPrice.standard && (
                                                     <div className="flex w-full items-center">
-                                                        <CurrencyInput
+                                                        <CurrencyInput.Root
                                                             readOnly
                                                             className="mt-4 w-full"
                                                             size="small"
@@ -623,7 +614,7 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
                                                                 order.currency_code
                                                             }
                                                         >
-                                                            <CurrencyInput.AmountInput
+                                                            <CurrencyInput.Amount
                                                                 label={'Amount'}
                                                                 amount={
                                                                     customOptionPrice.standard
@@ -641,7 +632,7 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
                                                                     )
                                                                 }
                                                             />
-                                                        </CurrencyInput>
+                                                        </CurrencyInput.Root>
                                                         <Button
                                                             onClick={() =>
                                                                 setShowCustomPrice(
@@ -677,8 +668,9 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
                             onClick={() => setNoNotification(!noNotification)}
                         >
                             <div
-                                className={`w-5 h-5 flex justify-center text-grey-0 border-grey-30 border rounded-base ${!noNotification && 'bg-violet-60'
-                                    }`}
+                                className={`w-5 h-5 flex justify-center text-grey-0 border-grey-30 border rounded-base ${
+                                    !noNotification && 'bg-violet-60'
+                                }`}
                             >
                                 <span className="self-center">
                                     {!noNotification && <CheckIcon size={16} />}
@@ -711,7 +703,7 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
                             </Button>
                             <Button
                                 onClick={onSubmit}
-                                disabled={!ready}
+                                disabled={!ready || isLoading}
                                 loading={isLoading}
                                 className="w-[112px]"
                                 size="small"
@@ -727,7 +719,7 @@ const ClaimMenu: React.FC<ClaimMenuProps> = ({ order, onDismiss }) => {
     )
 }
 
-const SelectProductsScreen = (pop: any, itemsToAdd: any, setSelectedItems: any): any => {
+const SelectProductsScreen = (pop, itemsToAdd, setSelectedItems) => {
     return {
         title: 'Add Products',
         onBack: () => pop(),
@@ -741,12 +733,11 @@ const SelectProductsScreen = (pop: any, itemsToAdd: any, setSelectedItems: any):
 }
 
 const showEditAddressScreen = (
-    pop: any,
-    address: any,
-    order: any,
-    countries: any,
-    setShippingAddress: any,
-): any => {
+    pop: () => void,
+    address: AddressPayload,
+    order: Omit<Order, 'beforeInsert'>,
+    setShippingAddress: (address: AddressPayload) => void
+) => {
     return {
         title: 'Edit Address',
         onBack: () => pop(),
@@ -755,9 +746,23 @@ const showEditAddressScreen = (
                 onSubmit={setShippingAddress}
                 address={address}
                 order={order}
-                countries={countries}
             />
         ),
+    }
+}
+
+const mapAddress = (address: Address): AddressPayload => {
+    return {
+        first_name: address.first_name || '',
+        last_name: address.last_name || '',
+        company: address.company || '',
+        address_1: address.address_1 || '',
+        address_2: address.address_2 || '',
+        city: address.city || '',
+        province: address.province || '',
+        postal_code: address.postal_code || '',
+        country_code: address.country_code || '',
+        phone: address.phone || '',
     }
 }
 

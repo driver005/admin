@@ -3,9 +3,9 @@ import {
     Product,
     ProductCollection,
     ProductTag,
+    ProductType,
 } from '@medusajs/medusa'
-import { debounce } from 'lodash'
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
     Column,
     HeaderGroup,
@@ -15,17 +15,21 @@ import {
     useSortBy,
     useTable,
 } from 'react-table'
+import { useDebounce } from '../../../hooks/use-debounce'
 import useQueryFilters from '../../../hooks/use-query-filters'
-import Spinner from '../../atoms/spinner'
 import IndeterminateCheckbox from '../../molecules/indeterminate-checkbox'
-import Table, { TablePagination, TableProps } from '../../molecules/table'
+import Table, { TableProps } from '../../molecules/table'
+import TableContainer from '../../organisms/table-container'
 
 type SelectableTableProps<T extends object> = {
     resourceName?: string
     label?: string
     isLoading?: boolean
     totalCount: number
-    options: Omit<TableProps, 'filteringOptions'> & {
+    options: Omit<
+        TableProps,
+        'filteringOptions' | 'searchValue' | 'handleSearch'
+    > & {
         filters?: Pick<TableProps, 'filteringOptions'>
     }
     data?: T[]
@@ -38,8 +42,17 @@ type SelectableTableProps<T extends object> = {
     }) => React.ReactElement
 } & ReturnType<typeof useQueryFilters>
 
+let a: Omit<TableProps, 'filteringOptions'> & {
+    filters?: Pick<TableProps, 'filteringOptions'>
+}
+
 export const SelectableTable = <
-    T extends Product | CustomerGroup | ProductCollection | ProductTag
+    T extends
+        | Product
+        | CustomerGroup
+        | ProductCollection
+        | ProductTag
+        | ProductType
 >({
     label,
     resourceName = '',
@@ -56,20 +69,22 @@ export const SelectableTable = <
     queryObject,
     paginate,
 }: SelectableTableProps<T>) => {
+    const memoizedData = useMemo(() => data || [], [data])
+
     const table = useTable<T>(
         {
             columns,
-            data: data || [],
+            data: memoizedData,
             manualPagination: true,
             initialState: {
-                pageIndex: queryObject!.offset / queryObject!.limit,
-                pageSize: queryObject!.limit,
+                pageIndex: queryObject.offset / queryObject.limit,
+                pageSize: queryObject.limit,
                 selectedRowIds: selectedIds.reduce((prev, id) => {
                     prev[id] = true
                     return prev
                 }, {} as Record<string, boolean>),
             },
-            pageCount: Math.ceil(totalCount / queryObject!.limit),
+            pageCount: Math.ceil(totalCount / queryObject.limit),
             autoResetSelectedRows: false,
             autoResetPage: false,
             getRowId: (row: any) => row.id,
@@ -104,88 +119,96 @@ export const SelectableTable = <
         table.previousPage()
     }
 
-    const handleSearch = (text: string) => {
-        setQuery(text)
+    const handleSearch = useCallback(
+        (text: string) => {
+            setQuery(text)
 
-        if (text) {
-            table.gotoPage(0)
-        }
-    }
+            if (text) {
+                table.gotoPage(0)
+            }
+        },
+        [setQuery, table]
+    )
 
-    const debouncedSearch = React.useMemo(() => debounce(handleSearch, 300), [])
+    const [searchQuery, setSearchQuery] = useState('')
+
+    const debouncedSearch = useDebounce(searchQuery, 500)
+
+    useEffect(() => {
+        handleSearch(debouncedSearch)
+    }, [debouncedSearch])
 
     return (
         <div>
             {label && (
                 <div className="inter-base-semibold my-large">{label}</div>
             )}
-            <Table
-                {...options}
-                {...table.getTableProps()}
-                handleSearch={
-                    options.enableSearch ? debouncedSearch : undefined
-                }
-                className="min-h-[350px] relative"
+            <TableContainer
+                isLoading={isLoading}
+                numberOfRows={queryObject.limit}
+                hasPagination
+                pagingState={{
+                    count: totalCount!,
+                    offset: queryObject.offset,
+                    pageSize: queryObject.offset + table.rows.length,
+                    title: resourceName,
+                    currentPage: table.state.pageIndex + 1,
+                    pageCount: table.pageCount,
+                    nextPage: handleNext,
+                    prevPage: handlePrev,
+                    hasNext: table.canNextPage,
+                    hasPrev: table.canPreviousPage,
+                }}
             >
-                {renderHeaderGroup && (
-                    <Table.Head>
-                        {table.headerGroups?.map((headerGroup) =>
-                            renderHeaderGroup({ headerGroup })
-                        )}
-                    </Table.Head>
-                )}
+                <Table
+                    {...options}
+                    {...table.getTableProps()}
+                    handleSearch={
+                        options.enableSearch ? setSearchQuery : undefined
+                    }
+                    searchValue={searchQuery}
+                    className="relative"
+                >
+                    {renderHeaderGroup && (
+                        <Table.Head>
+                            {table.headerGroups?.map((headerGroup) =>
+                                renderHeaderGroup({ headerGroup })
+                            )}
+                        </Table.Head>
+                    )}
 
-                <Table.Body {...table.getTableBodyProps()}>
-                    {isLoading ? (
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                            <Spinner size="large" variant="secondary" />
-                        </div>
-                    ) : (
-                        table.rows.map((row) => {
+                    <Table.Body {...table.getTableBodyProps()}>
+                        {table.rows.map((row) => {
                             table.prepareRow(row)
                             return renderRow({ row })
-                        })
-                    )}
-                </Table.Body>
-            </Table>
-
-            <TablePagination
-                count={totalCount!}
-                limit={queryObject!.limit}
-                offset={queryObject!.offset}
-                pageSize={queryObject!.offset + table.rows.length}
-                title={resourceName}
-                currentPage={table.state.pageIndex + 1}
-                pageCount={table.pageCount}
-                nextPage={handleNext}
-                prevPage={handlePrev}
-                hasNext={table.canNextPage}
-                hasPrev={table.canPreviousPage}
-            />
+                        })}
+                    </Table.Body>
+                </Table>
+            </TableContainer>
         </div>
     )
 }
 
-const useSelectionColumn = (hooks: any) => {
-    hooks.visibleColumns.push((columns: any) => [
+const useSelectionColumn = (hooks) => {
+    hooks.visibleColumns.push((columns) => [
         {
             id: 'selection',
-            Header: ({ getToggleAllRowsSelectedProps }: any) => {
+            Header: ({ getToggleAllRowsSelectedProps }) => {
                 return (
                     <div className="flex justify-center">
                         <IndeterminateCheckbox
                             {...getToggleAllRowsSelectedProps()}
-                            onClick={(e: any) => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
                         />
                     </div>
                 )
             },
-            Cell: ({ row }: any) => {
+            Cell: ({ row }) => {
                 return (
                     <div className="flex justify-center">
                         <IndeterminateCheckbox
                             {...row.getToggleRowSelectedProps()}
-                            onClick={(e: any) => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
                         />
                     </div>
                 )

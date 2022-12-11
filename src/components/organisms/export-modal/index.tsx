@@ -23,12 +23,12 @@ const ExportModal: React.FC<ExportModalProps> = ({
                 </Modal.Header>
                 <Modal.Content>
                     {/* TODO: Add filtering
-                    <div className="flex inter-small-semibold mb-2">Current filters</div>
-                    <div className="flex mb-4 inter-small-regular text-grey-50">
-                        You havn’t applied any filtering. Remember that the export list
-                        feature in many ways are controlled by how you filter the list
-                        overview.
-                    </div> */}
+          <div className="flex inter-small-semibold mb-2">Current filters</div>
+          <div className="flex mb-4 inter-small-regular text-grey-50">
+            You havn’t applied any filtering. Remember that the export list
+            feature in many ways are controlled by how you filter the list
+            overview.
+          </div> */}
                     <div className="flex mb-4 inter-small-regular text-grey-50">
                         Initialize an export of your data
                     </div>
@@ -45,6 +45,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
                         </Button>
                         <Button
                             loading={loading}
+                            disabled={loading}
                             variant="primary"
                             size="small"
                             onClick={onSubmit}

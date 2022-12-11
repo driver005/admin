@@ -58,8 +58,8 @@ export const useCollectionColumns = () => {
                     </div>
                 ),
                 id: 'products',
-                accessor: (row) => row.products.length,
-                Cell: ({ cell: { value } }: any) => {
+                accessor: (row) => row?.products?.length,
+                Cell: ({ cell: { value } }) => {
                     return <div className="text-right">{value}</div>
                 },
             },

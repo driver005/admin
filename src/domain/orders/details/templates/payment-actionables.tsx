@@ -3,20 +3,14 @@ import Button from '../../../../components/fundamentals/button'
 import useNotification from '../../../../hooks/use-notification'
 import { getErrorMessage } from '../../../../utils/error-messages'
 
-interface PaymentActionablesProps {
-    order: any
-    capturePayment: any
-    showRefundMenu: any
-}
-
-export const PaymentActionables: React.FC<PaymentActionablesProps> = ({
+export const PaymentActionables = ({
     order,
     capturePayment,
     showRefundMenu,
 }) => {
     const notification = useNotification()
     const isSystemPayment = order?.payments?.some(
-        (p: any) => p.provider_id === 'system'
+        (p) => p.provider_id === 'system'
     )
 
     const { payment_status } = order!
@@ -31,7 +25,7 @@ export const PaymentActionables: React.FC<PaymentActionablesProps> = ({
                     'Successfully captured payment',
                     'success'
                 ),
-            onError: (err: any) =>
+            onError: (err) =>
                 notification('Error', getErrorMessage(err), 'error'),
         })
     }
@@ -50,10 +44,10 @@ export const PaymentActionables: React.FC<PaymentActionablesProps> = ({
     switch (true) {
         case payment_status === 'captured' ||
             payment_status === 'partially_refunded': {
-                label = 'Refund'
-                action = () => showRefundMenu()
-                break
-            }
+            label = 'Refund'
+            action = () => showRefundMenu()
+            break
+        }
 
         case shouldShowNotice: {
             action = () =>

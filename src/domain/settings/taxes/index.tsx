@@ -1,6 +1,6 @@
 import { useAdminRegions } from 'medusa-react'
-import { navigate } from 'gatsby'
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Spinner from '../../../components/atoms/spinner'
 import GearIcon from '../../../components/fundamentals/icons/gear-icon'
 import BreadCrumb from '../../../components/molecules/breadcrumb'
@@ -8,9 +8,9 @@ import BodyCard from '../../../components/organisms/body-card'
 import RadioGroup from '../../../components/organisms/radio-group'
 import TwoSplitPane from '../../../components/templates/two-split-pane'
 import TaxDetails from './details'
-import { RouteComponentProps } from '@reach/router'
 
-const Taxes: React.FC<RouteComponentProps> = () => {
+const Taxes = () => {
+    const navigate = useNavigate()
     const { regions, isLoading, refetch } = useAdminRegions()
     const [selectedRegion, setSelectedRegion] = useState<string | undefined>(
         undefined
@@ -85,11 +85,11 @@ const Taxes: React.FC<RouteComponentProps> = () => {
                                             description={
                                                 r.countries.length
                                                     ? `${r.countries
-                                                        .map(
-                                                            (c) =>
-                                                                c.display_name
-                                                        )
-                                                        .join(', ')}`
+                                                          .map(
+                                                              (c) =>
+                                                                  c.display_name
+                                                          )
+                                                          .join(', ')}`
                                                     : undefined
                                             }
                                             value={r.id}

@@ -61,8 +61,8 @@ const ResetTokenCard: React.FC<ResetTokenCardProps> = ({ goBack }) => {
                     <>
                         <SigninInput
                             placeholder="lebron@james.com..."
-                            className="mb-0 mt-xlarge"
                             {...register('email', { required: true })}
+                            className="mb-0 mt-xlarge"
                         />
                         {unrecognizedEmail && (
                             <div className="mt-xsmall w-[318px]">

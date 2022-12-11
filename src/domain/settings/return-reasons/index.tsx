@@ -1,4 +1,3 @@
-import { RouteComponentProps } from '@reach/router'
 import { useAdminReturnReasons } from 'medusa-react'
 import React, { useState } from 'react'
 import Spinner from '../../../components/atoms/spinner'
@@ -11,7 +10,7 @@ import useModal from '../../../hooks/use-toggle-state'
 import CreateReturnReasonModal from './create-reason-modal'
 import ReturnReasonDetail from './detail'
 
-const ReturnReasons: React.FC<RouteComponentProps> = () => {
+const ReturnReasons = () => {
     const { state: isOpen, open, close } = useModal()
     const [selectedReason, setSelectedReason] = useState<any>(null)
     const { isLoading, return_reasons } = useAdminReturnReasons({
@@ -90,14 +89,14 @@ const ReturnReasons: React.FC<RouteComponentProps> = () => {
     )
 }
 
-const isADeletion = (returnReasons: any, newReturnReasons: any) =>
+const isADeletion = (returnReasons, newReturnReasons) =>
     returnReasons && returnReasons?.length > newReturnReasons?.length
 
 const sortByCreatedAt = <T extends Record<string, any>>(returnReasons: T[]) =>
     returnReasons?.sort((a, b) => (a.created_at < b.created_at ? -1 : 1))
 
-const findReasonByValue = (reasons: any, value: any) => {
-    return reasons.find((reason: any) => reason.value === value)
+const findReasonByValue = (reasons, value) => {
+    return reasons.find((reason) => reason.value === value)
 }
 
 export default ReturnReasons

@@ -4,7 +4,7 @@ import ArrowUpIcon from '../../fundamentals/icons/arrow-up-icon'
 import DownLeftIcon from '../../fundamentals/icons/down-left'
 import PointerIcon from '../../fundamentals/icons/pointer-icon'
 
-const KeyboardShortcuts = ({ ...props }: any) => {
+const KeyboardShortcuts = ({ ...props }) => {
     return (
         <p {...props}>
             <span className="rounded p-1 bg-grey-10">
@@ -37,7 +37,7 @@ const KeyboardShortcuts = ({ ...props }: any) => {
 const OSCommandIcon = () => {
     const isMac =
         typeof window !== 'undefined' &&
-            navigator?.platform?.toUpperCase().indexOf('MAC') >= 0
+        navigator?.platform?.toUpperCase().indexOf('MAC') >= 0
             ? true
             : false
     return <>{isMac ? '⌘' : 'Ctrl'}</>

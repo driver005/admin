@@ -92,5 +92,5 @@ const testProduct: Pick<Product, 'title' | 'id' | 'thumbnail'> & {
 
 export const Default = Template.bind({})
 Default.args = {
-    product: testProduct
+    product: testProduct,
 }

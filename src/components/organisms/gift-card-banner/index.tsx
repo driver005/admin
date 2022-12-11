@@ -7,7 +7,7 @@ import UnpublishIcon from '../../fundamentals/icons/unpublish-icon'
 import StatusIndicator from '../../fundamentals/status-indicator'
 import { ActionType } from '../../molecules/actionables'
 import BannerCard from '../../molecules/banner-card'
-import TagGrid from '../../molecules/tag-grid'
+import TagGrid from '../../molecules/tag-grid.tsx'
 
 type GiftCardVariant = {
     prices: {
@@ -19,8 +19,8 @@ type GiftCardVariant = {
 type GiftCardBannerProps = {
     title: string
     status: string
-    thumbnail?: string
-    description: string
+    thumbnail: string | null
+    description: string | null
     variants: GiftCardVariant[]
     defaultCurrency: string
     onEdit: () => void

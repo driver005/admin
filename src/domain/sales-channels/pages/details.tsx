@@ -1,11 +1,9 @@
 import clsx from 'clsx'
-import { navigate } from 'gatsby'
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 
 import { SalesChannel } from '@medusajs/medusa'
 import {
     useAdminDeleteSalesChannel,
-    useAdminProducts,
     useAdminSalesChannels,
     useAdminStore,
     useAdminUpdateSalesChannel,
@@ -13,7 +11,9 @@ import {
 
 import EditSalesChannel from '../form/edit-sales-channel'
 import AddSalesChannelModal from '../form/add-sales-channel'
-import Actionables from '../../../components/molecules/actionables'
+import Actionables, {
+    ActionType,
+} from '../../../components/molecules/actionables'
 import DeletePrompt from '../../../components/organisms/delete-prompt'
 import PlusIcon from '../../../components/fundamentals/icons/plus-icon'
 import EditIcon from '../../../components/fundamentals/icons/edit-icon'
@@ -29,7 +29,7 @@ import TwoSplitPane from '../../../components/templates/two-split-pane'
 import Fade from '../../../components/atoms/fade-wrapper'
 import Breadcrumb from '../../../components/molecules/breadcrumb'
 import useToggleState from '../../../hooks/use-toggle-state'
-import { RouteComponentProps } from '@reach/router'
+import { useNavigate, useParams } from 'react-router-dom'
 
 type ListIndicatorProps = { isActive: boolean }
 
@@ -102,7 +102,7 @@ function SalesChannelTile(props: SalesChannelTileProps) {
                         {salesChannel.name}
                     </h3>
                     <span
-                        title={salesChannel.description || undefined}
+                        title={salesChannel.description}
                         className="text-small text-grey-50 "
                     >
                         {salesChannel.description}
@@ -131,7 +131,7 @@ function SalesChannelsHeader(props: SalesChannelsHeaderProps) {
     const { openCreateModal, filterText, setFilterText } = props
     const [showFilter, setShowFilter] = useState(false)
 
-    const inputRef: any = useRef()
+    const inputRef = useRef()
 
     const classes = {
         'translate-y-[-50px]': showFilter,
@@ -238,14 +238,20 @@ type SalesChannelDetailsHeaderProps = {
     openUpdateModal: () => void
     resetDetails: () => void
     showProductsAdd: () => void
+    isDefault: boolean
 }
 
 /**
  * Sales channels details header.
  */
 function SalesChannelDetailsHeader(props: SalesChannelDetailsHeaderProps) {
-    const { salesChannel, openUpdateModal, resetDetails, showProductsAdd } =
-        props
+    const {
+        isDefault,
+        salesChannel,
+        openUpdateModal,
+        resetDetails,
+        showProductsAdd,
+    } = props
 
     const { mutate: deleteSalesChannel } = useAdminDeleteSalesChannel(
         salesChannel.id
@@ -257,24 +263,31 @@ function SalesChannelDetailsHeader(props: SalesChannelDetailsHeaderProps) {
 
     const [showDelete, setShowDelete] = useState(false)
 
-    const actions: any = [
-        {
-            label: 'Edit general info',
-            icon: <EditIcon size="20" />,
-            onClick: openUpdateModal,
-        },
-        {
-            label: 'Add products',
-            icon: <PlusIcon />,
-            onClick: () => showProductsAdd(),
-        },
-        {
-            label: 'Delete channel',
-            icon: <TrashIcon size={20} />,
-            variant: 'danger',
-            onClick: () => setShowDelete(true),
-        },
-    ]
+    const actions = useMemo(() => {
+        const _actions: ActionType[] = [
+            {
+                label: 'Edit general info',
+                icon: <EditIcon size="20" />,
+                onClick: openUpdateModal,
+            },
+            {
+                label: 'Add products',
+                icon: <PlusIcon />,
+                onClick: () => showProductsAdd(),
+            },
+        ]
+
+        if (!isDefault) {
+            _actions.push({
+                label: 'Delete channel',
+                icon: <TrashIcon size={20} />,
+                variant: 'danger',
+                onClick: () => setShowDelete(true),
+            })
+        }
+
+        return _actions
+    }, [openUpdateModal])
 
     return (
         <div className="flex justify-between items-center">
@@ -315,13 +328,14 @@ function SalesChannelDetailsHeader(props: SalesChannelDetailsHeaderProps) {
 type SalesChannelDetailsProps = {
     salesChannel: SalesChannel
     resetDetails: () => void
+    isDefault: boolean
 }
 
 /**
  * Sales channels details container.
  */
 function SalesChannelDetails(props: SalesChannelDetailsProps) {
-    const { resetDetails, salesChannel } = props
+    const { resetDetails, salesChannel, isDefault } = props
 
     const [showUpdateModal, openUpdateModal, closeUpdateModal] =
         useToggleState(false)
@@ -331,6 +345,7 @@ function SalesChannelDetails(props: SalesChannelDetailsProps) {
     return (
         <div className="col-span-2 rounded-rounded border bg-grey-0 border-grey-20 px-8 py-6 h-[968px]">
             <SalesChannelDetailsHeader
+                isDefault={isDefault}
                 resetDetails={resetDetails}
                 salesChannel={salesChannel}
                 openUpdateModal={openUpdateModal}
@@ -359,19 +374,19 @@ function SalesChannelDetails(props: SalesChannelDetailsProps) {
     )
 }
 
-type DetailsProps = RouteComponentProps & { id?: string }
-
 /**
  * Sales channels details page container.
  */
-function Details(props: DetailsProps) {
-    const { id: routeSalesChannelId } = props
+function Details() {
+    const { id: routeSalesChannelId } = useParams()
+
     const [filterText, setFilterText] = useState<string>()
     const [showCreateModal, setShowCreateModal] = useState(false)
 
     const [activeSalesChannel, setActiveSalesChannel] =
         useState<SalesChannel | null>()
 
+    const navigate = useNavigate()
     const { store } = useAdminStore()
     const { sales_channels } = useAdminSalesChannels()
 
@@ -408,7 +423,7 @@ function Details(props: DetailsProps) {
         setActiveSalesChannelId(store!.default_sales_channel_id)
     }
 
-    function defaultChannelsSorter(sc1: any, sc2: any) {
+    function defaultChannelsSorter(sc1, sc2) {
         if (sc1.id === store?.default_sales_channel_id) {
             return -1
         }
@@ -458,6 +473,10 @@ function Details(props: DetailsProps) {
                 />
                 {activeSalesChannel && (
                     <SalesChannelDetails
+                        isDefault={
+                            activeSalesChannel.id ===
+                            store?.default_sales_channel_id
+                        }
                         salesChannel={
                             sales_channels.find(
                                 (sc) => sc.id === activeSalesChannel.id

@@ -1,5 +1,5 @@
+import { Product, SalesChannel } from '@medusajs/medusa'
 import clsx from 'clsx'
-import { navigate } from 'gatsby'
 import {
     useAdminAddProductsToSalesChannel,
     useAdminDeleteProductsFromSalesChannel,
@@ -12,21 +12,22 @@ import React, {
     useRef,
     useState,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { usePagination, useRowSelect, useTable } from 'react-table'
-import { Product, SalesChannel } from '@medusajs/medusa'
 
-import Placeholder from './placeholder'
 import Button from '../../../components/fundamentals/button'
-import ProductsFilter from '../../../domain/products/filter-dropdown'
 import DetailsIcon from '../../../components/fundamentals/icons/details-icon'
 import CrossIcon from '../../../components/fundamentals/icons/cross-icon'
 import TrashIcon from '../../../components/fundamentals/icons/trash-icon'
-import Table, { TablePagination } from '../../../components/molecules/table'
-import { SALES_CHANNEL_PRODUCTS_TABLE_COLUMNS } from './config'
-import useQueryFilters from '../../../hooks/use-query-filters'
-import { useProductFilters } from '../../../components/templates/product-table/use-filter-tabs'
-import useNotification from '../../../hooks/use-notification'
 import Modal from '../../../components/molecules/modal'
+import Table from '../../../components/molecules/table'
+import TableContainer from '../../../components/organisms/table-container'
+import { useProductFilters } from '../../../components/templates/product-table/use-filter-tabs'
+import ProductsFilter from '../../../domain/products/filter-dropdown'
+import useNotification from '../../../hooks/use-notification'
+import useQueryFilters from '../../../hooks/use-query-filters'
+import { SALES_CHANNEL_PRODUCTS_TABLE_COLUMNS } from './config'
+import Placeholder from './placeholder'
 
 /* ****************************************** */
 /* ************** TABLE CONFIG ************** */
@@ -39,8 +40,8 @@ const DEFAULT_PAGE_SIZE = 12
  */
 const defaultQueryProps = {
     additionalFilters: {
-        expand: 'collection,sales_channels',
-        fields: 'id,title,type,thumbnail,status',
+        expand: 'collection,type,sales_channels',
+        fields: 'id,title,thumbnail,status',
     },
     limit: DEFAULT_PAGE_SIZE,
     offset: 0,
@@ -50,16 +51,16 @@ const defaultQueryProps = {
 /* ************** PRODUCTS TABLE ************** */
 /* ******************************************** */
 
-type ProductTableProps = ReturnType<typeof useQueryFilters> & {
-    tableActions?: React.ReactNode
-    isAddTable?: boolean
+type ProductTableProps = {
+    isAddTable: boolean
     count: number
     products: Product[]
     setSelectedRowIds: (ids: string[]) => void
-    selectedRowIds?: string[]
+    selectedRowIds: string[]
     currentSalesChannelId?: string
-    removeProductFromSalesChannel?: (id: string) => void
+    removeProductFromSalesChannel: (id: string) => void
     productFilters: Record<string, any>
+    isLoading?: boolean
 }
 
 /**
@@ -83,6 +84,7 @@ export const ProductTable = forwardRef(
             paginate,
             setQuery: setFreeText,
             queryObject,
+            isLoading,
 
             // CONTAINER props
             isAddTable,
@@ -92,10 +94,12 @@ export const ProductTable = forwardRef(
             removeProductFromSalesChannel,
         } = props
 
-        const offs = parseInt(`${queryObject?.offset}`) || 0
-        const limit = parseInt(`${queryObject?.limit}`) || 0
+        const offs = parseInt(queryObject.offset) || 0
+        const limit = parseInt(queryObject.limit)
 
-        const [query, setQuery] = useState(queryObject?.query)
+        const navigate = useNavigate()
+
+        const [query, setQuery] = useState(queryObject.query)
         const [numPages, setNumPages] = useState(0)
 
         const clearFilters = () => {
@@ -128,7 +132,7 @@ export const ProductTable = forwardRef(
             state: { pageIndex, pageSize, ...state },
         } = useTable(
             {
-                columns: SALES_CHANNEL_PRODUCTS_TABLE_COLUMNS as any,
+                columns: SALES_CHANNEL_PRODUCTS_TABLE_COLUMNS,
                 data: products || [],
                 manualPagination: true,
                 initialState: {
@@ -203,13 +207,29 @@ export const ProductTable = forwardRef(
             {
                 label: 'Remove from the channel',
                 variant: 'danger',
-                onClick: () => removeProductFromSalesChannel ? removeProductFromSalesChannel(id) : () => {},
+                onClick: () => removeProductFromSalesChannel(id),
                 icon: <TrashIcon size={20} />,
             },
         ]
 
         return (
-            <div className="w-full h-[880px] overflow-y-auto flex flex-col">
+            <TableContainer
+                isLoading={isLoading}
+                numberOfRows={DEFAULT_PAGE_SIZE}
+                hasPagination
+                pagingState={{
+                    count: count!,
+                    offset: offs,
+                    pageSize: offs + rows.length,
+                    title: 'Products',
+                    currentPage: pageIndex + 1,
+                    pageCount: pageCount,
+                    nextPage: handleNext,
+                    prevPage: handlePrev,
+                    hasNext: canNextPage,
+                    hasPrev: canPreviousPage,
+                }}
+            >
                 <Table
                     tableActions={tableActions}
                     containerClassName="flex-1"
@@ -267,20 +287,7 @@ export const ProductTable = forwardRef(
                         })}
                     </Table.Body>
                 </Table>
-                <TablePagination
-                    count={count!}
-                    limit={limit}
-                    offset={offs}
-                    pageSize={offs + rows.length}
-                    title="Products"
-                    currentPage={pageIndex + 1}
-                    pageCount={pageCount}
-                    nextPage={handleNext}
-                    prevPage={handlePrev}
-                    hasNext={canNextPage}
-                    hasPrev={canPreviousPage}
-                />
-            </div>
+            </TableContainer>
         )
     }
 )
@@ -288,15 +295,7 @@ export const ProductTable = forwardRef(
 /**
  * Renders product table row.
  */
-
-interface ProductRowProps {
-    row: any
-    actions: any
-    onClick: any
-    disabled: boolean
-}
-
-const ProductRow: React.FC<ProductRowProps> = ({ row, actions, onClick, disabled }) => {
+const ProductRow = ({ row, actions, onClick, disabled }) => {
     return (
         <Table.Row
             onClick={!disabled && onClick}
@@ -308,7 +307,7 @@ const ProductRow: React.FC<ProductRowProps> = ({ row, actions, onClick, disabled
             actions={actions}
             {...row.getRowProps()}
         >
-            {row.cells.map((cell: any, index: number) => {
+            {row.cells.map((cell, index) => {
                 return (
                     <Table.Cell {...cell.getCellProps()}>
                         {cell.render('Cell', { index })}
@@ -377,9 +376,9 @@ type SalesChannelProductsTableProps = {
  * Sales channel products table container.
  */
 function SalesChannelProductsTable(props: SalesChannelProductsTableProps) {
-    const tableRef: any = useRef()
+    const tableRef = useRef()
     const { salesChannelId, showAddModal } = props
-    const [selectedRowIds, setSelectedRowIds]: any = useState([])
+    const [selectedRowIds, setSelectedRowIds] = useState<string[]>([])
 
     const notification = useNotification()
 
@@ -412,7 +411,7 @@ function SalesChannelProductsTable(props: SalesChannelProductsTableProps) {
 
     const removeSelectedProducts = async () => {
         await deleteProductsFromSalesChannel({
-            product_ids: selectedRowIds.map((id: any) => ({ id })),
+            product_ids: selectedRowIds.map((id) => ({ id })),
         })
 
         notification(
@@ -424,7 +423,7 @@ function SalesChannelProductsTable(props: SalesChannelProductsTableProps) {
     }
 
     const isFilterOn = Object.keys(filters.queryObject).length
-    const hasSearchTerm = params?.queryObject?.q
+    const hasSearchTerm = params.queryObject.q
 
     if (!products?.length && !isLoading && !isFilterOn && !hasSearchTerm) {
         return <Placeholder showAddModal={showAddModal} />
@@ -433,15 +432,17 @@ function SalesChannelProductsTable(props: SalesChannelProductsTableProps) {
     const toBeRemoveCount = selectedRowIds.length
 
     return (
-        <div className="relative h-[880px]">
+        <div className="relative">
             <ProductTable
                 ref={tableRef}
-                count={count as number}
-                products={products as Product[] || []}
+                count={count || 0}
+                isLoading={isLoading}
+                products={(products as Product[]) || []}
                 removeProductFromSalesChannel={removeProductFromSalesChannel}
                 setSelectedRowIds={setSelectedRowIds}
                 productFilters={filters}
-                {...params} />
+                {...params}
+            />
             <RemoveProductsPopup
                 total={toBeRemoveCount}
                 onRemove={removeSelectedProducts}
@@ -465,26 +466,25 @@ function SalesChannelProductsSelectModal(
     props: SalesChannelProductsSelectModalProps
 ) {
     const { handleClose, salesChannel } = props
-    const [selectedRowIds, setSelectedRowIds]: any = useState([])
+    const [selectedRowIds, setSelectedRowIds] = useState<string[]>([])
 
     const notification = useNotification()
 
     const params = useQueryFilters(defaultQueryProps)
     const filters = useProductFilters()
 
-    const { products, count } = useAdminProducts({
+    const { products, count, isLoading } = useAdminProducts({
         ...params.queryObject,
         ...filters.queryObject,
         expand: 'sales_channels',
     })
 
-    const { mutate: addProductsBatch } = useAdminAddProductsToSalesChannel(
-        salesChannel.id
-    )
+    const { mutate: addProductsBatch, isLoading: isMutating } =
+        useAdminAddProductsToSalesChannel(salesChannel.id)
 
     const handleSubmit = () => {
         addProductsBatch({
-            product_ids: selectedRowIds.map((i: any) => ({ id: i })),
+            product_ids: selectedRowIds.map((i) => ({ id: i })),
         })
         handleClose()
         notification(
@@ -503,8 +503,9 @@ function SalesChannelProductsSelectModal(
                 <Modal.Content>
                     <ProductTable
                         isAddTable
-                        products={products as Product[] || []}
-                        count={count as number}
+                        isLoading={isLoading}
+                        products={(products as Product[]) || []}
+                        count={count || 0}
                         setSelectedRowIds={setSelectedRowIds}
                         productFilters={filters}
                         currentSalesChannelId={salesChannel.id}
@@ -526,6 +527,8 @@ function SalesChannelProductsSelectModal(
                             className="min-w-[100px]"
                             size="small"
                             onClick={handleSubmit}
+                            loading={isMutating}
+                            disabled={isMutating}
                         >
                             Save
                         </Button>

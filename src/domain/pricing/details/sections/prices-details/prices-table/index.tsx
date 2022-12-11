@@ -1,10 +1,10 @@
 import { Product } from '@medusajs/medusa'
 import {
-    useAdminPriceListProducts,
     useAdminDeletePriceListProductPrices,
+    useAdminPriceListProducts,
 } from 'medusa-react'
 import * as React from 'react'
-import { HeaderGroup, Row, TableRowProps } from 'react-table'
+import { HeaderGroup, Row } from 'react-table'
 import CancelIcon from '../../../../../../components/fundamentals/icons/cancel-icon'
 import EditIcon from '../../../../../../components/fundamentals/icons/edit-icon'
 import Table from '../../../../../../components/molecules/table'
@@ -35,10 +35,10 @@ const PricesTable = ({ id, selectProduct }: PricesTableProps) => {
     const columns = usePricesColumns()
 
     return (
-        <div className="w-full overflow-y-auto flex flex-col justify-between min-h-[300px] h-full ">
+        <div className="w-full overflow-y-auto flex flex-col justify-between h-full">
             <SelectableTable
                 columns={columns}
-                data={products as Product[] || []}
+                data={products || []}
                 renderRow={({ row }: { row: Row<Product> }) => {
                     const handleSelect = () => {
                         selectProduct(row.original)
@@ -93,14 +93,7 @@ const ProductHeader = ({
     )
 }
 
-type PricesTableRowProps = TableRowProps & {
-    children: React.ReactNode
-    priceListId: string
-    product: any
-    onClick: (e: any) => void
-}
-
-const PricesTableRow: React.FC<PricesTableRowProps> = ({
+const PricesTableRow = ({
     children,
     priceListId,
     product,

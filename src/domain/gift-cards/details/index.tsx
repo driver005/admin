@@ -1,11 +1,12 @@
-import { RouteComponentProps } from '@reach/router'
+import { AdminPostGiftCardsGiftCardReq } from '@medusajs/medusa'
 import {
     useAdminGiftCard,
     useAdminRegions,
     useAdminUpdateGiftCard,
 } from 'medusa-react'
 import moment from 'moment'
-import React, { useState } from 'react'
+import { useState } from 'react'
+import { useParams } from 'react-router-dom'
 import Spinner from '../../../components/atoms/spinner'
 import Badge from '../../../components/fundamentals/badge'
 import DollarSignIcon from '../../../components/fundamentals/icons/dollar-sign-icon'
@@ -22,15 +23,15 @@ import { formatAmountWithSymbol } from '../../../utils/prices'
 import EditGiftCardModal from './edit-gift-card-modal'
 import UpdateBalanceModal from './update-balance-modal'
 
-const GiftCardDetails: React.FC<RouteComponentProps<{ id: string }>> = ({
-    id,
-}) => {
-    const { gift_card, isLoading } = useAdminGiftCard(id!, {
+const GiftCardDetails = () => {
+    const { id } = useParams()
+
+    const { gift_card: giftCard, isLoading } = useAdminGiftCard(id!, {
         enabled: !!id,
     })
     const { regions } = useAdminRegions()
 
-    const updateGiftCard = useAdminUpdateGiftCard(gift_card?.id!)
+    const updateGiftCard = useAdminUpdateGiftCard(giftCard?.id!)
 
     const notification = useNotification()
 
@@ -44,10 +45,10 @@ const GiftCardDetails: React.FC<RouteComponentProps<{ id: string }>> = ({
             icon: <EditIcon size={20} />,
         },
         {
-            label: `${gift_card?.is_disabled ? 'Activate' : 'Disable'}`,
+            label: `${giftCard?.is_disabled ? 'Activate' : 'Disable'}`,
             onClick: () =>
-                handleUpdate({ is_disabled: !gift_card?.is_disabled }),
-            icon: gift_card?.is_disabled ? (
+                handleUpdate({ is_disabled: !giftCard?.is_disabled }),
+            icon: giftCard?.is_disabled ? (
                 <PublishIcon size={20} />
             ) : (
                 <UnpublishIcon size={20} />
@@ -60,7 +61,7 @@ const GiftCardDetails: React.FC<RouteComponentProps<{ id: string }>> = ({
         },
     ]
 
-    const handleUpdate = (data: any) => {
+    const handleUpdate = (data: AdminPostGiftCardsGiftCardReq) => {
         updateGiftCard.mutate(
             { ...data },
             {
@@ -86,7 +87,7 @@ const GiftCardDetails: React.FC<RouteComponentProps<{ id: string }>> = ({
                 previousBreadcrumb={'Gift Cards'}
                 previousRoute="/a/gift-cards"
             />
-            {isLoading || !gift_card ? (
+            {isLoading || !giftCard ? (
                 <div className="w-full bg-grey-0 border border-grey-20 rounded-rounded py-xlarge flex items-center justify-center">
                     <Spinner size={'large'} variant={'secondary'} />
                 </div>
@@ -94,16 +95,16 @@ const GiftCardDetails: React.FC<RouteComponentProps<{ id: string }>> = ({
                 <>
                     <BodyCard
                         className={'h-auto min-h-0 w-full'}
-                        title={`${gift_card?.code}`}
-                        subtitle={`Gift Card id: ${gift_card?.id}`}
+                        title={`${giftCard?.code}`}
+                        subtitle={`Gift Card id: ${giftCard?.id}`}
                         status={
                             <StatusSelector
-                                isDraft={!!gift_card?.is_disabled}
+                                isDraft={!!giftCard?.is_disabled}
                                 activeState={'Active'}
                                 draftState={'Disable'}
                                 onChange={() =>
                                     handleUpdate({
-                                        is_disabled: !gift_card?.is_disabled,
+                                        is_disabled: !giftCard?.is_disabled,
                                     })
                                 }
                             />
@@ -118,9 +119,9 @@ const GiftCardDetails: React.FC<RouteComponentProps<{ id: string }>> = ({
                                     </div>
                                     <div>
                                         {formatAmountWithSymbol({
-                                            amount: gift_card?.value,
+                                            amount: giftCard?.value,
                                             currency:
-                                                gift_card?.region.currency_code,
+                                                giftCard?.region.currency_code,
                                         })}
                                     </div>
                                 </div>
@@ -130,9 +131,9 @@ const GiftCardDetails: React.FC<RouteComponentProps<{ id: string }>> = ({
                                     </div>
                                     <div>
                                         {formatAmountWithSymbol({
-                                            amount: gift_card?.balance,
+                                            amount: giftCard?.balance,
                                             currency:
-                                                gift_card?.region.currency_code,
+                                                giftCard?.region.currency_code,
                                         })}
                                     </div>
                                 </div>
@@ -141,7 +142,7 @@ const GiftCardDetails: React.FC<RouteComponentProps<{ id: string }>> = ({
                                         Created
                                     </div>
                                     <div>
-                                        {moment(gift_card?.created_at).format(
+                                        {moment(giftCard?.created_at).format(
                                             'DD MMM YYYY'
                                         )}
                                     </div>
@@ -149,31 +150,35 @@ const GiftCardDetails: React.FC<RouteComponentProps<{ id: string }>> = ({
                             </div>
                             <div className="flex items-end">
                                 <Badge variant="default">
-                                    {gift_card?.region?.name}
+                                    {giftCard?.region?.name}
                                 </Badge>
                             </div>
                         </div>
                     </BodyCard>
                     <div className="mt-large">
-                        <RawJSON data={gift_card} title="Raw gift card" />
+                        <RawJSON
+                            data={giftCard}
+                            title="Raw gift card"
+                            rootName="product"
+                        />
                     </div>
                 </>
             )}
-            {showUpdateBalance && (
+            {showUpdateBalance && giftCard && (
                 <UpdateBalanceModal
-                    giftCard={gift_card}
-                    currencyCode={gift_card?.region?.currency_code}
+                    giftCard={giftCard}
+                    currencyCode={giftCard?.region.currency_code}
                     handleClose={() => setShowUpdateBalance(false)}
                     handleSave={handleUpdate}
                     updating={updateGiftCard.isLoading}
                 />
             )}
-            {showEdit && (
+            {showEdit && giftCard && (
                 <EditGiftCardModal
                     handleClose={() => setShowEdit(false)}
                     handleSave={handleUpdate}
                     regions={regions}
-                    region={gift_card?.region}
+                    region={giftCard.region}
                     updating={updateGiftCard.isLoading}
                 />
             )}

@@ -1,16 +1,16 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import { ComponentMeta } from '@storybook/react'
 import React from 'react'
 import NativeSelect from '.'
 
 export default {
-    title: 'Molecules/NativeSelect',
+    title: 'Atoms/NativeSelect',
     component: NativeSelect,
 } as ComponentMeta<typeof NativeSelect>
 
-const NativeSelectTemplate: ComponentStory<any> = (args) => (
+const NativeSelectTemplate = (args) => (
     <div className="h-[200px] w-[750px]">
         <NativeSelect defaultValue={args.items[0]}>
-            {args.items.map((item: any) => (
+            {args.items.map((item) => (
                 <NativeSelect.Item value={item}>{item}</NativeSelect.Item>
             ))}
         </NativeSelect>

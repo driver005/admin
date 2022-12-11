@@ -5,7 +5,7 @@ import { useComputedHeight } from '../../hooks/use-computed-height'
 type TwoSplitPaneProps = {
     className?: string
     threeCols?: boolean
-    children: React.ReactNode
+    children?: React.ReactNode
 }
 
 const TwoSplitPane: React.FC<TwoSplitPaneProps> = ({
@@ -16,11 +16,11 @@ const TwoSplitPane: React.FC<TwoSplitPaneProps> = ({
     const childrenCount = Children.count(children)
     const { ref, height } = useComputedHeight(32)
 
-    const heightClass: any = height
+    const heightClass = height
         ? {
-            gridTemplateRows: `${height}px`,
-        }
-        : null
+              gridTemplateRows: `${height}px`,
+          }
+        : undefined
 
     if (childrenCount > 2) {
         throw new Error('TwoSplitPane can only have two or less children')
@@ -28,7 +28,7 @@ const TwoSplitPane: React.FC<TwoSplitPaneProps> = ({
 
     return (
         <div
-            className={clsx('grid gap-large grid-cols-1', className, {
+            className={clsx('grid gap-xsmall grid-cols-1', className, {
                 'medium:grid-cols-2': !threeCols,
                 'medium:grid-cols-3': threeCols,
             })}

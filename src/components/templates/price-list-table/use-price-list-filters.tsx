@@ -37,14 +37,14 @@ interface PriceListFilterState {
 
 const allowedFilters = ['type', 'customer_groups', 'status', 'offset', 'limit']
 
-const DefaultTabs: any = {}
+const DefaultTabs = {}
 
 const formatDateFilter = (filter: DateFilter) => {
     if (filter === null) {
         return filter
     }
 
-    const dateFormatted = Object.entries(filter).reduce((acc: any, [key, value]) => {
+    const dateFormatted = Object.entries(filter).reduce((acc, [key, value]) => {
         if (value.includes('|')) {
             acc[key] = relativeDateFormatToTimestamp(value)
         } else {
@@ -73,6 +73,7 @@ const reducer = (
         case 'setQuery': {
             return {
                 ...state,
+                offset: 0, // reset offset when query changes
                 query: action.payload,
             }
         }
@@ -254,11 +255,11 @@ export const usePriceListFilters = (
         for (const [tab, conditions] of Object.entries(DefaultTabs)) {
             let match = true
 
-            if (Object.keys(clean).length !== Object.keys(conditions as any).length) {
+            if (Object.keys(clean).length !== Object.keys(conditions).length) {
                 continue
             }
 
-            for (const [filter, value] of Object.entries(conditions as any)) {
+            for (const [filter, value] of Object.entries(conditions)) {
                 if (filter in clean) {
                     if (Array.isArray(value)) {
                         match =
@@ -293,14 +294,14 @@ export const usePriceListFilters = (
         if (tabName in DefaultTabs) {
             tabToUse = DefaultTabs[tabName]
         } else {
-            const tabFound: any = tabs.find((t) => t.value === tabName)
+            const tabFound = tabs.find((t) => t.value === tabName)
             if (tabFound) {
                 tabToUse = qs.parse(tabFound.representationString)
             }
         }
 
         if (tabToUse) {
-            const toSubmit: any = {
+            const toSubmit = {
                 ...state,
                 type: {
                     open: false,
@@ -333,7 +334,7 @@ export const usePriceListFilters = (
 
         const storedString = localStorage.getItem('priceLists::filters')
 
-        let existing: any
+        let existing: null | object = null
 
         if (storedString) {
             existing = JSON.parse(storedString)
@@ -346,7 +347,7 @@ export const usePriceListFilters = (
                 JSON.stringify(existing)
             )
         } else {
-            const newFilters: any = {}
+            const newFilters = {}
             newFilters[tabName] = repString
             localStorage.setItem(
                 'priceLists::filters',
@@ -372,7 +373,7 @@ export const usePriceListFilters = (
     const removeTab = (tabValue: string) => {
         const storedString = localStorage.getItem('priceLists::filters')
 
-        let existing: any
+        let existing: null | object = null
 
         if (storedString) {
             existing = JSON.parse(storedString)
@@ -415,27 +416,13 @@ export const usePriceListFilters = (
     }
 }
 
-type filterStateMapType = {
-    status: string
-    type: string
-    customer_groups: string
-    [key: string]: string
-}
-
-const filterStateMap: filterStateMapType = {
+const filterStateMap = {
     status: 'status',
     type: 'type',
     customer_groups: 'customer_groups',
 }
 
-type stateFilterMapType = {
-    status: string
-    type: string
-    customer_groups: string
-    [key: string]: string
-}
-
-const stateFilterMap: stateFilterMapType = {
+const stateFilterMap = {
     status: 'status',
     type: 'type',
     customer_groups: 'customer_groups',
@@ -508,7 +495,7 @@ const parseQueryString = (
                         if (Array.isArray(value)) {
                             defaultVal.customer_groups = {
                                 open: true,
-                                filter: value as any,
+                                filter: value,
                             }
                         }
                         break

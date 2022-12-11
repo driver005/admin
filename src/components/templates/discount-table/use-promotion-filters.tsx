@@ -39,14 +39,14 @@ const allowedFilters = [
     'limit',
 ]
 
-const DefaultTabs: any = {}
+const DefaultTabs = {}
 
 const formatDateFilter = (filter: PromotionDateFilter) => {
     if (filter === null) {
         return filter
     }
 
-    const dateFormatted = Object.entries(filter).reduce((acc: any, [key, value]) => {
+    const dateFormatted = Object.entries(filter).reduce((acc, [key, value]) => {
         if (value.includes('|')) {
             acc[key] = relativeDateFormatToTimestamp(value)
         } else {
@@ -74,6 +74,7 @@ const reducer = (
         case 'setQuery': {
             return {
                 ...state,
+                offset: 0, // reset offset when query changes
                 query: action.payload,
             }
         }
@@ -293,11 +294,11 @@ export const usePromotionFilters = (
         for (const [tab, conditions] of Object.entries(DefaultTabs)) {
             let match = true
 
-            if (Object.keys(clean).length !== Object.keys(conditions as any).length) {
+            if (Object.keys(clean).length !== Object.keys(conditions).length) {
                 continue
             }
 
-            for (const [filter, value] of Object.entries(conditions as any)) {
+            for (const [filter, value] of Object.entries(conditions)) {
                 if (filter in clean) {
                     if (Array.isArray(value)) {
                         match =
@@ -332,14 +333,14 @@ export const usePromotionFilters = (
         if (tabName in DefaultTabs) {
             tabToUse = DefaultTabs[tabName]
         } else {
-            const tabFound: any = tabs.find((t) => t.value === tabName)
+            const tabFound = tabs.find((t) => t.value === tabName)
             if (tabFound) {
                 tabToUse = qs.parse(tabFound.representationString)
             }
         }
 
         if (tabToUse) {
-            const toSubmit: any = {
+            const toSubmit = {
                 ...state,
                 date: {
                     open: false,
@@ -368,7 +369,7 @@ export const usePromotionFilters = (
 
         const storedString = localStorage.getItem('promotions::filters')
 
-        let existing: any
+        let existing: null | object = null
 
         if (storedString) {
             existing = JSON.parse(storedString)
@@ -381,7 +382,7 @@ export const usePromotionFilters = (
                 JSON.stringify(existing)
             )
         } else {
-            const newFilters: any = {}
+            const newFilters = {}
             newFilters[tabName] = repString
             localStorage.setItem(
                 'promotions::filters',
@@ -407,7 +408,7 @@ export const usePromotionFilters = (
     const removeTab = (tabValue: string) => {
         const storedString = localStorage.getItem('promotions::filters')
 
-        let existing: any
+        let existing: null | object = null
 
         if (storedString) {
             existing = JSON.parse(storedString)
@@ -450,24 +451,12 @@ export const usePromotionFilters = (
     }
 }
 
-type filterStateMapType = {
-    is_dynamic: string
-    created_at: string
-    [key: string]: string
-}
-
-const filterStateMap: filterStateMapType = {
+const filterStateMap = {
     is_dynamic: 'isDynamic',
     created_at: 'date',
 }
 
-type stateFilterMapType = {
-    isDynamic: string
-    date: string
-    [key: string]: string
-}
-
-const stateFilterMap: stateFilterMapType = {
+const stateFilterMap = {
     isDynamic: 'is_dynamic',
     date: 'created_at',
 }
@@ -525,7 +514,7 @@ const parseQueryString = (
                     case 'created_at': {
                         defaultVal.date = {
                             open: true,
-                            filter: value as any,
+                            filter: value,
                         }
                         break
                     }

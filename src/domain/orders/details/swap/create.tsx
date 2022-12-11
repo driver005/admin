@@ -94,7 +94,7 @@ const SwapMenu: React.FC<SwapMenuProps> = ({ order, onDismiss }) => {
                     acc +
                     ((next.refundable || 0) /
                         (next.quantity - next.returned_quantity)) *
-                    toReturn[next.id].quantity
+                        toReturn[next.id].quantity
                 )
             }, 0) - (shippingPrice || 0)
         )
@@ -146,19 +146,21 @@ const SwapMenu: React.FC<SwapMenuProps> = ({ order, onDismiss }) => {
         }
 
         setShippingMethod(selectedItem)
-        const method: any = shippingOptions?.find((o) => selectedItem.value === o.id)
+        const method = shippingOptions?.find((o) => selectedItem.value === o.id)
         setShippingPrice(method?.amount)
     }
 
     const handleUpdateShippingPrice = (value: number | undefined) => {
-        if (value && value >= 0) {
+        if (value !== undefined && value >= 0) {
             setShippingPrice(value)
+        } else {
+            setShippingPrice(0)
         }
     }
 
     useEffect(() => {
         if (!useCustomShippingPrice && shippingMethod && shippingOptions) {
-            const method: any = shippingOptions.find(
+            const method = shippingOptions.find(
                 (o) => shippingMethod.value === o.id
             )
             setShippingPrice(method?.amount)
@@ -261,6 +263,7 @@ const SwapMenu: React.FC<SwapMenuProps> = ({ order, onDismiss }) => {
                         )}
                         {shippingMethod && (
                             <RMAShippingPrice
+                                inclTax={false}
                                 useCustomShippingPrice={useCustomShippingPrice}
                                 shippingPrice={shippingPrice}
                                 currencyCode={order.currency_code}
@@ -367,8 +370,9 @@ const SwapMenu: React.FC<SwapMenuProps> = ({ order, onDismiss }) => {
                             onClick={() => setNoNotification(!noNotification)}
                         >
                             <div
-                                className={`w-5 h-5 flex justify-center text-grey-0 border-grey-30 border rounded-base ${!noNotification && 'bg-violet-60'
-                                    }`}
+                                className={`w-5 h-5 flex justify-center text-grey-0 border-grey-30 border rounded-base ${
+                                    !noNotification && 'bg-violet-60'
+                                }`}
                             >
                                 <span className="self-center">
                                     {!noNotification && <CheckIcon size={16} />}
@@ -406,7 +410,7 @@ const SwapMenu: React.FC<SwapMenuProps> = ({ order, onDismiss }) => {
     )
 }
 
-const SelectProductsScreen = (pop: any, itemsToAdd: any, setSelectedItems: any): any => {
+const SelectProductsScreen = (pop, itemsToAdd, setSelectedItems) => {
     return {
         title: 'Add Products',
         onBack: () => pop(),

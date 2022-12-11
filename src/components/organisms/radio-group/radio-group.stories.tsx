@@ -1,4 +1,4 @@
-import { ComponentStory, storiesOf } from '@storybook/react'
+import { storiesOf } from '@storybook/react'
 import React from 'react'
 import useState from 'storybook-addon-state'
 import RadioGroup from '.'
@@ -55,7 +55,7 @@ storiesOf('Organisms/RadioGroup', module).add('controlled', () => {
     )
 })
 
-const Template: ComponentStory<typeof RadioGroup.Root> = (args) => (
+const Template = (args) => (
     <div>
         <RadioGroup.Root {...args}>
             {values.map((value) => {

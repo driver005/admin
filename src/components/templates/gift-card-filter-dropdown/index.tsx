@@ -43,18 +43,7 @@ const dateFilters = [
     'is equal to',
 ]
 
-interface OrderFiltersProps {
-    tabs?: any
-    activeTab: any
-    onTabClick?: any
-    onSaveTab?: any
-    onRemoveTab?: any
-    filters: any
-    submitFilters: any
-    clearFilters: any
-}
-
-const OrderFilters: React.FC<OrderFiltersProps> = ({
+const OrderFilters = ({
     tabs,
     activeTab,
     onTabClick,
@@ -67,7 +56,7 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
     const [tempState, setTempState] = useState(filters)
     const [name, setName] = useState('')
 
-    const handleRemoveTab = (val: any) => {
+    const handleRemoveTab = (val) => {
         if (onRemoveTab) {
             onRemoveTab(val)
         }
@@ -97,15 +86,15 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
         clearFilters()
     }
 
-    const setSingleFilter = (filterKey: any, filterVal: any) => {
-        setTempState((prevState: any) => ({
+    const setSingleFilter = (filterKey, filterVal) => {
+        setTempState((prevState) => ({
             ...prevState,
             [filterKey]: filterVal,
         }))
     }
 
     const numberOfFilters = Object.entries(filters).reduce(
-        (acc, [key, value]: any) => {
+        (acc, [key, value]) => {
             if (value?.open) {
                 acc = acc + 1
             }
@@ -144,28 +133,28 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
                     options={statusFilters}
                     filters={tempState.status.filter}
                     open={tempState.status.open}
-                    setFilter={(val: any) => setSingleFilter('status', val)}
+                    setFilter={(val) => setSingleFilter('status', val)}
                 />
                 <FilterDropdownItem
                     filterTitle="Payment Status"
                     options={paymentFilters}
                     filters={tempState.payment.filter}
                     open={tempState.payment.open}
-                    setFilter={(val: any) => setSingleFilter('payment', val)}
+                    setFilter={(val) => setSingleFilter('payment', val)}
                 />
                 <FilterDropdownItem
                     filterTitle="Fulfillment Status"
                     options={fulfillmentFilters}
                     filters={tempState.fulfillment.filter}
                     open={tempState.fulfillment.open}
-                    setFilter={(val: any) => setSingleFilter('fulfillment', val)}
+                    setFilter={(val) => setSingleFilter('fulfillment', val)}
                 />
                 <FilterDropdownItem
                     filterTitle="Date"
                     options={dateFilters}
                     filters={tempState.date.filter}
                     open={tempState.date.open}
-                    setFilter={(val: any) => setSingleFilter('date', val)}
+                    setFilter={(val) => setSingleFilter('date', val)}
                 />
                 <SaveFilterItem
                     saveFilter={handleSaveTab}
@@ -174,7 +163,7 @@ const OrderFilters: React.FC<OrderFiltersProps> = ({
                 />
             </FilterDropdownContainer>
             {tabs &&
-                tabs.map((t: any) => (
+                tabs.map((t) => (
                     <TabFilter
                         key={t.value}
                         onClick={() => handleTabClick(t.value)}

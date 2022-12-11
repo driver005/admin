@@ -1,11 +1,11 @@
-import { navigate } from 'gatsby'
 import { useAdminDeletePriceList } from 'medusa-react'
 import moment from 'moment'
 import * as React from 'react'
+import { useNavigate } from 'react-router-dom'
 import Fade from '../../../../components/atoms/fade-wrapper'
 import EditIcon from '../../../../components/fundamentals/icons/edit-icon'
 import TrashIcon from '../../../../components/fundamentals/icons/trash-icon'
-import BodyCard, { BodyCardProps } from '../../../../components/organisms/body-card'
+import BodyCard from '../../../../components/organisms/body-card'
 import {
     formatPriceListGroups,
     getPriceListStatus,
@@ -16,7 +16,7 @@ import { getErrorMessage } from '../../../../utils/error-messages'
 import PriceListForm from '../../pricing-form'
 import { ViewType } from '../../pricing-form/types'
 
-const Header = ({ priceList }: any) => {
+const Header = ({ priceList }) => {
     const [isOpen, setIsOpen] = React.useState(false)
     return (
         <HeadingBodyCard priceList={priceList} setIsOpen={setIsOpen}>
@@ -54,8 +54,7 @@ const Header = ({ priceList }: any) => {
                 <Fade isVisible={isOpen} isFullScreen={true}>
                     <PriceListForm
                         id={priceList.id}
-                        // TODO: type does not exist
-                        // onClose={() => setIsOpen(false)}
+                        onClose={() => setIsOpen(false)}
                         viewType={ViewType.EDIT_DETAILS}
                     />
                 </Fade>
@@ -64,7 +63,7 @@ const Header = ({ priceList }: any) => {
     )
 }
 
-const PriceListCustomerGroupsFormatter = ({ groups }: { groups: any[] }) => {
+const PriceListCustomerGroupsFormatter = ({ groups }) => {
     const [group, other] = formatPriceListGroups(groups.map((cg) => cg.name))
     return (
         <>
@@ -74,13 +73,9 @@ const PriceListCustomerGroupsFormatter = ({ groups }: { groups: any[] }) => {
     )
 }
 
-type HeadingBodyCardPRops = BodyCardProps & {
-    priceList: any
-    setIsOpen: (value: boolean) => void
-}
-
-const HeadingBodyCard: React.FC<HeadingBodyCardPRops> = ({ priceList, setIsOpen, ...props }) => {
+const HeadingBodyCard = ({ priceList, setIsOpen, ...props }) => {
     const dialog = useImperativeDialog()
+    const navigate = useNavigate()
     const notification = useNotification()
     const deletePriceList = useAdminDeletePriceList(priceList?.id)
 

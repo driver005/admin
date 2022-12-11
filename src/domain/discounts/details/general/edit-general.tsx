@@ -5,8 +5,8 @@ import { Controller, useForm, useWatch } from 'react-hook-form'
 import Button from '../../../../components/fundamentals/button'
 import InputField from '../../../../components/molecules/input'
 import Modal from '../../../../components/molecules/modal'
-import Select from '../../../../components/molecules/select'
-import Textarea from '../../../../components/molecules/textarea'
+import { NextSelect } from '../../../../components/molecules/select/next-select'
+import TextArea from '../../../../components/molecules/textarea'
 import CurrencyInput from '../../../../components/organisms/currency-input'
 import useNotification from '../../../../hooks/use-notification'
 import { Option } from '../../../../types/shared'
@@ -72,9 +72,9 @@ const EditGeneral: React.FC<EditGeneralProps> = ({ discount, onClose }) => {
     const regionOptions = useMemo(() => {
         return regions
             ? regions.map((r) => ({
-                label: r.name,
-                value: r.id,
-            }))
+                  label: r.name,
+                  value: r.id,
+              }))
             : []
     }, [regions])
 
@@ -99,7 +99,7 @@ const EditGeneral: React.FC<EditGeneralProps> = ({ discount, onClose }) => {
                             Edit general information
                         </h1>
                     </Modal.Header>
-                    <Modal.Content isLargeModal>
+                    <Modal.Content>
                         <Controller
                             name="regions"
                             control={control}
@@ -110,9 +110,9 @@ const EditGeneral: React.FC<EditGeneralProps> = ({ discount, onClose }) => {
                                         ? value.length > 0
                                         : !!value,
                             }}
-                            render={({ field: { onChange, value } }: any) => {
+                            render={({ field: { value, onChange } }) => {
                                 return (
-                                    <Select
+                                    <NextSelect
                                         value={value}
                                         onChange={(value) => {
                                             onChange(
@@ -122,9 +122,9 @@ const EditGeneral: React.FC<EditGeneralProps> = ({ discount, onClose }) => {
                                             )
                                         }}
                                         label="Choose valid regions"
-                                        isMultiSelect={type !== 'fixed'}
-                                        hasSelectAll={type !== 'fixed'}
-                                        enableSearch
+                                        isMulti={type !== 'fixed'}
+                                        selectAll={type !== 'fixed'}
+                                        isSearchable
                                         required
                                         options={regionOptions}
                                     />
@@ -137,14 +137,16 @@ const EditGeneral: React.FC<EditGeneralProps> = ({ discount, onClose }) => {
                                 className="flex-1"
                                 placeholder="SUMMERSALE10"
                                 required
-                                {...register('code', { required: 'Code is required' })}
+                                {...register('code', {
+                                    required: 'Code is required',
+                                })}
                             />
 
                             {type !== 'free_shipping' && (
                                 <>
                                     {type === 'fixed' ? (
                                         <div className="flex-1">
-                                            <CurrencyInput
+                                            <CurrencyInput.Root
                                                 size="small"
                                                 currentCurrency={
                                                     fixedCurrency ?? 'USD'
@@ -160,9 +162,14 @@ const EditGeneral: React.FC<EditGeneralProps> = ({ discount, onClose }) => {
                                                             'Amount is required',
                                                         min: 1,
                                                     }}
-                                                    render={({ field: { onChange, value } }: any) => {
+                                                    render={({
+                                                        field: {
+                                                            value,
+                                                            onChange,
+                                                        },
+                                                    }) => {
                                                         return (
-                                                            <CurrencyInput.AmountInput
+                                                            <CurrencyInput.Amount
                                                                 label={'Amount'}
                                                                 required
                                                                 amount={value}
@@ -173,7 +180,7 @@ const EditGeneral: React.FC<EditGeneralProps> = ({ discount, onClose }) => {
                                                         )
                                                     }}
                                                 />
-                                            </CurrencyInput>
+                                            </CurrencyInput.Root>
                                         </div>
                                     ) : (
                                         <div className="flex-1">
@@ -184,13 +191,11 @@ const EditGeneral: React.FC<EditGeneralProps> = ({ discount, onClose }) => {
                                                 type="number"
                                                 placeholder="10"
                                                 prefix={'%'}
-                                                {...register(
-                                                    'value',
-                                                    {
-                                                        required:
-                                                            'Percentage is required',
-                                                        valueAsNumber: true,
-                                                    })}
+                                                {...register('value', {
+                                                    required:
+                                                        'Percentage is required',
+                                                    valueAsNumber: true,
+                                                })}
                                             />
                                         </div>
                                     )}
@@ -206,16 +211,14 @@ const EditGeneral: React.FC<EditGeneralProps> = ({ discount, onClose }) => {
                             </span>
                             <span>Uppercase letters and numbers only.</span>
                         </div>
-                        <Textarea
+                        <TextArea
                             label="Description"
                             required
                             placeholder="Summer Sale 2022"
                             rows={1}
-                            {...register(
-                                'description',
-                                {
-                                    required: 'Description is required',
-                                })}
+                            {...register('description', {
+                                required: 'Description is required',
+                            })}
                         />
                     </Modal.Content>
                     <Modal.Footer>
@@ -234,6 +237,7 @@ const EditGeneral: React.FC<EditGeneralProps> = ({ discount, onClose }) => {
                                 size="small"
                                 className="min-w-[128px]"
                                 type="submit"
+                                disabled={isLoading}
                                 loading={isLoading}
                             >
                                 Save

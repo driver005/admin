@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import { ComponentMeta } from '@storybook/react'
 import React from 'react'
 import TimePicker from './time-picker'
 import DatePicker from './date-picker'
@@ -8,28 +8,26 @@ export default {
     component: DatePicker,
 } as ComponentMeta<typeof DatePicker>
 
-const DatePickertemplate: ComponentStory<typeof DatePicker> = (args) => (
+const DatePickertemplate = (args) => (
     <div className="h-[200px] w-[750px]">
         <DatePicker {...args} />
     </div>
 )
 
-const TimePickertemplate: ComponentStory<typeof TimePicker> = (args) => (
+const TimePickertemplate = (args) => (
     <div className="h-[200px] w-[750px]">
         <TimePicker {...args} />
     </div>
 )
 
 export const DatePickerExample = DatePickertemplate.bind({})
-DatePickerExample.args = {
+DatePicker.args = {
     date: new Date('01/20/2022'),
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onSubmitDate: (date: any) => {},
+    onChange: (date) => {},
 }
 
 export const TimePickerExample = TimePickertemplate.bind({})
-TimePickerExample.args = {
+DatePicker.args = {
     date: new Date('01/20/2022'),
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onSubmitDate: (date: any) => {},
+    onChange: (date) => {},
 }

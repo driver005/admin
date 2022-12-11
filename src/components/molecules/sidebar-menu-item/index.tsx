@@ -1,6 +1,6 @@
-import React from 'react'
-import { Link } from 'gatsby'
+import React, { useCallback } from 'react'
 import Collapsible from 'react-collapsible'
+import { NavLink } from 'react-router-dom'
 
 type SidebarMenuSubitemProps = {
     pageLink: string
@@ -15,33 +15,31 @@ type SidebarMenuItemProps = {
     subItems?: SidebarMenuSubitemProps[]
 }
 
-type SidebarMenuItemType = SidebarMenuItemProps & {
-    SubItem?: React.FC<SidebarMenuSubitemProps>
-}
-
-const SidebarMenuItem = ({
+const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
     pageLink,
     icon,
     text,
     triggerHandler,
     subItems = [],
-}: SidebarMenuItemType) => {
+}: SidebarMenuItemProps) => {
+    const styles =
+        'py-1.5 px-3 my-0.5 rounded-base flex text-grey-90 hover:bg-grey-10 items-center'
     const activeStyles = 'bg-grey-10 text-violet-50'
+    const classNameFn = useCallback(
+        ({ isActive }) => (isActive ? `${styles} ${activeStyles}` : styles),
+        []
+    )
+
     return (
         <Collapsible
             transitionTime={150}
             transitionCloseTime={150}
             {...triggerHandler()}
             trigger={
-                <Link
-                    className={`py-1.5 px-3 my-0.5 rounded-base flex text-grey-90 hover:bg-grey-10 items-center`}
-                    activeClassName={activeStyles}
-                    to={pageLink}
-                    partiallyActive
-                >
+                <NavLink className={classNameFn} to={pageLink}>
                     <span className="items-start">{icon}</span>
                     <span className="ml-3">{text}</span>
-                </Link>
+                </NavLink>
             }
         >
             {subItems?.length > 0 &&
@@ -53,16 +51,17 @@ const SidebarMenuItem = ({
 }
 
 const SubItem = ({ pageLink, text }: SidebarMenuSubitemProps) => {
+    const styles = 'py-0.5 px-1 my-0.5 rounded-base flex hover:bg-grey-10'
     const activeStyles = 'bg-grey-10 font-semibold'
+    const classNameFn = useCallback(
+        ({ isActive }) => (isActive ? `${styles} ${activeStyles}` : styles),
+        []
+    )
+
     return (
-        <Link
-            className={`py-0.5 px-1 my-0.5 rounded-base flex hover:bg-grey-10`}
-            activeClassName={activeStyles}
-            to={pageLink}
-            partiallyActive
-        >
+        <NavLink className={classNameFn} to={pageLink}>
             <span className="text-grey-90 text-small ml-3">{text}</span>
-        </Link>
+        </NavLink>
     )
 }
 

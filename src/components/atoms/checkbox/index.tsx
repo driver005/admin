@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import React, { ReactNode, useImperativeHandle } from 'react'
 
 export type CheckboxProps = React.InputHTMLAttributes<HTMLInputElement> & {
-    label: any
+    label: ReactNode
 }
 
 const Checkbox = React.forwardRef(

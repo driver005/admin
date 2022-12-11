@@ -1,18 +1,18 @@
-import { navigate } from 'gatsby'
 import {
     useAdminCreateProduct,
     useAdminProducts,
     useAdminStore,
 } from 'medusa-react'
-import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import React from 'react'
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import FileUploadField from '../../components/atoms/file-upload-field'
 import Button from '../../components/fundamentals/button'
 import PlusIcon from '../../components/fundamentals/icons/plus-icon'
 import TrashIcon from '../../components/fundamentals/icons/trash-icon'
 import InputField from '../../components/molecules/input'
 import Modal from '../../components/molecules/modal'
-import Textarea from '../../components/molecules/textarea'
+import TextArea from '../../components/molecules/textarea'
 import CurrencyInput from '../../components/organisms/currency-input'
 import useNotification from '../../hooks/use-notification'
 import Medusa from '../../services/api'
@@ -24,61 +24,42 @@ type NewGiftCardProps = {
     onClose: () => void
 }
 
-type Denomination = {
-    name: string
-    component: React.ReactNode
-}
-
-const NewGiftCard: React.FC<NewGiftCardProps> = ({ onClose }) => {
-    const [thumbnail, setThumbnail] = useState<{
+type NewGiftCardFormData = {
+    title: string
+    description: string | undefined
+    thumbnail: {
         url: string
         name: string
-        size: string
+        size: number
         nativeFile: File
-    } | null>(null)
-    const { register, setValue, unregister, handleSubmit } = useForm()
+    } | null
+    denominations: {
+        amount: number | null
+    }[]
+}
+
+const NewGiftCard = ({ onClose }: NewGiftCardProps) => {
     const { store } = useAdminStore()
     const { refetch } = useAdminProducts()
-    const giftCard = useAdminCreateProduct()
-    const [denominations, setDenominations] = useState<Denomination[]>([])
+    const { mutate, isLoading } = useAdminCreateProduct()
+    const navigate = useNavigate()
     const notification = useNotification()
 
-    const handleValueUpdate = (name: string, value?: number) => {
-        if (!value) {
-            return
-        }
-        setValue(name, value)
-    }
+    const { register, setValue, handleSubmit, control } =
+        useForm<NewGiftCardFormData>({
+            shouldUnregister: true,
+        })
 
-    const addDenomination = () => {
-        const name = `denominations.${denominations.length}`
-        register(name)
-        const component = (
-            <CurrencyInput
-                currentCurrency={store?.default_currency_code}
-                readOnly
-                size="medium"
-            >
-                <CurrencyInput.AmountInput
-                    label="Amount"
-                    amount={undefined}
-                    onChange={(v) => handleValueUpdate(name, v)}
-                />
-            </CurrencyInput>
-        )
-        setDenominations([...denominations, { name, component }])
-    }
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: 'denominations',
+    })
 
-    const deleteDenomination = (name: string) => {
-        unregister(name)
-        setDenominations(denominations.filter((d) => d.name !== name))
-    }
-
-    const handleFileUpload = (files: any) => {
+    const handleFileUpload = (files: File[]) => {
         const file = files[0]
         const url = URL.createObjectURL(file)
 
-        setThumbnail({
+        setValue('thumbnail', {
             url,
             name: file.name,
             size: file.size,
@@ -86,12 +67,13 @@ const NewGiftCard: React.FC<NewGiftCardProps> = ({ onClose }) => {
         })
     }
 
-    const onSubmit = async (data: {
-        name: string
-        description?: string
-        denominations: number[]
-    }) => {
-        const trimmedName = data.name.trim()
+    const thumbnail = useWatch({
+        control,
+        name: 'thumbnail',
+    })
+
+    const onSubmit = async (data: NewGiftCardFormData) => {
+        const trimmedName = data.title.trim()
 
         if (!trimmedName) {
             notification(
@@ -103,7 +85,7 @@ const NewGiftCard: React.FC<NewGiftCardProps> = ({ onClose }) => {
             return
         }
 
-        if (!data.denominations) {
+        if (!data.denominations?.length) {
             notification(
                 'Error',
                 'Please add at least one denomination',
@@ -118,18 +100,18 @@ const NewGiftCard: React.FC<NewGiftCardProps> = ({ onClose }) => {
         if (thumbnail) {
             const uploadedImgs = await Medusa.uploads
                 .create([thumbnail.nativeFile])
-                .then(({ data }: any) => {
-                    const uploaded = data.uploads.map(({ url }: any) => url)
+                .then(({ data }) => {
+                    const uploaded = data.uploads.map(({ url }) => url)
                     return uploaded
                 })
 
             images = uploadedImgs
         }
 
-        giftCard.mutate(
+        mutate(
             {
                 is_giftcard: true,
-                title: data.name,
+                title: data.title,
                 description: data.description,
                 discountable: false,
                 options: [{ title: 'Denominations' }],
@@ -139,11 +121,11 @@ const NewGiftCard: React.FC<NewGiftCardProps> = ({ onClose }) => {
                     manage_inventory: false,
                     prices: [
                         {
-                            amount: d,
+                            amount: d.amount!,
                             currency_code: store?.default_currency_code,
                         },
                     ],
-                    options: [{ value: `${d}` }],
+                    options: [{ value: `${d.amount}` }],
                 })),
                 images: images.length ? images : undefined,
                 thumbnail: images.length ? images[0] : undefined,
@@ -168,7 +150,7 @@ const NewGiftCard: React.FC<NewGiftCardProps> = ({ onClose }) => {
 
     return (
         <Modal handleClose={onClose}>
-            <form onSubmit={handleSubmit(onSubmit as any)}>
+            <form onSubmit={handleSubmit(onSubmit, (err) => console.log(err))}>
                 <Modal.Body>
                     <Modal.Header handleClose={onClose}>
                         <div>
@@ -180,7 +162,7 @@ const NewGiftCard: React.FC<NewGiftCardProps> = ({ onClose }) => {
                     <Modal.Content>
                         <div className="mb-base">
                             <h3 className="inter-base-semibold">
-                                Product information
+                                Gift Card Details
                             </h3>
                         </div>
                         <div className="flex flex-col gap-y-base">
@@ -188,9 +170,9 @@ const NewGiftCard: React.FC<NewGiftCardProps> = ({ onClose }) => {
                                 label={'Name'}
                                 required
                                 placeholder="The best Gift Card"
-                                {...register('name', { required: true })}
+                                {...register('title', { required: true })}
                             />
-                            <Textarea
+                            <TextArea
                                 label="Description"
                                 placeholder="The best Gift Card of all time"
                                 {...register('description')}
@@ -215,7 +197,10 @@ const NewGiftCard: React.FC<NewGiftCardProps> = ({ onClose }) => {
                                                     className="text-rose-50 inter-small-semibold"
                                                     type="button"
                                                     onClick={() =>
-                                                        setThumbnail(null)
+                                                        setValue(
+                                                            'thumbnail',
+                                                            null
+                                                        )
                                                     }
                                                 >
                                                     Delete
@@ -225,7 +210,12 @@ const NewGiftCard: React.FC<NewGiftCardProps> = ({ onClose }) => {
                                     </div>
                                 ) : (
                                     <FileUploadField
-                                        filetypes={['image/png', 'image/jpeg']}
+                                        filetypes={[
+                                            'image/gif',
+                                            'image/jpeg',
+                                            'image/png',
+                                            'image/webp',
+                                        ]}
                                         onFileChosen={handleFileUpload}
                                         placeholder="1200 x 1600 (3:4) recommended, up to 10MB each"
                                     />
@@ -238,23 +228,55 @@ const NewGiftCard: React.FC<NewGiftCardProps> = ({ onClose }) => {
                                 <span className="text-rose-50">*</span>
                             </h3>
                             <div className="flex flex-col gap-y-xsmall">
-                                {denominations.map((denomination) => {
+                                {fields.map((denomination, index) => {
                                     return (
                                         <div
-                                            key={denomination.name}
-                                            className="flex items-center gap-x-base last:mb-large"
+                                            key={denomination.id}
+                                            className="flex items-end gap-x-base last:mb-large"
                                         >
-                                            {denomination.component}
+                                            <CurrencyInput.Root
+                                                currentCurrency={
+                                                    store?.default_currency_code
+                                                }
+                                                readOnly
+                                                size="medium"
+                                            >
+                                                <Controller
+                                                    control={control}
+                                                    name={`denominations.${index}.amount`}
+                                                    rules={{
+                                                        required: true,
+                                                        shouldUnregister: true,
+                                                    }}
+                                                    render={({
+                                                        field: {
+                                                            value,
+                                                            onChange,
+                                                            ref,
+                                                        },
+                                                    }) => {
+                                                        return (
+                                                            <CurrencyInput.Amount
+                                                                label="Amount"
+                                                                amount={
+                                                                    value ||
+                                                                    undefined
+                                                                }
+                                                                onChange={
+                                                                    onChange
+                                                                }
+                                                                ref={ref}
+                                                            />
+                                                        )
+                                                    }}
+                                                />
+                                            </CurrencyInput.Root>
                                             <Button
                                                 variant="ghost"
                                                 size="large"
-                                                className="w-xlarge h-xlarge text-grey-40"
+                                                className="w-10 h-10 text-grey-40"
                                                 type="button"
-                                                onClick={() =>
-                                                    deleteDenomination(
-                                                        denomination.name
-                                                    )
-                                                }
+                                                onClick={() => remove(index)}
                                             >
                                                 <TrashIcon size={20} />
                                             </Button>
@@ -266,7 +288,11 @@ const NewGiftCard: React.FC<NewGiftCardProps> = ({ onClose }) => {
                                 name="add-denomination"
                                 variant="ghost"
                                 size="small"
-                                onClick={addDenomination}
+                                onClick={() =>
+                                    append({
+                                        amount: undefined,
+                                    })
+                                }
                                 type="button"
                             >
                                 <PlusIcon size={20} />
@@ -290,6 +316,8 @@ const NewGiftCard: React.FC<NewGiftCardProps> = ({ onClose }) => {
                                 variant="primary"
                                 size="small"
                                 className="w-eventButton"
+                                loading={isLoading}
+                                disabled={isLoading}
                             >
                                 Create & Publish
                             </Button>

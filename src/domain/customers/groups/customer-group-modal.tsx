@@ -1,16 +1,22 @@
+import {
+    AdminPostCustomerGroupsGroupReq,
+    AdminPostCustomerGroupsReq,
+    CustomerGroup,
+} from '@medusajs/medusa'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { CustomerGroup } from '@medusajs/medusa'
 
-import Modal from '../../../components/molecules/modal'
-import Input from '../../../components/molecules/input'
 import Button from '../../../components/fundamentals/button'
+import Input from '../../../components/molecules/input'
+import Modal from '../../../components/molecules/modal'
 import Metadata, { MetadataField } from '../../../components/organisms/metadata'
 
 type CustomerGroupModalProps = {
     handleClose: () => void
     initialData?: CustomerGroup
-    handleSubmit: (data: CustomerGroup) => void
+    handleSubmit: (
+        data: AdminPostCustomerGroupsReq | AdminPostCustomerGroupsGroupReq
+    ) => void
 }
 
 /*
@@ -24,21 +30,21 @@ function CustomerGroupModal(props: CustomerGroupModalProps) {
     const [metadata, setMetadata] = useState<MetadataField[]>(
         isEdit
             ? Object.keys(initialData.metadata || {}).map((k) => ({
-                key: k,
-                value: initialData.metadata[k],
-            }))
+                  key: k,
+                  value: initialData.metadata[k],
+              }))
             : []
     )
 
     const { register, handleSubmit: handleFromSubmit } = useForm({
-        defaultValues: initialData as any,
+        defaultValues: initialData,
     })
 
-    const onSubmit = (data: any) => {
-        const meta: any = {}
+    const onSubmit = (data) => {
+        const meta = {}
         const initial = props.initialData?.metadata || {}
 
-        metadata.forEach((m: any) => (meta[m.key] = m.value))
+        metadata.forEach((m) => (meta[m.key] = m.value))
 
         for (const m in initial) {
             if (!(m in meta)) {
@@ -46,9 +52,11 @@ function CustomerGroupModal(props: CustomerGroupModalProps) {
             }
         }
 
-        data.metadata = meta
-
-        handleSubmit(data)
+        const toSubmit = {
+            name: data.name,
+            metadata: meta,
+        }
+        handleSubmit(toSubmit)
     }
 
     return (
@@ -67,9 +75,9 @@ function CustomerGroupModal(props: CustomerGroupModalProps) {
                         <div className="flex space-x-4">
                             <Input
                                 label="Title"
+                                {...register('name')}
                                 placeholder="Customer group name"
                                 required
-                                {...register('name', {})}
                             />
                         </div>
                     </div>

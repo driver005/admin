@@ -1,4 +1,3 @@
-import React from 'react'
 import {
     HeaderGroup,
     Row,
@@ -7,17 +6,17 @@ import {
     useTable,
 } from 'react-table'
 import { UseMutateFunction } from 'react-query'
-import { navigate } from 'gatsby'
 
 import { Customer } from '@medusajs/medusa'
 
 import { CUSTOMER_GROUPS_CUSTOMERS_LIST_TABLE_COLUMNS } from './config'
-import Table, { TablePagination } from '../../molecules/table'
-import DetailsIcon from '../../fundamentals/icons/details-icon'
+import Table from '../../molecules/table'
+import DetailsIcon from '../../fundamentals/details-icon'
 import TrashIcon from '../../fundamentals/icons/trash-icon'
 import useQueryFilters from '../../../hooks/use-query-filters'
 import { FilteringOptionProps } from '../../molecules/table/filtering-option'
-import { ActionType } from '../../molecules/actionables'
+import { useNavigate } from 'react-router-dom'
+import TableContainer from '../../organisms/table-container'
 
 /* ********************************** */
 /* ************** TYPES ************* */
@@ -38,7 +37,7 @@ type CustomersListTableProps = ReturnType<typeof useQueryFilters> & {
     customers: Customer[]
     filteringOptions: FilteringOptionProps[]
     removeCustomers: UseMutateFunction<any, Error, any, unknown>
-    query?: string
+    isLoading?: boolean
 }
 
 /* ********************************************* */
@@ -70,13 +69,20 @@ function CustomersListTableHeaderRow(props: CustomersListTableHeaderRowProps) {
     )
 }
 
+interface CustomersListTableRowProps {
+    row: Row<Customer>
+    removeCustomers: Function
+}
+
 /*
  * Renders customer group customers list table row.
  */
 function CustomersListTableRow(props: CustomersListTableRowProps) {
     const { row, removeCustomers } = props
 
-    const actions: ActionType[] = [
+    const navigate = useNavigate()
+
+    const actions = [
         {
             label: 'Details',
             onClick: () => navigate(`/a/customers/${row.original.id}`),
@@ -124,19 +130,19 @@ function CustomersListTable(props: CustomersListTableProps) {
         setQuery,
         paginate,
         filteringOptions,
-        query,
         queryObject,
         count,
+        isLoading,
     } = props
 
     const tableConfig = {
         data: customers,
         columns: CUSTOMER_GROUPS_CUSTOMERS_LIST_TABLE_COLUMNS,
         initialState: {
-            pageSize: queryObject!.limit,
-            pageIndex: queryObject!.offset / queryObject!.limit,
+            pageSize: queryObject.limit,
+            pageIndex: queryObject.offset / queryObject.limit,
         },
-        pageCount: Math.ceil(count / queryObject!.limit),
+        pageCount: Math.ceil(count / queryObject.limit),
         manualPagination: true,
         autoResetPage: false,
     }
@@ -172,11 +178,27 @@ function CustomersListTable(props: CustomersListTableProps) {
     }
 
     return (
-        <>
+        <TableContainer
+            isLoading={isLoading}
+            hasPagination
+            numberOfRows={queryObject.limit}
+            pagingState={{
+                count: count!,
+                offset: queryObject.offset,
+                pageSize: queryObject.offset + table.rows.length,
+                title: 'Customer Groups',
+                currentPage: table.state.pageIndex + 1,
+                pageCount: table.pageCount,
+                nextPage: handleNext,
+                prevPage: handlePrev,
+                hasNext: table.canNextPage,
+                hasPrev: table.canPreviousPage,
+            }}
+        >
             <Table
                 enableSearch
                 handleSearch={handleSearch}
-                searchValue={query}
+                searchValue={queryObject.q}
                 filteringOptions={filteringOptions}
                 {...table.getTableProps()}
             >
@@ -202,21 +224,7 @@ function CustomersListTable(props: CustomersListTableProps) {
                     })}
                 </Table.Body>
             </Table>
-
-            <TablePagination
-                count={count!}
-                limit={queryObject!.limit}
-                offset={queryObject!.offset}
-                pageSize={queryObject!.offset + table.rows.length}
-                title="Customer Groups"
-                currentPage={table.state.pageIndex + 1}
-                pageCount={table.pageCount}
-                nextPage={handleNext}
-                prevPage={handlePrev}
-                hasNext={table.canNextPage}
-                hasPrev={table.canPreviousPage}
-            />
-        </>
+        </TableContainer>
     )
 }
 

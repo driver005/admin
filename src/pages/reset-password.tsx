@@ -1,9 +1,9 @@
-import { navigate } from 'gatsby'
 import { useAdminResetPassword } from 'medusa-react'
 import qs from 'qs'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { decodeToken } from 'react-jwt'
+import { useLocation, useNavigate } from 'react-router-dom'
 import Button from '../components/fundamentals/button'
 import MedusaIcon from '../components/fundamentals/icons/medusa-icon'
 import SigninInput from '../components/molecules/input-signin'
@@ -16,10 +16,12 @@ type formValues = {
     repeat_password: string
 }
 
-const ResetPasswordPage = ({ location }: any) => {
+const ResetPasswordPage = () => {
+    const navigate = useNavigate()
+    const location = useLocation()
     const parsed = qs.parse(location.search.substring(1))
 
-    let token: any
+    let token: { email: string } | null = null
     if (parsed?.token) {
         try {
             token = decodeToken(parsed.token as string)
@@ -31,7 +33,7 @@ const ResetPasswordPage = ({ location }: any) => {
     const [passwordMismatch, setPasswordMismatch] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [ready, setReady] = useState(false)
-    const email = token?.email || parsed?.email || ''
+    const email = (token?.email || parsed?.email || '') as string
 
     const { register, handleSubmit, formState } = useForm<formValues>({
         defaultValues: {
@@ -114,13 +116,17 @@ const ResetPasswordPage = ({ location }: any) => {
                                 <SigninInput
                                     placeholder="Password"
                                     type={'password'}
-                                    {...register('password', { required: true })}
+                                    {...register('password', {
+                                        required: true,
+                                    })}
                                     autoComplete="new-password"
                                 />
                                 <SigninInput
                                     placeholder="Confirm password"
                                     type={'password'}
-                                    {...register('repeat_password', { required: true })}
+                                    {...register('repeat_password', {
+                                        required: true,
+                                    })}
                                     autoComplete="new-password"
                                     className="mb-0"
                                 />

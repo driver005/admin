@@ -1,17 +1,19 @@
-import React, { useState, useMemo } from 'react'
-import { RouteComponentProps, Router } from '@reach/router'
-import { navigate } from 'gatsby'
+import { useMemo, useState } from 'react'
+import { Route, Routes, useNavigate } from 'react-router-dom'
 
 import PlusIcon from '../../../components/fundamentals/icons/plus-icon'
 import BodyCard from '../../../components/organisms/body-card'
 import TableViewHeader from '../../../components/organisms/custom-table-header'
 import DraftOrderTable from '../../../components/templates/draft-order-table'
-import DraftOrderDetails from './details'
+import NewOrderFormProvider from '../new/form'
 import NewOrder from '../new/new-order'
+import DraftOrderDetails from './details'
 
 const VIEWS = ['orders', 'drafts']
 
-const DraftOrderIndex: React.FC<RouteComponentProps> = () => {
+const DraftOrderIndex = () => {
+    const navigate = useNavigate()
+
     const view = 'drafts'
     const [showNewOrder, setShowNewOrder] = useState(false)
 
@@ -41,12 +43,15 @@ const DraftOrderIndex: React.FC<RouteComponentProps> = () => {
                         />
                     }
                     actionables={actions}
+                    className="h-fit"
                 >
                     <DraftOrderTable />
                 </BodyCard>
             </div>
             {showNewOrder && (
-                <NewOrder onDismiss={() => setShowNewOrder(false)} refresh />
+                <NewOrderFormProvider>
+                    <NewOrder onDismiss={() => setShowNewOrder(false)} />
+                </NewOrderFormProvider>
             )}
         </div>
     )
@@ -54,10 +59,10 @@ const DraftOrderIndex: React.FC<RouteComponentProps> = () => {
 
 const DraftOrders = () => {
     return (
-        <Router>
-            <DraftOrderIndex path="/" />
-            <DraftOrderDetails path=":id" />
-        </Router>
+        <Routes>
+            <Route index element={<DraftOrderIndex />} />
+            <Route path="/:id" element={<DraftOrderDetails />} />
+        </Routes>
     )
 }
 

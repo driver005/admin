@@ -1,17 +1,17 @@
 import { LineItem, Order } from '@medusajs/medusa'
 import clsx from 'clsx'
-import React, { useContext } from 'react'
+import React, { Fragment, useContext } from 'react'
 import RMAReturnReasonSubModal from '../../../domain/orders/details/rma-sub-modals/return-reasons'
 import Medusa from '../../../services/api'
 import { isLineItemCanceled } from '../../../utils/is-line-item'
 import { formatAmountWithSymbol } from '../../../utils/prices'
+import CopyToClipboard from '../../atoms/copy-to-clipboard'
 import Button from '../../fundamentals/button'
 import CheckIcon from '../../fundamentals/icons/check-icon'
 import MinusIcon from '../../fundamentals/icons/minus-icon'
 import PlusIcon from '../../fundamentals/icons/plus-icon'
 import { LayeredModalContext } from '../../molecules/modal/layered-modal'
 import Table from '../../molecules/table'
-import CopyToClipboard from '../../atoms/copy-to-clipboard'
 
 type RMASelectProductTableProps = {
     order: Omit<Order, 'beforeInsert'>
@@ -34,7 +34,7 @@ const RMASelectProductTable: React.FC<RMASelectProductTableProps> = ({
 }) => {
     const { push, pop } = useContext(LayeredModalContext)
 
-    const handleQuantity = (change: number, item: any) => {
+    const handleQuantity = (change, item) => {
         if (
             (item.quantity - item.returned_quantity ===
                 toReturn[item.id].quantity &&
@@ -55,7 +55,7 @@ const RMASelectProductTable: React.FC<RMASelectProductTableProps> = ({
         setToReturn(newReturns)
     }
 
-    const handleReturnToggle = (item: any) => {
+    const handleReturnToggle = (item) => {
         const id = item.id
 
         const newReturns = { ...toReturn }
@@ -74,13 +74,13 @@ const RMASelectProductTable: React.FC<RMASelectProductTableProps> = ({
         setToReturn(newReturns)
     }
 
-    const handleAddImages = async (files: any) => {
+    const handleAddImages = async (files) => {
         return Medusa.uploads
             .create(files)
-            .then(({ data }: any) => data.uploads.map(({ url }: any) => url))
+            .then(({ data }) => data.uploads.map(({ url }) => url))
     }
 
-    const setReturnReason = (reason: any, note: any, files: any, id: any) => {
+    const setReturnReason = (reason, note, files, id) => {
         let newReturns = {}
         if (imagesOnReturns && files?.length) {
             handleAddImages(files).then((res) => {
@@ -111,16 +111,18 @@ const RMASelectProductTable: React.FC<RMASelectProductTableProps> = ({
 
     return (
         <Table>
-            <Table.HeadRow className="text-grey-50 inter-small-semibold">
-                <Table.HeadCell colSpan={2}>Product Details</Table.HeadCell>
-                <Table.HeadCell className="text-right pr-8">
-                    Quantity
-                </Table.HeadCell>
-                <Table.HeadCell className="text-right">
-                    Refundable
-                </Table.HeadCell>
-                <Table.HeadCell></Table.HeadCell>
-            </Table.HeadRow>
+            <Table.Head className="border-none">
+                <Table.HeadRow className="text-grey-50 inter-small-semibold">
+                    <Table.HeadCell colSpan={2}>Product Details</Table.HeadCell>
+                    <Table.HeadCell className="text-right pr-8">
+                        Quantity
+                    </Table.HeadCell>
+                    <Table.HeadCell className="text-right">
+                        Refundable
+                    </Table.HeadCell>
+                    <Table.HeadCell></Table.HeadCell>
+                </Table.HeadRow>
+            </Table.Head>
             <Table.Body>
                 {allItems.map((item) => {
                     // Only show items that have not been returned,
@@ -133,7 +135,7 @@ const RMASelectProductTable: React.FC<RMASelectProductTableProps> = ({
                     }
                     const checked = item.id in toReturn
                     return (
-                        <>
+                        <Fragment key={item.id}>
                             <Table.Row
                                 className={clsx(
                                     'border-b-grey-0 hover:bg-grey-0'
@@ -145,8 +147,9 @@ const RMASelectProductTable: React.FC<RMASelectProductTableProps> = ({
                                             onClick={() =>
                                                 handleReturnToggle(item)
                                             }
-                                            className={`mr-4 w-5 h-5 flex justify-center text-grey-0 border-grey-30 border cursor-pointer rounded-base ${checked && 'bg-violet-60'
-                                                }`}
+                                            className={`mr-4 w-5 h-5 flex justify-center text-grey-0 border-grey-30 border cursor-pointer rounded-base ${
+                                                checked && 'bg-violet-60'
+                                            }`}
                                         >
                                             <span className="self-center">
                                                 {checked && (
@@ -171,7 +174,7 @@ const RMASelectProductTable: React.FC<RMASelectProductTableProps> = ({
                                         <div className="w-[30px] h-[40px] ">
                                             <img
                                                 className="h-full w-full object-cover rounded"
-                                                src={item.thumbnail || undefined}
+                                                src={item.thumbnail}
                                             />
                                         </div>
                                         <div className="inter-small-regular text-grey-50 flex flex-col ml-4">
@@ -261,24 +264,24 @@ const RMASelectProductTable: React.FC<RMASelectProductTableProps> = ({
                                                         {toReturn[item.id]
                                                             ?.images?.length >
                                                             0 && (
-                                                                <>
-                                                                    (
-                                                                    {
-                                                                        toReturn[
-                                                                            item.id
-                                                                        ]?.images
-                                                                            ?.length
-                                                                    }{' '}
-                                                                    image{' '}
-                                                                    {toReturn[
+                                                            <>
+                                                                (
+                                                                {
+                                                                    toReturn[
                                                                         item.id
                                                                     ]?.images
-                                                                        ?.length > 1
-                                                                        ? 's'
-                                                                        : ''}
-                                                                    )
-                                                                </>
-                                                            )}
+                                                                        ?.length
+                                                                }{' '}
+                                                                image{' '}
+                                                                {toReturn[
+                                                                    item.id
+                                                                ]?.images
+                                                                    ?.length > 1
+                                                                    ? 's'
+                                                                    : ''}
+                                                                )
+                                                            </>
+                                                        )}
                                                     </span>
                                                 </span>
                                             )}
@@ -291,14 +294,16 @@ const RMASelectProductTable: React.FC<RMASelectProductTableProps> = ({
                                                     push(
                                                         ReturnReasonScreen(
                                                             pop,
-                                                            toReturn[item.id]?.reason,
-                                                            toReturn[item.id]?.note,
+                                                            toReturn[item.id]
+                                                                ?.reason,
+                                                            toReturn[item.id]
+                                                                ?.note,
                                                             customReturnOptions,
                                                             imagesOnReturns,
                                                             (
-                                                                reason: any,
-                                                                note: any,
-                                                                files: any
+                                                                reason,
+                                                                note,
+                                                                files
                                                             ) =>
                                                                 setReturnReason(
                                                                     reason,
@@ -319,7 +324,7 @@ const RMASelectProductTable: React.FC<RMASelectProductTableProps> = ({
                                     </Table.Cell>
                                 </Table.Row>
                             )}
-                        </>
+                        </Fragment>
                     )
                 })}
             </Table.Body>
@@ -328,13 +333,13 @@ const RMASelectProductTable: React.FC<RMASelectProductTableProps> = ({
 }
 
 const ReturnReasonScreen = (
-    pop: any,
-    reason: any,
-    note: string,
-    customReturnOptions: any,
-    imagesOnReturns: boolean,
-    setReturnReason: any
-): any => {
+    pop,
+    reason,
+    note,
+    customReturnOptions,
+    imagesOnReturns,
+    setReturnReason
+) => {
     return {
         title: 'Return Reasons',
         onBack: () => pop(),

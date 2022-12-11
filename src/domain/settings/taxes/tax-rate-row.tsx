@@ -16,12 +16,7 @@ type TaxRate = {
     type: TaxRateType
 }
 
-interface TaxRateRowProps {
-    row: any
-    onEdit: any
-}
-
-export const TaxRateRow: React.FC<TaxRateRowProps> = ({ row, onEdit }) => {
+export const TaxRateRow = ({ row, onEdit }) => {
     const dialog = useImperativeDialog()
     const notification = useNotification()
     const deleteTaxRate = useAdminDeleteTaxRate(row.original.id)
@@ -64,7 +59,7 @@ export const TaxRateRow: React.FC<TaxRateRowProps> = ({ row, onEdit }) => {
             variant: 'danger',
             onClick: () => handleDelete(row.original),
             icon: <TrashIcon size={20} />,
-        } as any)
+        })
     }
 
     return (
@@ -75,7 +70,7 @@ export const TaxRateRow: React.FC<TaxRateRowProps> = ({ row, onEdit }) => {
             {...row.getRowProps()}
             className="group"
         >
-            {row.cells.map((cell: any, index: number) => {
+            {row.cells.map((cell, index) => {
                 return cell.render('Cell', { index })
             })}
         </Table.Row>

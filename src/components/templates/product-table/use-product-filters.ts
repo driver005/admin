@@ -34,10 +34,6 @@ interface ProductFilterState {
         open: boolean
         filter: null | string[] | string
     }
-    payment: {
-        open: boolean
-        filter: null | string[] | string
-    }
     date: {
         open: boolean
         filter: ProductDateFilter
@@ -57,7 +53,7 @@ const allowedFilters = [
     'limit',
 ]
 
-const DefaultTabs: any = {
+const DefaultTabs = {
     drafts: {
         status: ['draft'],
     },
@@ -71,7 +67,7 @@ const formatDateFilter = (filter: ProductDateFilter) => {
         return filter
     }
 
-    const dateFormatted = Object.entries(filter).reduce((acc: any, [key, value]) => {
+    const dateFormatted = Object.entries(filter).reduce((acc, [key, value]) => {
         if (value.includes('|')) {
             acc[key] = relativeDateFormatToTimestamp(value)
         } else {
@@ -101,6 +97,7 @@ const reducer = (
         case 'setQuery': {
             return {
                 ...state,
+                offset: 0, // reset offset when query changes
                 query: action.payload,
             }
         }
@@ -331,11 +328,11 @@ export const useProductFilters = (
         for (const [tab, conditions] of Object.entries(DefaultTabs)) {
             let match = true
 
-            if (Object.keys(clean).length !== Object.keys(conditions as any).length) {
+            if (Object.keys(clean).length !== Object.keys(conditions).length) {
                 continue
             }
 
-            for (const [filter, value] of Object.entries(conditions as any)) {
+            for (const [filter, value] of Object.entries(conditions)) {
                 if (filter in clean) {
                     if (Array.isArray(value)) {
                         match =
@@ -378,12 +375,12 @@ export const useProductFilters = (
         } else {
             const tabFound = tabs.find((t) => t.value === tabName)
             if (tabFound) {
-                tabToUse = qs.parse(tabFound.representationString as any)
+                tabToUse = qs.parse(tabFound.representationString)
             }
         }
 
         if (tabToUse) {
-            const toSubmit: any = {
+            const toSubmit = {
                 ...state,
                 date: {
                     open: false,
@@ -420,7 +417,7 @@ export const useProductFilters = (
 
         const storedString = localStorage.getItem('products::filters')
 
-        let existing: any
+        let existing: null | object = null
 
         if (storedString) {
             existing = JSON.parse(storedString)
@@ -430,7 +427,7 @@ export const useProductFilters = (
             existing[tabName] = repString
             localStorage.setItem('products::filters', JSON.stringify(existing))
         } else {
-            const newFilters: any = {}
+            const newFilters = {}
             newFilters[tabName] = repString
             localStorage.setItem(
                 'products::filters',
@@ -462,7 +459,7 @@ export const useProductFilters = (
     const removeTab = (tabValue: string) => {
         const storedString = localStorage.getItem('products::filters')
 
-        let existing: any
+        let existing: null | object = null
 
         if (storedString) {
             existing = JSON.parse(storedString)
@@ -507,30 +504,14 @@ export const useProductFilters = (
     }
 }
 
-type filterStateMapType = {
-    status: string
-    collection_id: string
-    tags: string
-    created_at: string
-    [key:string]: string
-}
-
-const filterStateMap: filterStateMapType = {
+const filterStateMap = {
     status: 'status',
     collection_id: 'collection',
     tags: 'tags',
     created_at: 'date',
 }
 
-type stateFilterMapType = {
-    status: string
-    collection: string
-    tags: string
-    date: string
-    [key:string]: string
-}
-
-const stateFilterMap: stateFilterMapType = {
+const stateFilterMap = {
     status: 'status',
     collection: 'collection_id',
     tags: 'tags',
@@ -555,10 +536,6 @@ const parseQueryString = (
             filter: null,
         },
         date: {
-            open: false,
-            filter: null,
-        },
-        payment: {
             open: false,
             filter: null,
         },
@@ -594,7 +571,7 @@ const parseQueryString = (
                         if (typeof value === 'string' || Array.isArray(value)) {
                             defaultVal.status = {
                                 open: true,
-                                filter: value as any,
+                                filter: value,
                             }
                         }
                         break
@@ -603,7 +580,7 @@ const parseQueryString = (
                         if (typeof value === 'string' || Array.isArray(value)) {
                             defaultVal.collection = {
                                 open: true,
-                                filter: value as any,
+                                filter: value,
                             }
                         }
                         break
@@ -612,7 +589,7 @@ const parseQueryString = (
                         if (typeof value === 'string' || Array.isArray(value)) {
                             defaultVal.payment = {
                                 open: true,
-                                filter: value as any,
+                                filter: value,
                             }
                         }
                         break
@@ -620,7 +597,7 @@ const parseQueryString = (
                     case 'created_at': {
                         defaultVal.date = {
                             open: true,
-                            filter: value as any,
+                            filter: value,
                         }
                         break
                     }

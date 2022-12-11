@@ -34,22 +34,22 @@ const EditDenominationsModal = ({
         augmentWithIds(defaultDenominations)
     )
     const selectedCurrencies = denominations.map(
-        (denomination: any) => denomination.currency_code
+        (denomination) => denomination.currency_code
     )
     const availableCurrencies = currencyCodes?.filter(
         (currency) => !selectedCurrencies.includes(currency)
     )
 
-    const onAmountChange = (index: number) => {
-        return (amount: any) => {
+    const onAmountChange = (index) => {
+        return (amount) => {
             const newDenominations = denominations.slice()
             newDenominations[index] = { ...newDenominations[index], amount }
             setDenominations(newDenominations)
         }
     }
 
-    const onCurrencyChange = (index: number) => {
-        return (currencyCode: any) => {
+    const onCurrencyChange = (index) => {
+        return (currencyCode) => {
             const newDenominations = denominations.slice()
             newDenominations[index] = {
                 ...newDenominations[index],
@@ -59,7 +59,7 @@ const EditDenominationsModal = ({
         }
     }
 
-    const onClickDelete = (index: number) => {
+    const onClickDelete = (index) => {
         return () => {
             const newDenominations = denominations.slice()
             newDenominations.splice(index, 1)
@@ -100,14 +100,14 @@ const EditDenominationsModal = ({
                             </label>
                             <IconTooltip content={'Helpful denominations'} />
                         </div>
-                        {denominations.map((field: any, index: number) => {
+                        {denominations.map((field, index) => {
                             return (
                                 <div
                                     key={field.indexId}
                                     className="first:mt-0 mt-xsmall flex items-center"
                                 >
                                     <div className="flex-1">
-                                        <CurrencyInput
+                                        <CurrencyInput.Root
                                             currencyCodes={currencyCodes}
                                             currentCurrency={
                                                 field.currency_code
@@ -115,12 +115,12 @@ const EditDenominationsModal = ({
                                             onChange={onCurrencyChange(index)}
                                             size="medium"
                                         >
-                                            <CurrencyInput.AmountInput
+                                            <CurrencyInput.Amount
                                                 label="Amount"
                                                 onChange={onAmountChange(index)}
                                                 amount={field.amount}
                                             />
-                                        </CurrencyInput>
+                                        </CurrencyInput.Root>
                                     </div>
                                     <button className="ml-2xlarge">
                                         <TrashIcon
@@ -173,12 +173,12 @@ const EditDenominationsModal = ({
 
 export default EditDenominationsModal
 
-const augmentWithId = (obj: any) => ({ ...obj, indexId: uuidv4() })
+const augmentWithId = (obj) => ({ ...obj, indexId: uuidv4() })
 
-const augmentWithIds = (list: any[]) => {
+const augmentWithIds = (list) => {
     return list.map(augmentWithId)
 }
 
-const stripDenominationFromIndexId = (list: any) => {
-    return list.map((element: any) => _.omit(element, 'indexId'))
+const stripDenominationFromIndexId = (list) => {
+    return list.map((element) => _.omit(element, 'indexId'))
 }

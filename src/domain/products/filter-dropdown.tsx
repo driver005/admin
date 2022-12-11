@@ -13,18 +13,7 @@ const statusFilters = ['proposed', 'draft', 'published', 'rejected']
 
 const COLLECTION_PAGE_SIZE = 10
 
-interface ProductsFilterProps {
-    tabs?: any
-    activeTab: any
-    onTabClick?: any
-    onSaveTab?: any
-    onRemoveTab?: any
-    filters: any
-    submitFilters: any
-    clearFilters: any
-}
-
-const ProductsFilter: React.FC<ProductsFilterProps> = ({
+const ProductsFilter = ({
     filters,
     submitFilters,
     clearFilters,
@@ -37,7 +26,7 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
     const [tempState, setTempState] = useState(filters)
     const [name, setName] = useState('')
 
-    const handleRemoveTab = (val: any) => {
+    const handleRemoveTab = (val) => {
         if (onRemoveTab) {
             onRemoveTab(val)
         }
@@ -69,7 +58,7 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
 
     const numberOfFilters = useMemo(
         () =>
-            Object.entries(filters || {}).reduce((acc, [, value]: any) => {
+            Object.entries(filters || {}).reduce((acc, [, value]) => {
                 if (value?.open) {
                     acc = acc + 1
                 }
@@ -78,8 +67,8 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
         [filters]
     )
 
-    const setSingleFilter = (filterKey: any, filterVal: any) => {
-        setTempState((prevState: any) => ({
+    const setSingleFilter = (filterKey, filterVal) => {
+        setTempState((prevState) => ({
             ...prevState,
             [filterKey]: filterVal,
         }))
@@ -98,7 +87,7 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
 
     const { product_tags } = useAdminProductTags()
 
-    const handlePaginateCollections = (direction: number) => {
+    const handlePaginateCollections = (direction) => {
         if (direction > 0) {
             setCollectionsPagination((prev) => ({
                 ...prev,
@@ -142,7 +131,7 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
                     options={statusFilters}
                     filters={tempState.status.filter}
                     open={tempState.status.open}
-                    setFilter={(v: any) => setSingleFilter('status', v)}
+                    setFilter={(v) => setSingleFilter('status', v)}
                 />
                 <FilterDropdownItem
                     filterTitle="Collection"
@@ -156,14 +145,14 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
                     hasPrev={collectionsPagination.offset > 0}
                     hasMore={
                         collectionsPagination.offset +
-                        collectionsPagination.limit <
+                            collectionsPagination.limit <
                         (count ?? 0)
                     }
                     onShowPrev={() => handlePaginateCollections(-1)}
                     onShowNext={() => handlePaginateCollections(1)}
                     filters={tempState.collection.filter}
                     open={tempState.collection.open}
-                    setFilter={(v: any) => setSingleFilter('collection', v)}
+                    setFilter={(v) => setSingleFilter('collection', v)}
                 />
                 <div className="flex flex-col w-full pb-2">
                     <div
@@ -176,8 +165,9 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
                         }}
                     >
                         <div
-                            className={`w-5 h-5 flex justify-center border-grey-30 border text-grey-0 rounded-base ${tempState.tags.open && 'bg-violet-60'
-                                }`}
+                            className={`w-5 h-5 flex justify-center border-grey-30 border text-grey-0 rounded-base ${
+                                tempState.tags.open && 'bg-violet-60'
+                            }`}
                         >
                             <span className="self-center">
                                 {tempState.tags.open && <CheckIcon size={16} />}
@@ -211,7 +201,7 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
                                 showLabel={false}
                                 placeholder="Spring, summer..."
                                 values={(tempState.tags.filter || [])
-                                    .map((t: any) => {
+                                    .map((t) => {
                                         const found = (product_tags || []).find(
                                             (pt) => pt.id === t
                                         )
@@ -243,7 +233,7 @@ const ProductsFilter: React.FC<ProductsFilterProps> = ({
                 />
             </FilterDropdownContainer>
             {tabs &&
-                tabs.map((t: any) => (
+                tabs.map((t) => (
                     <TabFilter
                         key={t.value}
                         onClick={() => handleTabClick(t.value)}

@@ -2,7 +2,7 @@ import { Product } from '@medusajs/medusa'
 import React, { useMemo } from 'react'
 import { Column, HeaderGroup, Row } from 'react-table'
 import SortingIcon from '../../../../../../components/fundamentals/icons/sorting-icon'
-import ImagePlaceholder from '../../../../../../components/fundamentals/icons/image-placeholder'
+import ImagePlaceholder from '../../../../../../components/fundamentals/image-placeholder'
 import StatusIndicator from '../../../../../../components/fundamentals/status-indicator'
 import Table from '../../../../../../components/molecules/table'
 
@@ -73,9 +73,7 @@ export const useProductColumns = () => {
                                         className="h-full object-cover rounded-soft"
                                     />
                                 ) : (
-                                    <div className="flex items-center justify-center w-full h-full rounded-soft bg-grey-10">
-                                        <ImagePlaceholder size={16} />
-                                    </div>
+                                    <ImagePlaceholder />
                                 )}
                             </div>
                             <div className="flex flex-col">
@@ -109,7 +107,7 @@ export const useProductColumns = () => {
                 ),
                 id: 'variants',
                 accessor: (row) => row.variants.length,
-                Cell: ({ cell: { value } }: any) => {
+                Cell: ({ cell: { value } }) => {
                     return <div className="text-right">{value}</div>
                 },
             },

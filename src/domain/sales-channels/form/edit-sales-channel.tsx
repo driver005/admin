@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
 import { useAdminUpdateSalesChannel } from 'medusa-react'
+import React, { useState } from 'react'
 
 import { SalesChannel } from '@medusajs/medusa'
 
-import Modal from '../../../components/molecules/modal'
-import InputField from '../../../components/molecules/input'
 import Button from '../../../components/fundamentals/button'
+import InputField from '../../../components/molecules/input'
+import Modal from '../../../components/molecules/modal'
 import useNotification from '../../../hooks/use-notification'
 
 type EditSalesChannelProps = {
@@ -21,19 +21,15 @@ function EditSalesChannel(props: EditSalesChannelProps) {
 
     const notification = useNotification()
 
-    const { mutate: updateSalesChannel } = useAdminUpdateSalesChannel(
-        salesChannel.id
-    )
+    const { mutate: updateSalesChannel, isLoading } =
+        useAdminUpdateSalesChannel(salesChannel.id)
 
     const [name, setName] = useState(salesChannel.name)
     const [description, setDescription] = useState(salesChannel.description)
 
     const handleSubmit = () => {
         updateSalesChannel(
-            {
-                name: name as string,
-                description: description as string,
-            },
+            { name, description },
             {
                 onSuccess: () => {
                     notification(
@@ -92,11 +88,12 @@ function EditSalesChannel(props: EditSalesChannelProps) {
                             Close
                         </Button>
                         <Button
-                            disabled={!name.length}
+                            disabled={!name.length || isLoading}
                             variant="primary"
                             className="min-w-[100px]"
                             size="small"
                             onClick={handleSubmit}
+                            loading={isLoading}
                         >
                             Save
                         </Button>

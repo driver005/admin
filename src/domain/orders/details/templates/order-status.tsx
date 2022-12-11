@@ -2,7 +2,7 @@ import React from 'react'
 
 import StatusDot from '../../../../components/fundamentals/status-indicator'
 
-export const OrderStatusComponent = ({ status }: any) => {
+export const OrderStatusComponent = ({ status }) => {
     switch (status) {
         case 'completed':
             return <StatusDot title="Completed" variant="success" />

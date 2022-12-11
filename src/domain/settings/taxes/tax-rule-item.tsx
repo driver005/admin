@@ -5,15 +5,7 @@ import EditIcon from '../../../components/fundamentals/icons/edit-icon'
 import TrashIcon from '../../../components/fundamentals/icons/trash-icon'
 import Badge from '../../../components/fundamentals/badge'
 
-interface TaxRuleItemProps {
-    onEdit: any
-    onDelete: any
-    index: any
-    name: any
-    description: any
-}
-
-export const TaxRuleItem: React.FC<TaxRuleItemProps> = ({ onEdit, onDelete, index, name, description }) => {
+export const TaxRuleItem = ({ onEdit, onDelete, index, name, description }) => {
     return (
         <div className="p-base border rounded-rounded flex gap-base items-center">
             <div>

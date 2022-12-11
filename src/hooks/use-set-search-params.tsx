@@ -14,9 +14,7 @@ function useSetSearchParams(queryObject: Record<string, string | number>) {
         }
 
         for (const k in queryObject) {
-            if (k in queryObject) {
-                url.searchParams.set(k, queryObject[k].toString())
-            }
+            url.searchParams.set(k, queryObject[k].toString())
         }
 
         window.history.replaceState(null, '', url.toString())

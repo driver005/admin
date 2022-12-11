@@ -26,6 +26,7 @@ type PriceOverridesType = {
     isEdit?: boolean
 }
 
+// TODO: Clean up this components typing to avoid circular dependencies
 const PriceOverrides = ({
     onClose,
     prices,
@@ -35,10 +36,15 @@ const PriceOverrides = ({
     isEdit = false,
 }: PriceOverridesType) => {
     const [mode, setMode] = React.useState(MODES.SELECTED_ONLY)
-    const { handleSubmit, control, reset } = useForm<PriceOverridesFormValues>({
+    const {
+        handleSubmit,
+        control,
+        reset,
+        formState: { isSubmitting },
+    } = useForm<PriceOverridesFormValues>({
         defaultValues: {
             variants: [],
-            prices: prices as any,
+            prices: prices,
         },
     })
 
@@ -77,7 +83,7 @@ const PriceOverrides = ({
 
     return (
         <>
-            <Modal.Content isLargeModal={true}>
+            <Modal.Content>
                 {!isEdit && (
                     <RadioGroup.Root
                         value={mode}
@@ -116,19 +122,19 @@ const PriceOverrides = ({
                 <div className="pt-8">
                     <h6 className="inter-base-semibold">Prices</h6>
                     <div className="pt-4">
-                        {prices.map((price: any, idx: number) => (
+                        {prices.map((price, idx) => (
                             <Controller
-                                control={control as any}
+                                control={control}
                                 name={`prices.${idx}`}
                                 key={price.id}
-                                render={({ field: { onChange, value } }: any) => {
+                                render={({ field }) => {
                                     return (
                                         <PriceAmount
-                                            value={value}
+                                            value={field.value}
                                             key={price.id}
-                                            onChange={(amount: any) => {
-                                                onChange({
-                                                    ...value,
+                                            onChange={(amount) => {
+                                                field.onChange({
+                                                    ...field.value,
                                                     amount,
                                                 })
                                             }}
@@ -140,7 +146,7 @@ const PriceOverrides = ({
                     </div>
                 </div>
             </Modal.Content>
-            <Modal.Footer isLargeModal>
+            <Modal.Footer>
                 <div className="flex w-full h-8 justify-end">
                     <Button
                         variant="ghost"
@@ -155,6 +161,7 @@ const PriceOverrides = ({
                         className="text-small justify-center rounded-rounded"
                         variant="primary"
                         onClick={onClick}
+                        loading={isSubmitting}
                     >
                         Save and close
                     </Button>
@@ -165,7 +172,7 @@ const PriceOverrides = ({
 }
 
 type ControlledCheckboxProps = {
-    control: Control<any>
+    control: Control
     name: string
     id: string
     index: number
@@ -188,16 +195,13 @@ const ControlledCheckbox = ({
         <Controller
             control={control}
             name={name}
-            render={({ field: { onChange, onBlur, value, name, ref } }: any) => {
+            render={({ field }) => {
                 return (
                     <Checkbox
                         className="shrink-0 inter-small-regular"
                         {...props}
-                        onBlur={onBlur}
-                        value={value}
-                        name={name}
-                        ref={ref}
-                        checked={variants?.some((variant: any) => variant === value)}
+                        {...field}
+                        checked={variants?.some((variant) => variant === value)}
                         onChange={(e) => {
                             // copy field value
                             const valueCopy = [...(variants || [])] as any[]
@@ -206,7 +210,7 @@ const ControlledCheckbox = ({
                             valueCopy[index] = e.target.checked ? id : null
 
                             // update field value
-                            onChange(valueCopy)
+                            field.onChange(valueCopy)
                         }}
                     />
                 )

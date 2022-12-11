@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import React from 'react'
 
-export type SpinnerProps = {
+type SpinnerProps = {
     size?: 'large' | 'medium' | 'small'
     variant?: 'primary' | 'secondary'
 }
@@ -19,7 +19,7 @@ const Spinner: React.FC<SpinnerProps> = ({
                 { 'h-[16px] w-[16px]': size === 'small' }
             )}
         >
-            <div className="inline-block relative w-full h-full">
+            <div className="flex items-center justify-center relative w-full h-full">
                 <div
                     className={clsx(
                         'animate-ring border-2 h-4/5 w-4/5 rounded-circle border-transparent',

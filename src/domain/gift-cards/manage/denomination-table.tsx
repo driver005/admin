@@ -10,7 +10,7 @@ type DenominationTableProps = {
     giftCardId: string
     denominations: any[]
     defaultCurrency: string
-    setEditDenom: (denom: any) => void
+    setEditDenom: (denom) => void
 }
 
 const DenominationTable: React.FC<DenominationTableProps> = ({
@@ -23,8 +23,8 @@ const DenominationTable: React.FC<DenominationTableProps> = ({
 
     const deleteDenomination = useAdminDeleteVariant(giftCardId)
 
-    const getDenominationPrices = (denomination: any) => {
-        const sortHelper = (p1: any, p2: any) => {
+    const getDenominationPrices = (denomination) => {
+        const sortHelper = (p1, p2) => {
             const curr1 = p1.currency_code
             const curr2 = p2.currency_code
 
@@ -38,9 +38,9 @@ const DenominationTable: React.FC<DenominationTableProps> = ({
         }
 
         return denomination.prices
-            .filter((p: any) => p.currency_code !== defaultCurrency) // without default
+            .filter((p) => p.currency_code !== defaultCurrency) // without default
             .sort(sortHelper) // sort by currency code
-            .map((p: any) =>
+            .map((p) =>
                 stringDisplayPrice({
                     currencyCode: p.currency_code,
                     amount: p.amount,
@@ -49,9 +49,9 @@ const DenominationTable: React.FC<DenominationTableProps> = ({
             .join(', ') // concatenate to single comma separated string
     }
 
-    const getDenominationRow = (denomination: any, index: number) => {
+    const getDenominationRow = (denomination, index) => {
         let defaultPrice = denomination.prices.find(
-            (p: any) => p.currency_code === defaultCurrency
+            (p) => p.currency_code === defaultCurrency
         )
 
         if (!defaultPrice) {

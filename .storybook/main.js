@@ -8,7 +8,7 @@ module.exports = {
             require.resolve('babel-plugin-remove-graphql-queries')
         )
 
-        config.resolve.mainFields = ["browser", "module", "main"]
+        config.resolve.mainFields = ['browser', 'module', 'main']
         return config
     },
     stories: [

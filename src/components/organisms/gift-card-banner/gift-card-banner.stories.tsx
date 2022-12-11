@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import { ComponentMeta } from '@storybook/react'
 import React from 'react'
 import GiftCardBanner from '.'
 
@@ -294,7 +294,7 @@ const GiftCardRes = {
     ],
 }
 
-const Template: ComponentStory<typeof GiftCardBanner> = (args) => <GiftCardBanner {...args} />
+const Template = (args) => <GiftCardBanner {...args} />
 
 export const GiftCardPublished = Template.bind({})
 GiftCardPublished.args = {

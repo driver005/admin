@@ -146,10 +146,10 @@ ReturnRequested.args = {
     ],
 }
 
-const Demo: ComponentStory<any> = (args) => (
+const Demo = (args) => (
     <div className="w-full bg-grey-10 p-xlarge">
         <div className="max-w-md px-xlarge py-large flex flex-col gap-y-base bg-grey-0 rounded-rounded border border-grey-20">
-            {args.arguments.map((arg: any, i: number) => {
+            {args.arguments.map((arg, i) => {
                 return (
                     <EventContainer
                         {...arg}

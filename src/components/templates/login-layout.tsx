@@ -1,6 +1,6 @@
 import React from 'react'
 
-const LoginLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const LoginLayout = ({ children }) => {
     return (
         <div className="min-h-screen flex flex-col">
             <div className="grid grid-cols-1 grid-rows-1 min-h-screen">

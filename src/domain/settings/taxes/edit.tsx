@@ -7,14 +7,7 @@ import LayeredModal, {
 } from '../../../components/molecules/modal/layered-modal'
 import EditForm, { SimpleEditForm } from './edit-form'
 
-interface EditTaxRateProps {
-    taxRate: any
-    taxRateId: any
-    regionId: any
-    onDismiss: any
-}
-
-const EditTaxRate: React.FC<EditTaxRateProps> = ({ taxRate, taxRateId, regionId, onDismiss }) => {
+const EditTaxRate = ({ taxRate, taxRateId, regionId, onDismiss }) => {
     const { isLoading, tax_rate } = useAdminTaxRate(
         taxRateId,
         {
@@ -39,10 +32,10 @@ const EditTaxRate: React.FC<EditTaxRateProps> = ({ taxRate, taxRateId, regionId,
                         <h1 className="inter-xlarge-semibold">Edit Tax Rate</h1>
                     </div>
                 </Modal.Header>
-                {isLoading ? (
-                    <Spinner />
-                ) : taxRate.type === 'region' ? (
+                {taxRate.type === 'region' ? (
                     <SimpleEditForm taxRate={taxRate} onDismiss={onDismiss} />
+                ) : isLoading || !tax_rate ? (
+                    <Spinner />
                 ) : (
                     <EditForm
                         regionId={regionId}

@@ -1,6 +1,6 @@
 export const mergeExistingWithDefault = (
     variantPrices: any[] = [],
-    defaultPrices: any[]
+    defaultPrices
 ) => {
     return defaultPrices.map((pr) => {
         const price = variantPrices.find(

@@ -52,7 +52,7 @@ const allowedFilters = [
     'limit',
 ]
 
-const DefaultTabs: any = {
+const DefaultTabs = {
     incomplete: {
         fulfillment_status: ['not_fulfilled', 'fulfilled'],
         payment_status: ['awaiting'],
@@ -68,7 +68,7 @@ const formatDateFilter = (filter: GiftCardDateFilter) => {
         return filter
     }
 
-    const dateFormatted = Object.entries(filter).reduce((acc: any, [key, value]) => {
+    const dateFormatted = Object.entries(filter).reduce((acc, [key, value]) => {
         if (value.includes('|')) {
             acc[key] = relativeDateFormatToTimestamp(value)
         } else {
@@ -318,11 +318,11 @@ export const useGiftCardFilters = (
         for (const [tab, conditions] of Object.entries(DefaultTabs)) {
             let match = true
 
-            if (Object.keys(clean).length !== Object.keys(conditions as any).length) {
+            if (Object.keys(clean).length !== Object.keys(conditions).length) {
                 continue
             }
 
-            for (const [filter, value] of Object.entries(conditions as any)) {
+            for (const [filter, value] of Object.entries(conditions)) {
                 if (filter in clean) {
                     if (Array.isArray(value)) {
                         match =
@@ -369,12 +369,12 @@ export const useGiftCardFilters = (
         } else {
             const tabFound = tabs.find((t) => t.value === tabName)
             if (tabFound) {
-                tabToUse = qs.parse(tabFound.representationString as any)
+                tabToUse = qs.parse(tabFound.representationString)
             }
         }
 
         if (tabToUse) {
-            const toSubmit: any = {
+            const toSubmit = {
                 ...state,
                 date: {
                     open: false,
@@ -411,7 +411,7 @@ export const useGiftCardFilters = (
 
         const storedString = localStorage.getItem('GiftCards::filters')
 
-        let existing: any
+        let existing: null | object = null
 
         if (storedString) {
             existing = JSON.parse(storedString)
@@ -421,7 +421,7 @@ export const useGiftCardFilters = (
             existing[tabName] = repString
             localStorage.setItem('GiftCards::filters', JSON.stringify(existing))
         } else {
-            const newFilters: any = {}
+            const newFilters = {}
             newFilters[tabName] = repString
             localStorage.setItem(
                 'GiftCards::filters',
@@ -447,7 +447,7 @@ export const useGiftCardFilters = (
     const removeTab = (tabValue: string) => {
         const storedString = localStorage.getItem('GiftCards::filters')
 
-        let existing: any
+        let existing: null | object = null
 
         if (storedString) {
             existing = JSON.parse(storedString)
@@ -491,30 +491,14 @@ export const useGiftCardFilters = (
     }
 }
 
-type filterStateMapType = {
-    status: string
-    fulfillment_status: string
-    payment_status: string
-    created_at: string
-    [key: string]: string
-}
-
-const filterStateMap: filterStateMapType = {
+const filterStateMap = {
     status: 'status',
     fulfillment_status: 'fulfillment',
     payment_status: 'payment',
     created_at: 'date',
 }
 
-type stateFilterMapType = {
-    status: string
-    fulfillment: string
-    payment: string
-    date: string
-    [key: string]: string
-}
-
-const stateFilterMap: stateFilterMapType = {
+const stateFilterMap = {
     status: 'status',
     fulfillment: 'fulfillment_status',
     payment: 'payment_status',
@@ -574,7 +558,7 @@ const parseQueryString = (
                         if (typeof value === 'string' || Array.isArray(value)) {
                             defaultVal.status = {
                                 open: true,
-                                filter: value as any,
+                                filter: value,
                             }
                         }
                         break
@@ -583,7 +567,7 @@ const parseQueryString = (
                         if (typeof value === 'string' || Array.isArray(value)) {
                             defaultVal.fulfillment = {
                                 open: true,
-                                filter: value as any,
+                                filter: value,
                             }
                         }
                         break
@@ -592,7 +576,7 @@ const parseQueryString = (
                         if (typeof value === 'string' || Array.isArray(value)) {
                             defaultVal.payment = {
                                 open: true,
-                                filter: value as any,
+                                filter: value,
                             }
                         }
                         break
@@ -600,7 +584,7 @@ const parseQueryString = (
                     case 'created_at': {
                         defaultVal.date = {
                             open: true,
-                            filter: value as any,
+                            filter: value,
                         }
                         break
                     }

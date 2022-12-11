@@ -10,7 +10,7 @@ import ListIcon from '../../../fundamentals/icons/list-icon'
 import TrashIcon from '../../../fundamentals/icons/trash-icon'
 import DeletePrompt from '../../../organisms/delete-prompt'
 import { ActionType } from '../../actionables'
-import { FulfillmentStatus, RefundStatus } from '../../status'
+import { FulfillmentStatus, RefundStatus } from '../../order-status'
 import EventActionables from '../event-actionables'
 import EventContainer, { EventIconColor } from '../event-container'
 import EventItemContainer from '../event-item-container'
@@ -139,13 +139,14 @@ function ClaimRefundOrReplacement(event: ClaimEvent) {
         </div>
     ) : (
         <div className="flex flex-col">
-            <span className="text-grey-50 mb-2xsmall">{`${event.refundStatus && event.refundStatus === 'refunded'
+            <span className="text-grey-50 mb-2xsmall">{`${
+                event.refundStatus && event.refundStatus === 'refunded'
                     ? 'Refunded'
                     : 'Refund'
-                } amount:`}</span>
+            } amount:`}</span>
             <span className="inter-small-semibold">
                 {formatAmountWithSymbol({
-                    amount: event.refundAmount as number,
+                    amount: event.refundAmount,
                     currency: event.currencyCode,
                 })}
             </span>

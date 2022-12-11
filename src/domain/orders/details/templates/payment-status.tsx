@@ -2,7 +2,7 @@ import React from 'react'
 
 import StatusDot from '../../../../components/fundamentals/status-indicator'
 
-export const PaymentStatusComponent = ({ status }: any) => {
+export const PaymentStatusComponent = ({ status }) => {
     switch (status) {
         case 'captured':
             return <StatusDot title="Paid" variant="success" />

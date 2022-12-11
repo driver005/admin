@@ -28,7 +28,7 @@ const DisplaySettingsDateDescription = ({ date }: { date: Date }) => (
     </div>
 )
 
-const CommonDescription = ({ text }: any) => (
+const CommonDescription = ({ text }) => (
     <span className="text-grey-50 inter-small-regular">{text}</span>
 )
 
@@ -123,7 +123,7 @@ const useDiscountConfigurations = (discount: Discount) => {
             description: (
                 <CommonDescription
                     text={Object.entries(
-                        removeNullish(parse(discount.valid_duration) as any)
+                        removeNullish(parse(discount.valid_duration))
                     )
                         .map(([key, value]) => `${value} ${key}`)
                         .join(', ')}

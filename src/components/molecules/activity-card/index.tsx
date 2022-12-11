@@ -13,7 +13,7 @@ export type ActivityCardProps = {
     children?: ReactNode[]
 }
 
-const ActivityCard: React.FC<ActivityCardProps> = (
+export const ActivityCard: React.FC<ActivityCardProps> = (
     props: ActivityCardProps
 ) => {
     const {
@@ -74,5 +74,3 @@ const ActivityCard: React.FC<ActivityCardProps> = (
         </div>
     )
 }
-
-export default ActivityCard

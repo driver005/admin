@@ -115,7 +115,7 @@ function FieldsMenu(props: FieldsMenuProps) {
 
     // close dropdown "manually" on click outside the menu
     useEffect(() => {
-        const handleClickOutside = (event: any) => {
+        const handleClickOutside = (event) => {
             if (!contentRef.current?.contains(event.target)) {
                 setOpen(false)
             }

@@ -14,14 +14,14 @@ export const defaultFeatureFlagContext: {
 
 export const FeatureFlagContext = React.createContext(defaultFeatureFlagContext)
 
-export const FeatureFlagProvider = ({ children }: { children: React.ReactNode }) => {
+export const FeatureFlagProvider = ({ children }) => {
     const { isLoggedIn } = useContext(AccountContext)
 
     const [featureFlags, setFeatureFlags] = useState<
         { key: string; value: boolean }[]
     >([])
 
-    const { store, isFetching }: any = useAdminStore()
+    const { store, isFetching } = useAdminStore()
 
     useEffect(() => {
         if (
@@ -36,7 +36,7 @@ export const FeatureFlagProvider = ({ children }: { children: React.ReactNode })
         setFeatureFlags(store['feature_flags'])
     }, [isFetching, store, isLoggedIn])
 
-    const featureToggleList: any = featureFlags.reduce(
+    const featureToggleList = featureFlags.reduce(
         (acc, flag) => ({ ...acc, [flag.key]: flag.value }),
         {}
     )
@@ -50,4 +50,16 @@ export const FeatureFlagProvider = ({ children }: { children: React.ReactNode })
             {children}
         </FeatureFlagContext.Provider>
     )
+}
+
+export const useFeatureFlag = () => {
+    const context = useContext(FeatureFlagContext)
+
+    if (!context) {
+        throw new Error(
+            'useFeatureFlag must be used within a FeatureFlagProvider'
+        )
+    }
+
+    return context
 }

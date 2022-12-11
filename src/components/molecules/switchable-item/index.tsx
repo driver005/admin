@@ -7,7 +7,7 @@ type SwitchableItemProps = {
     title: string
     description: React.ReactNode
     tooltip?: string
-    open?: boolean
+    open: boolean
     onSwitch: () => void
     children: React.ReactNode
 }

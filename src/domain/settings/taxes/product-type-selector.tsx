@@ -2,13 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { useAdminProductTypes } from 'medusa-react'
 import { SelectableTable } from './selectable-table'
 
-interface ProductTypeSelectorProps {
-    items: any
-    onChange: any
-}
-
-
-export const ProductTypeSelector: React.FC<ProductTypeSelectorProps> = ({ items, onChange }) => {
+export const ProductTypeSelector = ({ items, onChange }) => {
     const PAGE_SIZE = 12
 
     const [pagination, setPagination] = useState({
@@ -23,7 +17,7 @@ export const ProductTypeSelector: React.FC<ProductTypeSelectorProps> = ({ items,
             {
                 Header: 'Name',
                 accessor: 'value',
-                Cell: ({ row: { original } }: any) => {
+                Cell: ({ row: { original } }) => {
                     return <div className="w-[200px]">{original.value}</div>
                 },
             },

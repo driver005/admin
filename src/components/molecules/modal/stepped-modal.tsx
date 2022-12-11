@@ -40,31 +40,26 @@ const defaultContext: ISteppedContext = {
 
 export const SteppedContext = React.createContext(defaultContext)
 
-const reducer = (state: any, action: any) => {
+const reducer = (state, action) => {
     switch (action.type) {
         case SteppedActions.ENABLENEXTPAGE: {
-            state.nextStepEnabled = true
-            return { ...state }
+            return { ...state, nextStepEnabled: true }
         }
         case SteppedActions.DISABLENEXTPAGE: {
-            state.nextStepEnabled = false
-            return { ...state }
+            return { ...state, nextStepEnabled: false }
         }
         case SteppedActions.GOTONEXTPAGE: {
-            state.currentStep = state.currentStep + 1
-            return { ...state }
+            return { ...state, currentStep: state.currentStep + 1 }
         }
         case SteppedActions.GOTOPREVIOUSPAGE: {
-            if (state.currentStep !== 0) {
-                state.currentStep = state.currentStep - 1
-            }
-            return { ...state }
+            return { ...state, currentStep: Math.max(0, state.currentStep - 1) }
         }
         case SteppedActions.SETPAGE: {
-            if (action.payload > 0) {
-                state.currentStep = action.payload
+            return {
+                ...state,
+                currentStep:
+                    action.payload > 0 ? action.payload : state.currentStep,
             }
-            return { ...state }
         }
         case SteppedActions.SUBMIT: {
             return { ...state }
@@ -84,7 +79,7 @@ type SteppedProps = {
     layeredContext?: ILayeredModalContext
 } & ModalProps
 
-export const SteppedProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const SteppedProvider = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, defaultContext)
 
     return (
@@ -136,7 +131,6 @@ const SteppedModal: React.FC<SteppedProps> = ({
 
     const resetAndSubmit = () => {
         onSubmit()
-        context.reset()
     }
     return (
         <ModalElement
@@ -148,7 +142,6 @@ const SteppedModal: React.FC<SteppedProps> = ({
                 className={clsx(
                     'transition-transform flex flex-col justify-between duration-100 max-h-full'
                 )}
-                isLargeModal={isLargeModal}
             >
                 <Modal.Header handleClose={resetAndClose}>
                     <div className="flex flex-col">
@@ -157,10 +150,12 @@ const SteppedModal: React.FC<SteppedProps> = ({
                             (lastScreenIsSummary &&
                                 context.currentStep !== steps.length - 1 && (
                                     <div className="flex items-center">
-                                        <span className="text-grey-50 inter-small-regular w-[70px] mr-4">{`Step ${context.currentStep + 1
-                                            } of ${steps.length}`}</span>
+                                        <span className="text-grey-50 inter-small-regular w-[70px] mr-4">{`Step ${
+                                            context.currentStep + 1
+                                        } of ${steps.length}`}</span>
                                         {steps.map((_, i) => (
                                             <span
+                                                key={i}
                                                 className={clsx(
                                                     'w-2 h-2 rounded-full mr-3',
                                                     {
@@ -217,14 +212,7 @@ const SteppedModal: React.FC<SteppedProps> = ({
     )
 }
 
-interface ModalElementProps {
-    layeredContext: ILayeredModalContext | undefined
-    handleClose: () => void
-    isLargeModal: boolean
-    children: React.ReactNode
-}
-
-const ModalElement: React.FC<ModalElementProps> = ({
+const ModalElement = ({
     layeredContext,
     handleClose,
     isLargeModal = true,

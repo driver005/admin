@@ -9,18 +9,7 @@ import TabFilter from '../../../components/molecules/filter-tab'
 const statusFilters = ['active', 'draft']
 const typeFilters = ['sale', 'override']
 
-interface PriceListsFilterProps {
-    tabs?: any
-    activeTab: any
-    onTabClick?: any
-    onSaveTab?: any
-    onRemoveTab?: any
-    filters: any
-    submitFilters: any
-    clearFilters: any
-}
-
-const PriceListsFilter: React.FC<PriceListsFilterProps> = ({
+const PriceListsFilter = ({
     filters,
     submitFilters,
     clearFilters,
@@ -33,7 +22,7 @@ const PriceListsFilter: React.FC<PriceListsFilterProps> = ({
     const [tempState, setTempState] = useState(filters)
     const [name, setName] = useState('')
 
-    const handleRemoveTab = (val: any) => {
+    const handleRemoveTab = (val) => {
         if (onRemoveTab) {
             onRemoveTab(val)
         }
@@ -65,7 +54,7 @@ const PriceListsFilter: React.FC<PriceListsFilterProps> = ({
 
     const numberOfFilters = useMemo(
         () =>
-            Object.entries(filters).reduce((acc, [key, value]: any) => {
+            Object.entries(filters).reduce((acc, [, value]) => {
                 if (value?.open) {
                     acc = acc + 1
                 }
@@ -74,8 +63,8 @@ const PriceListsFilter: React.FC<PriceListsFilterProps> = ({
         [filters]
     )
 
-    const setSingleFilter = (filterKey: any, filterVal: any) => {
-        setTempState((prevState: any) => ({
+    const setSingleFilter = (filterKey, filterVal) => {
+        setTempState((prevState) => ({
             ...prevState,
             [filterKey]: filterVal,
         }))
@@ -111,14 +100,14 @@ const PriceListsFilter: React.FC<PriceListsFilterProps> = ({
                     options={statusFilters}
                     filters={tempState.status.filter}
                     open={tempState.status.open}
-                    setFilter={(v: any) => setSingleFilter('status', v)}
+                    setFilter={(v) => setSingleFilter('status', v)}
                 />
                 <FilterDropdownItem
                     filterTitle="Type"
                     options={typeFilters}
                     filters={tempState.type.filter}
                     open={tempState.type.open}
-                    setFilter={(v: any) => setSingleFilter('type', v)}
+                    setFilter={(v) => setSingleFilter('type', v)}
                 />
                 <SaveFilterItem
                     saveFilter={handleSaveTab}
@@ -127,7 +116,7 @@ const PriceListsFilter: React.FC<PriceListsFilterProps> = ({
                 />
             </FilterDropdownContainer>
             {tabs &&
-                tabs.map((t: any) => (
+                tabs.map((t) => (
                     <TabFilter
                         key={t.value}
                         onClick={() => handleTabClick(t.value)}

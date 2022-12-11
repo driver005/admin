@@ -32,10 +32,6 @@ interface ProductFilterState {
         open: boolean
         filter: ProductDateFilter
     }
-    payment: {
-        open: boolean
-        filter: null | string[] | string
-    }
     additionalFilters: ProductDefaultFilters | null
 }
 
@@ -46,7 +42,7 @@ const allowedFilters = [
     'created_at',
 ]
 
-const DefaultTabs: any = {
+const DefaultTabs = {
     drafts: {
         status: ['draft'],
     },
@@ -129,7 +125,7 @@ export const useProductFilters = (
         return []
     }, [])
 
-    const [state, dispatch]: any = useReducer(reducer, initial)
+    const [state, dispatch] = useReducer(reducer, initial)
     const [tabs, setTabs] = useState(initialTabs)
 
     const setDateFilter = (filter: ProductDateFilter | null) => {
@@ -184,9 +180,8 @@ export const useProductFilters = (
     const getQueryObject = () => {
         const toQuery: any = { ...state.additionalFilters }
         for (const [key, value] of Object.entries(state)) {
-            const v: any = value
-            if (v?.open) {
-                toQuery[stateFilterMap[key]] = v.filter
+            if (value?.open) {
+                toQuery[stateFilterMap[key]] = value.filter
             }
         }
 
@@ -198,15 +193,14 @@ export const useProductFilters = (
 
         const toQuery: any = {}
         for (const [key, value] of Object.entries(objToUse)) {
-            const v: any = value
             if (key === 'query') {
-                if (v && typeof v === 'string') {
-                    toQuery['q'] = v
+                if (value && typeof value === 'string') {
+                    toQuery['q'] = value
                 }
             } else if (key === 'offset' || key === 'limit') {
-                toQuery[key] = v
-            } else if (v?.open) {
-                toQuery[stateFilterMap[key]] = v.filter
+                toQuery[key] = value
+            } else if (value?.open) {
+                toQuery[stateFilterMap[key]] = value.filter
             }
         }
 
@@ -242,11 +236,11 @@ export const useProductFilters = (
         for (const [tab, conditions] of Object.entries(DefaultTabs)) {
             let match = true
 
-            if (Object.keys(clean).length !== Object.keys(conditions as any).length) {
+            if (Object.keys(clean).length !== Object.keys(conditions).length) {
                 continue
             }
 
-            for (const [filter, value] of Object.entries(conditions as any)) {
+            for (const [filter, value] of Object.entries(conditions)) {
                 if (filter in clean) {
                     if (Array.isArray(value)) {
                         match =
@@ -289,12 +283,12 @@ export const useProductFilters = (
         } else {
             const tabFound = tabs.find((t) => t.value === tabName)
             if (tabFound) {
-                tabToUse = qs.parse(tabFound.representationString as any)
+                tabToUse = qs.parse(tabFound.representationString)
             }
         }
 
         if (tabToUse) {
-            const toSubmit: any = {
+            const toSubmit = {
                 ...state,
                 date: {
                     open: false,
@@ -331,7 +325,7 @@ export const useProductFilters = (
 
         const storedString = localStorage.getItem('products::filters')
 
-        let existing: any
+        let existing: null | object = null
 
         if (storedString) {
             existing = JSON.parse(storedString)
@@ -341,7 +335,7 @@ export const useProductFilters = (
             existing[tabName] = repString
             localStorage.setItem('products::filters', JSON.stringify(existing))
         } else {
-            const newFilters: any = {}
+            const newFilters = {}
             newFilters[tabName] = repString
             localStorage.setItem(
                 'products::filters',
@@ -373,7 +367,7 @@ export const useProductFilters = (
     const removeTab = (tabValue: string) => {
         const storedString = localStorage.getItem('products::filters')
 
-        let existing: any
+        let existing: null | object = null
 
         if (storedString) {
             existing = JSON.parse(storedString)
@@ -413,30 +407,14 @@ export const useProductFilters = (
     }
 }
 
-type filterStateMapType = {
-    status: any
-    collection_id: any
-    tags: any
-    created_at: any
-    [key: string]: string
-}
-
-const filterStateMap: filterStateMapType = {
+const filterStateMap = {
     status: 'status',
     collection_id: 'collection',
     tags: 'tags',
     created_at: 'date',
 }
 
-type stateFilterMapType = {
-    status: any
-    collection: any
-    tags: any
-    date: any
-    [key: string]: string
-}
-
-const stateFilterMap: stateFilterMapType = {
+const stateFilterMap = {
     status: 'status',
     collection: 'collection_id',
     tags: 'tags',
@@ -464,10 +442,6 @@ const parseQueryString = (
             open: false,
             filter: null,
         },
-        payment: {
-            open: false,
-            filter: null,
-        },
         additionalFilters: additionals,
     }
 
@@ -480,7 +454,7 @@ const parseQueryString = (
                         if (typeof value === 'string' || Array.isArray(value)) {
                             defaultVal.status = {
                                 open: true,
-                                filter: value as any,
+                                filter: value,
                             }
                         }
                         break
@@ -489,7 +463,7 @@ const parseQueryString = (
                         if (typeof value === 'string' || Array.isArray(value)) {
                             defaultVal.collection = {
                                 open: true,
-                                filter: value as any,
+                                filter: value,
                             }
                         }
                         break
@@ -498,7 +472,7 @@ const parseQueryString = (
                         if (typeof value === 'string' || Array.isArray(value)) {
                             defaultVal.payment = {
                                 open: true,
-                                filter: value as any,
+                                filter: value,
                             }
                         }
                         break
@@ -506,7 +480,7 @@ const parseQueryString = (
                     case 'created_at': {
                         defaultVal.date = {
                             open: true,
-                            filter: value as any,
+                            filter: value,
                         }
                         break
                     }

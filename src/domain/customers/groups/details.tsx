@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { difference } from 'lodash'
-import { navigate } from 'gatsby'
 import { CustomerGroup } from '@medusajs/medusa'
 import {
     useAdminAddCustomersToCustomerGroup,
@@ -10,7 +9,6 @@ import {
     useAdminRemoveCustomersFromCustomerGroup,
 } from 'medusa-react'
 
-import Breadcrumb from '../../../components/molecules/breadcrumb'
 import BodyCard from '../../../components/organisms/body-card'
 import EditIcon from '../../../components/fundamentals/icons/edit-icon'
 import TrashIcon from '../../../components/fundamentals/icons/trash-icon'
@@ -22,7 +20,8 @@ import CustomerGroupContext, {
 } from './context/customer-group-context'
 import useQueryFilters from '../../../hooks/use-query-filters'
 import DeletePrompt from '../../../components/organisms/delete-prompt'
-import { RouteComponentProps } from '@reach/router'
+import { useNavigate, useParams } from 'react-router-dom'
+import BackButton from '../../../components/atoms/back-button'
 
 /**
  * Default filtering config for querying customer group customers list endpoint.
@@ -57,21 +56,21 @@ function CustomerGroupCustomersList(props: CustomerGroupCustomersListProps) {
     // toggle to show/hide "edit customers" modal
     const [showCustomersModal, setShowCustomersModal] = useState(false)
 
-    const { q, queryObject, paginate, setQuery } = useQueryFilters(
-        defaultQueryProps
-    )
+    const { q, queryObject, paginate, setQuery } =
+        useQueryFilters(defaultQueryProps)
 
-    const { customers = [], isLoading, count } = useAdminCustomerGroupCustomers(
-        groupId,
-        queryObject
-    )
-
-    const { mutate: addCustomers } = useAdminAddCustomersToCustomerGroup(
-        groupId
-    )
     const {
-        mutate: removeCustomers,
-    } = useAdminRemoveCustomersFromCustomerGroup(groupId)
+        customers = [],
+        isLoading,
+        count,
+    } = useAdminCustomerGroupCustomers(groupId, queryObject, {
+        keepPreviousData: true,
+    })
+
+    const { mutate: addCustomers } =
+        useAdminAddCustomersToCustomerGroup(groupId)
+    const { mutate: removeCustomers } =
+        useAdminRemoveCustomersFromCustomerGroup(groupId)
 
     // list of currently selected customers of a group
     const [selectedCustomerIds, setSelectedCustomerIds] = useState(
@@ -129,7 +128,7 @@ function CustomerGroupCustomersList(props: CustomerGroupCustomersListProps) {
         <BodyCard
             title="Customers"
             actionables={actions}
-            className="min-h-0 w-full my-4 min-h-[756px]"
+            className="w-full my-4 min-h-[756px]"
         >
             {showCustomersModal && (
                 <EditCustomersTable
@@ -152,17 +151,6 @@ function CustomerGroupCustomersList(props: CustomerGroupCustomersListProps) {
                     groupId={props.group.id}
                     queryObject={queryObject}
                     removeCustomers={removeCustomers}
-                    limit={0}
-                    offset={0}
-                    additionalFilters={null}
-                    filteringOptions={[]}
-                    representationObject={undefined}
-                    representationString={''}
-                    filters={undefined as any}
-                    getQueryObject={undefined as any}
-                    getQueryString={undefined as any}
-                    setFilters={undefined as any}
-                    setDefaultFilters={undefined as any}
                 />
             )}
         </BodyCard>
@@ -179,6 +167,8 @@ type CustomerGroupDetailsHeaderProps = {
 function CustomerGroupDetailsHeader(props: CustomerGroupDetailsHeaderProps) {
     const { showModal } = useContext(CustomerGroupContext)
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+
+    const navigate = useNavigate()
 
     const { mutate: deleteGroup } = useAdminDeleteCustomerGroup(
         props.customerGroup.id
@@ -211,7 +201,7 @@ function CustomerGroupDetailsHeader(props: CustomerGroupDetailsHeaderProps) {
         <>
             <BodyCard
                 title={props.customerGroup.name}
-                actionables={actions as any}
+                actionables={actions}
                 className="min-h-0 w-full"
                 subtitle={' '}
             />
@@ -229,13 +219,13 @@ function CustomerGroupDetailsHeader(props: CustomerGroupDetailsHeaderProps) {
     )
 }
 
-type CustomerGroupDetailsProps = RouteComponentProps & { id?: any }
-
 /*
  * Customer groups details page
  */
-function CustomerGroupDetails(p: CustomerGroupDetailsProps) {
-    const { customer_group } = useAdminCustomerGroup(p.id)
+function CustomerGroupDetails() {
+    const { id } = useParams()
+
+    const { customer_group } = useAdminCustomerGroup(id!)
 
     if (!customer_group) {
         return null
@@ -244,12 +234,10 @@ function CustomerGroupDetails(p: CustomerGroupDetailsProps) {
     return (
         <CustomerGroupContextContainer group={customer_group}>
             <div className="-mt-4 pb-4">
-                <Breadcrumb
-                    currentPage={
-                        customer_group ? customer_group.name : 'Customer Group'
-                    }
-                    previousBreadcrumb="Groups"
-                    previousRoute="/a/customers/groups"
+                <BackButton
+                    path="/a/customers/groups"
+                    label="Back to customer groups"
+                    className="mb-4"
                 />
                 <CustomerGroupDetailsHeader customerGroup={customer_group} />
                 <CustomerGroupCustomersList group={customer_group} />

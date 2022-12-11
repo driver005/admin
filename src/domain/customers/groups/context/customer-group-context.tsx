@@ -1,10 +1,6 @@
 import React, { createContext, PropsWithChildren, useState } from 'react'
 
-import {
-    AdminPostCustomerGroupsGroupReq,
-    AdminPostCustomerGroupsReq,
-    CustomerGroup,
-} from '@medusajs/medusa'
+import { CustomerGroup } from '@medusajs/medusa'
 import {
     useAdminCreateCustomerGroup,
     useAdminUpdateCustomerGroup,
@@ -20,14 +16,7 @@ type CustomerGroupContextT = {
     hideModal: () => void
 }
 
-export const defaultInterfaceContext = {
-    showModal: () => {},
-    hideModal: () => {},
-}
-
-const CustomerGroupContext = createContext<CustomerGroupContextT>(
-    defaultInterfaceContext
-)
+const CustomerGroupContext = createContext<CustomerGroupContextT>()
 
 type CustomerGroupContextContainerT = PropsWithChildren<{
     group?: CustomerGroup
@@ -43,42 +32,29 @@ export function CustomerGroupContextContainer(
     const notification = useNotification()
 
     const { mutate: createGroup } = useAdminCreateCustomerGroup()
-    const { mutate: updateGroup } = useAdminUpdateCustomerGroup(
-        props.group?.id as string
-    )
+    const { mutate: updateGroup } = useAdminUpdateCustomerGroup(props.group?.id)
 
     const [isModalVisible, setIsModalVisible] = useState(false)
 
     const showModal = () => setIsModalVisible(true)
     const hideModal = () => setIsModalVisible(false)
 
-    const handleSubmit = (
-        data: AdminPostCustomerGroupsReq & AdminPostCustomerGroupsGroupReq
-    ) => {
+    const handleSubmit = (data) => {
         const isEdit = !!props.group
+        const method = isEdit ? updateGroup : createGroup
 
-        const message = `Successfully ${isEdit ? 'edited' : 'created'
-            } the customer group`
+        const message = `Successfully ${
+            isEdit ? 'edited' : 'created'
+        } the customer group`
 
-        if (isEdit) {
-            updateGroup(data, {
-                onSuccess: () => {
-                    notification('Success', message, 'success')
-                    hideModal()
-                },
-                onError: (err: any) =>
-                    notification('Error', getErrorMessage(err), 'error'),
-            })
-        } else {
-            createGroup(data, {
-                onSuccess: () => {
-                    notification('Success', message, 'success')
-                    hideModal()
-                },
-                onError: (err: any) =>
-                    notification('Error', getErrorMessage(err), 'error'),
-            })
-        }
+        method(data, {
+            onSuccess: () => {
+                notification('Success', message, 'success')
+                hideModal()
+            },
+            onError: (err) =>
+                notification('Error', getErrorMessage(err), 'error'),
+        })
     }
 
     const context = {

@@ -14,7 +14,7 @@ import { getErrorMessage } from '../../../../utils/error-messages'
 import DenominationTable from '../denomination-table'
 
 type DenominationsProps = {
-    giftCard: Omit<Product, 'beforeInsert'>
+    giftCard: Product
 }
 
 const Denominations: React.FC<DenominationsProps> = ({ giftCard }) => {
@@ -34,7 +34,7 @@ const Denominations: React.FC<DenominationsProps> = ({ giftCard }) => {
             .filter((currency) => currency.code !== store.default_currency_code)
             .map((currency) => currency.code) || []
 
-    const submitDenomations = (denoms: any) => {
+    const submitDenomations = (denoms) => {
         if (!denoms.length) {
             // if a update would result in the variant having 0 prices, then we delete it instead
             deleteGiftCardVariant.mutate(editDenom!.id, {
@@ -55,7 +55,7 @@ const Denominations: React.FC<DenominationsProps> = ({ giftCard }) => {
         updateGiftCardVariant.mutate(
             {
                 variant_id: editDenom!.id,
-                prices: denoms.map(({ amount, currency_code }: any) => ({
+                prices: denoms.map(({ amount, currency_code }) => ({
                     amount,
                     currency_code,
                 })),

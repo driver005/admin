@@ -7,7 +7,7 @@ export type TableToasterContainerProps = {
     toast?: Toast
 }
 
-const TableToasterContainer = ({
+export const TableToasterContainer = ({
     children,
     toast,
 }: TableToasterContainerProps) => {
@@ -25,5 +25,3 @@ const TableToasterContainer = ({
         </div>
     )
 }
-
-export default TableToasterContainer

@@ -1,6 +1,8 @@
+import { Order } from '@medusajs/medusa'
 import { useAdminRefundPayment } from 'medusa-react'
 import React, { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+
 import Button from '../../../../components/fundamentals/button'
 import AlertIcon from '../../../../components/fundamentals/icons/alert-icon'
 import CheckIcon from '../../../../components/fundamentals/icons/check-icon'
@@ -10,36 +12,57 @@ import Select from '../../../../components/molecules/select'
 import TextArea from '../../../../components/molecules/textarea'
 import CurrencyInput from '../../../../components/organisms/currency-input'
 import useNotification from '../../../../hooks/use-notification'
+import { Option } from '../../../../types/shared'
 import { getErrorMessage } from '../../../../utils/error-messages'
+import FormValidator from '../../../../utils/form-validator'
 
-interface RefundMenuProp {
-    order: any
-    onDismiss: any
+type RefundMenuFormData = {
+    amount: number
+    reason: Option
+    no_notification: boolean
+    note?: string
 }
 
-const RefundMenu: React.FC<RefundMenuProp> = ({ order, onDismiss }) => {
-    const { register, handleSubmit, control } = useForm()
+const reasonOptions = [
+    { label: 'Discount', value: 'discount' },
+    { label: 'Other', value: 'other' },
+]
+
+type RefundMenuProps = {
+    order: Order
+    onDismiss: () => void
+    initialAmount?: number
+    initialReason: 'other' | 'discount'
+}
+
+const RefundMenu = ({
+    order,
+    onDismiss,
+    initialAmount,
+    initialReason,
+}: RefundMenuProps) => {
+    const { register, handleSubmit, control } = useForm<RefundMenuFormData>({
+        defaultValues: {
+            amount: initialAmount,
+            reason: reasonOptions[initialReason === 'other' ? 1 : 0],
+        },
+    })
 
     const [noNotification, setNoNotification] = useState(order.no_notification)
 
     const notification = useNotification()
-    const createRefund = useAdminRefundPayment(order.id)
+    const { mutate, isLoading } = useAdminRefundPayment(order.id)
 
     const refundable = useMemo(() => {
         return order.paid_total - order.refunded_total
     }, [order])
 
-    const reasonOptions = [
-        { label: 'Discount', value: 'discount' },
-        { label: 'Other', value: 'other' },
-    ]
-
-    const handleValidateRefundAmount = (value: any) => {
+    const handleValidateRefundAmount = (value) => {
         return value <= refundable
     }
 
-    const onSubmit = (data: any, e: any) => {
-        createRefund.mutate(
+    const onSubmit = (data: RefundMenuFormData) => {
+        mutate(
             {
                 amount: data.amount,
                 reason: data.reason.value,
@@ -63,7 +86,7 @@ const RefundMenu: React.FC<RefundMenuProp> = ({ order, onDismiss }) => {
     }
 
     const isSystemPayment = order.payments.some(
-        (p: any) => p.provider_id === 'system'
+        (p) => p.provider_id === 'system'
     )
 
     return (
@@ -77,7 +100,7 @@ const RefundMenu: React.FC<RefundMenuProp> = ({ order, onDismiss }) => {
                     </Modal.Header>
                     <Modal.Content>
                         {isSystemPayment && (
-                            <div className="inter-small-regular mb-6 p-4 text-orange-50 bg-orange-5 rounded-rounded flex text-grey-50">
+                            <div className="inter-small-regular mb-6 p-4 text-orange-50 bg-orange-5 rounded-rounded flex">
                                 <div className="h-full mr-3">
                                     <AlertIcon size={20} />
                                 </div>
@@ -93,7 +116,7 @@ const RefundMenu: React.FC<RefundMenuProp> = ({ order, onDismiss }) => {
                         )}
                         <span className="inter-base-semibold">Details</span>
                         <div className="grid gap-y-base mt-4">
-                            <CurrencyInput
+                            <CurrencyInput.Root
                                 size="small"
                                 currentCurrency={order.currency_code}
                                 readOnly
@@ -101,11 +124,22 @@ const RefundMenu: React.FC<RefundMenuProp> = ({ order, onDismiss }) => {
                                 <Controller
                                     name="amount"
                                     control={control}
-                                    rules={{ required: true, min: 1 }}
-                                    render={({ field: { onChange, value } }: any) => (
-                                        <CurrencyInput.AmountInput
+                                    rules={{
+                                        required:
+                                            FormValidator.required('Amount'),
+                                        min: FormValidator.min('Amount', 1),
+                                        max: FormValidator.maxInteger(
+                                            'Amount',
+                                            order.currency_code
+                                        ),
+                                    }}
+                                    render={({
+                                        field: { value, onChange, onBlur },
+                                    }) => (
+                                        <CurrencyInput.Amount
                                             label={'Refund Amount'}
                                             amount={value}
+                                            onBlur={onBlur}
                                             invalidMessage={`Cannot refund more than the order's net total.`}
                                             onValidate={
                                                 handleValidateRefundAmount
@@ -114,7 +148,7 @@ const RefundMenu: React.FC<RefundMenuProp> = ({ order, onDismiss }) => {
                                         />
                                     )}
                                 />
-                            </CurrencyInput>
+                            </CurrencyInput.Root>
                             <Controller
                                 name="reason"
                                 control={control}
@@ -123,7 +157,7 @@ const RefundMenu: React.FC<RefundMenuProp> = ({ order, onDismiss }) => {
                                     value: 'discount',
                                 }}
                                 rules={{ required: true }}
-                                render={({ field: { onChange, value } }: any) => (
+                                render={({ field: { value, onChange } }) => (
                                     <Select
                                         label="Reason"
                                         options={reasonOptions}
@@ -133,9 +167,9 @@ const RefundMenu: React.FC<RefundMenuProp> = ({ order, onDismiss }) => {
                                 )}
                             />
                             <TextArea
+                                {...register('note')}
                                 label="Note"
                                 placeholder="Discount for loyal customer"
-                                {...register('note')}
                             />
                         </div>
                     </Modal.Content>
@@ -148,8 +182,9 @@ const RefundMenu: React.FC<RefundMenuProp> = ({ order, onDismiss }) => {
                                 }
                             >
                                 <div
-                                    className={`w-5 h-5 flex justify-center text-grey-0 border-grey-30 border rounded-base ${!noNotification && 'bg-violet-60'
-                                        }`}
+                                    className={`w-5 h-5 flex justify-center text-grey-0 border-grey-30 border rounded-base ${
+                                        !noNotification && 'bg-violet-60'
+                                    }`}
                                 >
                                     <span className="self-center">
                                         {!noNotification && (
@@ -186,6 +221,8 @@ const RefundMenu: React.FC<RefundMenuProp> = ({ order, onDismiss }) => {
                                     size="small"
                                     className="w-[112px]"
                                     variant="primary"
+                                    loading={isLoading}
+                                    disabled={isLoading}
                                 >
                                     Complete
                                 </Button>

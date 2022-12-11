@@ -9,28 +9,22 @@ import LayeredModal, {
 import Table from '../../../../components/molecules/table'
 import { formatAmountWithSymbol } from '../../../../utils/prices'
 
-type reasonOptionsType = {
-    [key: string]: string
-}
-
-const reasonOptions: reasonOptionsType = {
+const reasonOptions = {
     missing_item: 'Missing Item',
     wrong_item: 'Wrong Item',
     production_failure: 'Production Failure',
     other: 'Other',
 }
 
-interface ClaimDetailsProps {
-    claim: any
-    order: any
-    onDismiss: any
-}
-
-const ClaimDetails: React.FC<ClaimDetailsProps> = ({ claim, order, onDismiss }) => {
+const ClaimDetails = ({ claim, order, onDismiss }) => {
     const layeredModalContext = useContext(LayeredModalContext)
 
     return (
-        <LayeredModal context={layeredModalContext} handleClose={onDismiss}>
+        <LayeredModal
+            context={layeredModalContext}
+            handleClose={onDismiss}
+            isLargeModal
+        >
             <Modal.Body>
                 <Modal.Header handleClose={onDismiss}>
                     <h2 className="inter-xlarge-semibold">Claim Details</h2>
@@ -50,7 +44,7 @@ const ClaimDetails: React.FC<ClaimDetailsProps> = ({ claim, order, onDismiss }) 
                                 <Table.HeadCell></Table.HeadCell>
                             </Table.HeadRow>
                             <Table.Body>
-                                {claim.claim_items.map((claimItem: any) => {
+                                {claim.claim_items.map((claimItem) => {
                                     const { item } = claimItem
                                     return (
                                         <>
@@ -109,7 +103,8 @@ const ClaimDetails: React.FC<ClaimDetailsProps> = ({ claim, order, onDismiss }) 
                                                                     <span className="inter-small-semibold mr-1">
                                                                         {
                                                                             reasonOptions[
-                                                                            claimItem.reason
+                                                                                claimItem
+                                                                                    .reason
                                                                             ]
                                                                         }
                                                                     </span>
@@ -121,23 +116,23 @@ const ClaimDetails: React.FC<ClaimDetailsProps> = ({ claim, order, onDismiss }) 
                                                                         .images
                                                                         ?.length >
                                                                         0 && (
-                                                                            <>
-                                                                                (
-                                                                                {
-                                                                                    claimItem
-                                                                                        .images
-                                                                                        ?.length
-                                                                                }{' '}
-                                                                                image
-                                                                                {claimItem
+                                                                        <>
+                                                                            (
+                                                                            {
+                                                                                claimItem
                                                                                     .images
-                                                                                    ?.length >
-                                                                                    1
-                                                                                    ? 's'
-                                                                                    : ''}
-                                                                                )
-                                                                            </>
-                                                                        )}
+                                                                                    ?.length
+                                                                            }{' '}
+                                                                            image
+                                                                            {claimItem
+                                                                                .images
+                                                                                ?.length >
+                                                                            1
+                                                                                ? 's'
+                                                                                : ''}
+                                                                            )
+                                                                        </>
+                                                                    )}
                                                                 </span>
                                                             </span>
                                                         )}
@@ -191,13 +186,13 @@ const ClaimDetails: React.FC<ClaimDetailsProps> = ({ claim, order, onDismiss }) 
 
 export default ClaimDetails
 
-const ReasonDetails = (pop: any, claimItem: any): any => {
+const ReasonDetails = (pop, claimItem) => {
     return {
         title: 'Claim Item',
         onBack: () => pop(),
         view: (
             <>
-                <Modal.Content isLargeModal={true}>
+                <Modal.Content>
                     <div className="h-full">
                         <h2 className="inter-base-semibold mb-4">
                             Claim Reason
@@ -212,10 +207,11 @@ const ReasonDetails = (pop: any, claimItem: any): any => {
                             className="my-4"
                         />
                         {claimItem.images &&
-                            claimItem.images.map((i: any) => (
+                            claimItem.images.map((i) => (
                                 <ImageRow
                                     url={i.url}
                                     name={i.url.split('//').pop()}
+                                    size={undefined}
                                 />
                             ))}
                     </div>
@@ -239,13 +235,7 @@ const ReasonDetails = (pop: any, claimItem: any): any => {
     }
 }
 
-interface ImageRowProps {
-    url: string
-    name: String
-    size?: string
-}
-
-const ImageRow: React.FC<ImageRowProps> = ({ url, name, size }) => (
+const ImageRow = ({ url, name, size }) => (
     <div className="flex items-center w-full justify-between my-8">
         <div className="flex items-center">
             <div className="w-20 h-20 bg-voilet-60">

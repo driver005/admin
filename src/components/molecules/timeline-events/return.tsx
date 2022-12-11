@@ -141,23 +141,23 @@ function buildReturn(
         children:
             event.status === 'requested'
                 ? [
-                    event.items.map((i) => {
-                        return <EventItemContainer item={i} />
-                    }),
-                    button,
-                ]
+                      event.items.map((i) => {
+                          return <EventItemContainer item={i} />
+                      }),
+                      button,
+                  ]
                 : event.status === 'received'
-                    ? [
-                        event.items.map((i) => (
-                            <EventItemContainer
-                                item={{
-                                    ...i,
-                                    quantity: i.receivedQuantity ?? i.quantity,
-                                }}
-                            />
-                        )),
-                    ]
-                    : null,
+                ? [
+                      event.items.map((i) => (
+                          <EventItemContainer
+                              item={{
+                                  ...i,
+                                  quantity: i.receivedQuantity ?? i.quantity,
+                              }}
+                          />
+                      )),
+                  ]
+                : null,
     }
 }
 

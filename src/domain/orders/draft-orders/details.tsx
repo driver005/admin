@@ -1,5 +1,5 @@
 import { Address } from '@medusajs/medusa'
-import { navigate } from 'gatsby'
+import { JsonViewer } from '@textea/json-viewer'
 import {
     useAdminDeleteDraftOrder,
     useAdminDraftOrder,
@@ -8,8 +8,8 @@ import {
     useAdminUpdateDraftOrder,
 } from 'medusa-react'
 import moment from 'moment'
-import React, { useEffect, useState } from 'react'
-import ReactJson from 'react-json-view'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import Avatar from '../../../components/atoms/avatar'
 import CopyToClipboard from '../../../components/atoms/copy-to-clipboard'
 import Spinner from '../../../components/atoms/spinner'
@@ -17,24 +17,30 @@ import Badge from '../../../components/fundamentals/badge'
 import Button from '../../../components/fundamentals/button'
 import DetailsIcon from '../../../components/fundamentals/icons/details-icon'
 import DollarSignIcon from '../../../components/fundamentals/icons/dollar-sign-icon'
-import ImagePlaceholderIcon from '../../../components/fundamentals/icons/image-placeholder-icon'
 import TruckIcon from '../../../components/fundamentals/icons/truck-icon'
+import ImagePlaceholder from '../../../components/fundamentals/image-placeholder'
 import StatusDot from '../../../components/fundamentals/status-indicator'
 import Breadcrumb from '../../../components/molecules/breadcrumb'
 import BodyCard from '../../../components/organisms/body-card'
+import ConfirmationPrompt from '../../../components/organisms/confirmation-prompt'
 import DeletePrompt from '../../../components/organisms/delete-prompt'
+import { AddressType } from '../../../components/templates/address-form'
 import useNotification from '../../../hooks/use-notification'
+import { isoAlpha2Countries } from '../../../utils/countries'
 import { getErrorMessage } from '../../../utils/error-messages'
+import extractCustomerName from '../../../utils/extract-customer-name'
 import { formatAmountWithSymbol } from '../../../utils/prices'
 import AddressModal from '../details/address-modal'
 import { DisplayTotal, FormattedAddress } from '../details/templates'
 
-const DraftOrderDetails = ({ id }: any) => {
-    type DeletePromptData = {
-        resource: string
-        onDelete: () => any
-        show: boolean
-    }
+type DeletePromptData = {
+    resource: string
+    onDelete: () => any
+    show: boolean
+}
+
+const DraftOrderDetails = () => {
+    const { id } = useParams()
 
     const initDeleteState: DeletePromptData = {
         resource: '',
@@ -46,10 +52,13 @@ const DraftOrderDetails = ({ id }: any) => {
         useState<DeletePromptData>(initDeleteState)
     const [addressModal, setAddressModal] = useState<null | {
         address: Address
-        type: 'billing' | 'shipping'
+        type: AddressType
     }>(null)
 
-    const { draft_order, isLoading } = useAdminDraftOrder(id)
+    const [showMarkAsPaidConfirmation, setShowAsPaidConfirmation] =
+        useState(false)
+
+    const { draft_order, isLoading } = useAdminDraftOrder(id!)
     const { store, isLoading: isLoadingStore } = useAdminStore()
 
     const [paymentLink, setPaymentLink] = useState('')
@@ -65,10 +74,11 @@ const DraftOrderDetails = ({ id }: any) => {
         }
     }, [isLoading, isLoadingStore])
 
-    const markPaid = useAdminDraftOrderRegisterPayment(id)
-    const cancelOrder = useAdminDeleteDraftOrder(id)
-    const updateOrder = useAdminUpdateDraftOrder(id)
+    const markPaid = useAdminDraftOrderRegisterPayment(id!)
+    const cancelOrder = useAdminDeleteDraftOrder(id!)
+    const updateOrder = useAdminUpdateDraftOrder(id!)
 
+    const navigate = useNavigate()
     const notification = useNotification()
 
     const OrderStatusComponent = () => {
@@ -85,24 +95,24 @@ const DraftOrderDetails = ({ id }: any) => {
     const PaymentActionables = () => {
         // Default label and action
         const label = 'Mark as paid'
-        const action = () => {
-            markPaid.mutate(void {}, {
-                onSuccess: () =>
-                    notification(
-                        'Success',
-                        'Successfully mark as paid',
-                        'success'
-                    ),
-                onError: (err) =>
-                    notification('Error', getErrorMessage(err), 'error'),
-            })
-        }
+        const action = () => setShowAsPaidConfirmation(true)
 
         return (
             <Button variant="secondary" size="small" onClick={action}>
                 {label}
             </Button>
         )
+    }
+
+    const onMarkAsPaidConfirm = async () => {
+        try {
+            await markPaid.mutateAsync()
+            notification('Success', 'Successfully mark as paid', 'success')
+        } catch (err) {
+            notification('Error', getErrorMessage(err), 'error')
+        } finally {
+            setShowAsPaidConfirmation(false)
+        }
     }
 
     const handleDeleteOrder = async () => {
@@ -113,39 +123,6 @@ const DraftOrderDetails = ({ id }: any) => {
                     'Successfully canceled order',
                     'success'
                 ),
-            onError: (err) =>
-                notification('Error', getErrorMessage(err), 'error'),
-        })
-    }
-
-    const handleUpdateAddress = async ({ data, type }: any) => {
-        const { email, ...rest } = data
-
-        const updateObj: any = {}
-
-        if (type === 'shipping') {
-            updateObj['shipping_address'] = {
-                ...rest,
-            }
-        } else {
-            updateObj['billing_address'] = {
-                ...rest,
-            }
-        }
-
-        if (email) {
-            updateObj['email'] = email
-        }
-
-        return updateOrder.mutate(updateObj, {
-            onSuccess: () => {
-                notification(
-                    'Success',
-                    'Successfully updated address',
-                    'success'
-                )
-                setAddressModal(null)
-            },
             onError: (err) =>
                 notification('Error', getErrorMessage(err), 'error'),
         })
@@ -198,30 +175,30 @@ const DraftOrderDetails = ({ id }: any) => {
                             actionables={
                                 draft_order?.status === 'completed'
                                     ? [
-                                        {
-                                            label: 'Go to Order',
-                                            icon: null,
-                                            onClick: () =>
-                                                console.log(
-                                                    'Should not be here'
-                                                ),
-                                        },
-                                    ]
+                                          {
+                                              label: 'Go to Order',
+                                              icon: null,
+                                              onClick: () =>
+                                                  console.log(
+                                                      'Should not be here'
+                                                  ),
+                                          },
+                                      ]
                                     : [
-                                        {
-                                            label: 'Cancel Draft Order',
-                                            icon: null,
-                                            // icon: <CancelIcon size={"20"} />,
-                                            variant: 'danger',
-                                            onClick: () =>
-                                                setDeletePromptData({
-                                                    resource: 'Draft Order',
-                                                    onDelete: () =>
-                                                        handleDeleteOrder(),
-                                                    show: true,
-                                                }),
-                                        },
-                                    ]
+                                          {
+                                              label: 'Cancel Draft Order',
+                                              icon: null,
+                                              // icon: <CancelIcon size={"20"} />,
+                                              variant: 'danger',
+                                              onClick: () =>
+                                                  setDeletePromptData({
+                                                      resource: 'Draft Order',
+                                                      onDelete: () =>
+                                                          handleDeleteOrder(),
+                                                      show: true,
+                                                  }),
+                                          },
+                                      ]
                             }
                         >
                             <div className="flex mt-6 space-x-6 divide-x">
@@ -236,7 +213,7 @@ const DraftOrderDetails = ({ id }: any) => {
                                         Phone
                                     </div>
                                     <div>
-                                        {cart?.shipping_address?.phone || ''}
+                                        {cart?.shipping_address?.phone || 'N/A'}
                                     </div>
                                 </div>
                                 <div className="flex flex-col pl-6">
@@ -245,10 +222,13 @@ const DraftOrderDetails = ({ id }: any) => {
                                         {region?.currency_code.toUpperCase()})
                                     </div>
                                     <div>
-                                        {formatAmountWithSymbol({
-                                            amount: cart?.total as number,
-                                            currency: region?.currency_code as string,
-                                        })}
+                                        {cart?.total && region?.currency_code
+                                            ? formatAmountWithSymbol({
+                                                  amount: cart?.total,
+                                                  currency:
+                                                      region?.currency_code,
+                                              })
+                                            : 'N/A'}
                                     </div>
                                 </div>
                             </div>
@@ -264,16 +244,14 @@ const DraftOrderDetails = ({ id }: any) => {
                                         className="flex justify-between mb-1 h-[64px] py-2 mx-[-5px] px-[5px] hover:bg-grey-5 rounded-rounded"
                                     >
                                         <div className="flex space-x-4 justify-center">
-                                            <div className="flex h-[48px] w-[36px] rounded-rounded bg-grey-10 items-center justify-center">
+                                            <div className="flex h-[48px] w-[36px] rounded-rounded items-center justify-center">
                                                 {item?.thumbnail ? (
                                                     <img
                                                         src={item.thumbnail}
                                                         className="rounded-rounded object-cover"
                                                     />
                                                 ) : (
-                                                    <div className="text-grey-30">
-                                                        <ImagePlaceholderIcon />
-                                                    </div>
+                                                    <ImagePlaceholder />
                                                 )}
                                             </div>
                                             <div className="flex flex-col justify-center">
@@ -291,11 +269,14 @@ const DraftOrderDetails = ({ id }: any) => {
                                             <div className="flex small:space-x-2 medium:space-x-4 large:space-x-6 mr-3">
                                                 <div className="inter-small-regular text-grey-50">
                                                     {formatAmountWithSymbol({
-                                                        amount: item.unit_price,
+                                                        amount:
+                                                            (item?.total ?? 0) /
+                                                            item.quantity,
                                                         currency:
-                                                            region?.currency_code as string,
+                                                            region?.currency_code ??
+                                                            '',
                                                         digits: 2,
-                                                        tax: region?.tax_rate,
+                                                        tax: [],
                                                     })}
                                                 </div>
                                                 <div className="inter-small-regular text-grey-50">
@@ -303,13 +284,12 @@ const DraftOrderDetails = ({ id }: any) => {
                                                 </div>
                                                 <div className="inter-small-regular text-grey-90">
                                                     {formatAmountWithSymbol({
-                                                        amount:
-                                                            item.unit_price *
-                                                            item.quantity,
+                                                        amount: item.total ?? 0,
                                                         currency:
-                                                            region?.currency_code as string,
+                                                            region?.currency_code ??
+                                                            '',
                                                         digits: 2,
-                                                        tax: region?.tax_rate,
+                                                        tax: [],
                                                     })}
                                                 </div>
                                             </div>
@@ -320,8 +300,8 @@ const DraftOrderDetails = ({ id }: any) => {
                                     </div>
                                 ))}
                                 <DisplayTotal
-                                    currency={region?.currency_code as string}
-                                    totalAmount={draft_order?.cart?.subtotal as number}
+                                    currency={region?.currency_code}
+                                    totalAmount={draft_order?.cart?.subtotal}
                                     totalTitle={'Subtotal'}
                                 />
                                 {cart?.discounts?.map((discount, index) => (
@@ -341,7 +321,7 @@ const DraftOrderDetails = ({ id }: any) => {
                                         <div className="inter-small-regular text-grey-90">
                                             -
                                             {formatAmountWithSymbol({
-                                                amount: cart?.discount_total as number,
+                                                amount: cart?.discount_total,
                                                 currency:
                                                     region?.currency_code || '',
                                                 digits: 2,
@@ -351,19 +331,19 @@ const DraftOrderDetails = ({ id }: any) => {
                                     </div>
                                 ))}
                                 <DisplayTotal
-                                    currency={region?.currency_code as string}
-                                    totalAmount={cart?.shipping_total as number}
+                                    currency={region?.currency_code}
+                                    totalAmount={cart?.shipping_total}
                                     totalTitle={'Shipping'}
                                 />
                                 <DisplayTotal
-                                    currency={region?.currency_code as string}
-                                    totalAmount={cart?.tax_total as number}
+                                    currency={region?.currency_code}
+                                    totalAmount={cart?.tax_total}
                                     totalTitle={`Tax`}
                                 />
                                 <DisplayTotal
-                                    currency={region?.currency_code as string}
+                                    currency={region?.currency_code}
                                     variant="large"
-                                    totalAmount={cart?.total as number}
+                                    totalAmount={cart?.total}
                                     totalTitle={`Total`}
                                 />
                             </div>
@@ -379,24 +359,24 @@ const DraftOrderDetails = ({ id }: any) => {
                         >
                             <div className="mt-6">
                                 <DisplayTotal
-                                    currency={region?.currency_code as string}
-                                    totalAmount={cart?.subtotal as number}
+                                    currency={region?.currency_code}
+                                    totalAmount={cart?.subtotal}
                                     totalTitle={'Subtotal'}
                                 />
                                 <DisplayTotal
-                                    currency={region?.currency_code as string}
-                                    totalAmount={cart?.shipping_total as number}
+                                    currency={region?.currency_code}
+                                    totalAmount={cart?.shipping_total}
                                     totalTitle={'Shipping'}
                                 />
                                 <DisplayTotal
-                                    currency={region?.currency_code as string}
-                                    totalAmount={cart?.tax_total as number}
+                                    currency={region?.currency_code}
+                                    totalAmount={cart?.tax_total}
                                     totalTitle={'Tax'}
                                 />
                                 <DisplayTotal
                                     variant="bold"
-                                    currency={region?.currency_code as string}
-                                    totalAmount={cart?.total as number}
+                                    currency={region?.currency_code}
+                                    totalAmount={cart?.total}
                                     totalTitle={'Total to pay'}
                                 />
                                 {draft_order?.status !== 'completed' && (
@@ -425,12 +405,15 @@ const DraftOrderDetails = ({ id }: any) => {
                         >
                             <div className="mt-6">
                                 {cart?.shipping_methods.map((method) => (
-                                    <div className="flex flex-col">
+                                    <div
+                                        className="flex flex-col"
+                                        key={method.id}
+                                    >
                                         <span className="inter-small-regular text-grey-50">
                                             Shipping Method
                                         </span>
                                         <span className="inter-small-regular text-grey-90 mt-2">
-                                            {method?.shipping_option?.name || ''}
+                                            {method?.shipping_option.name || ''}
                                         </span>
                                         <div className="flex flex-col min-h-[100px] mt-8 bg-grey-5 px-3 py-2 h-full">
                                             <span className="inter-base-semibold">
@@ -440,10 +423,10 @@ const DraftOrderDetails = ({ id }: any) => {
                                                 </span>
                                             </span>
                                             <div className="flex flex-grow items-center mt-4">
-                                                <ReactJson
-                                                    name={false}
-                                                    collapsed={true}
-                                                    src={method?.data}
+                                                <JsonViewer
+                                                    rootName={'shipping_method'}
+                                                    value={method?.data}
+                                                    defaultInspectDepth={0}
                                                 />
                                             </div>
                                         </div>
@@ -460,8 +443,8 @@ const DraftOrderDetails = ({ id }: any) => {
                                     icon: <TruckIcon size={'20'} />,
                                     onClick: () =>
                                         setAddressModal({
-                                            address: cart?.shipping_address as any,
-                                            type: 'shipping',
+                                            address: cart?.shipping_address,
+                                            type: AddressType.SHIPPING,
                                         }),
                                 },
                                 {
@@ -471,7 +454,7 @@ const DraftOrderDetails = ({ id }: any) => {
                                         if (cart?.billing_address) {
                                             setAddressModal({
                                                 address: cart?.billing_address,
-                                                type: 'billing',
+                                                type: AddressType.BILLING,
                                             })
                                         }
                                     },
@@ -497,15 +480,18 @@ const DraftOrderDetails = ({ id }: any) => {
                                     </div>
                                     <div>
                                         <h1 className="inter-large-semibold text-grey-90">
-                                            {`${cart?.shipping_address?.first_name} ${cart?.shipping_address?.last_name}`}
+                                            {extractCustomerName(cart)}
                                         </h1>
-                                        <span className="inter-small-regular text-grey-50">
-                                            {cart?.shipping_address?.city},{' '}
-                                            {
-                                                cart?.shipping_address
-                                                    ?.country_code
-                                            }
-                                        </span>
+                                        {cart?.shipping_address && (
+                                            <span className="inter-small-regular text-grey-50">
+                                                {cart.shipping_address.city},{' '}
+                                                {
+                                                    isoAlpha2Countries[
+                                                        cart.shipping_address.country_code?.toUpperCase()
+                                                    ]
+                                                }
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="flex mt-6 space-x-6 divide-x">
@@ -523,11 +509,15 @@ const DraftOrderDetails = ({ id }: any) => {
                                     </div>
                                     <FormattedAddress
                                         title={'Shipping'}
-                                        addr={cart?.shipping_address}
+                                        addr={
+                                            cart?.shipping_address || undefined
+                                        }
                                     />
                                     <FormattedAddress
                                         title={'Billing'}
-                                        addr={cart?.billing_address}
+                                        addr={
+                                            cart?.billing_address || undefined
+                                        }
                                     />
                                 </div>
                             </div>
@@ -536,11 +526,10 @@ const DraftOrderDetails = ({ id }: any) => {
                             className={'w-full mb-4 min-h-0 h-auto'}
                             title="Raw Draft Order"
                         >
-                            <ReactJson
+                            <JsonViewer
                                 style={{ marginTop: '15px' }}
-                                name={false}
-                                collapsed={true}
-                                src={draft_order!}
+                                rootName={'draft_order'}
+                                value={draft_order!}
                             />
                         </BodyCard>
                     </div>
@@ -549,9 +538,10 @@ const DraftOrderDetails = ({ id }: any) => {
             {addressModal && (
                 <AddressModal
                     handleClose={() => setAddressModal(null)}
-                    handleSave={(obj) => handleUpdateAddress(obj)}
+                    submit={updateOrder.mutate}
                     address={addressModal.address}
                     type={addressModal.type}
+                    allowedCountries={region?.countries}
                 />
             )}
             {/* An attempt to make a reusable delete prompt, so we don't have to hold +10
@@ -560,10 +550,22 @@ const DraftOrderDetails = ({ id }: any) => {
                 <DeletePrompt
                     text={'Are you sure?'}
                     heading={`Remove ${deletePromptData?.resource}`}
-                    successText={`${deletePromptData?.resource || 'Resource'
-                        } has been removed`}
+                    successText={`${
+                        deletePromptData?.resource || 'Resource'
+                    } has been removed`}
                     onDelete={() => deletePromptData.onDelete()}
                     handleClose={() => setDeletePromptData(initDeleteState)}
+                />
+            )}
+
+            {showMarkAsPaidConfirmation && (
+                <ConfirmationPrompt
+                    heading="Mark as paid"
+                    text="This will create an order. Mark this as paid if you received the payment."
+                    confirmText="Mark paid"
+                    cancelText="Cancel"
+                    handleClose={() => setShowAsPaidConfirmation(false)}
+                    onConfirm={onMarkAsPaidConfirm}
                 />
             )}
         </div>

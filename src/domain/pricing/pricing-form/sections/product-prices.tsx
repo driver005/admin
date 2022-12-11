@@ -45,7 +45,7 @@ const ProductPrices = ({
     const { prices, setPrices } = usePriceListForm()
     const { store } = useAdminStore()
 
-    const onChange = (e: any) => {
+    const onChange = (e) => {
         const query = e.target.value
         if (onSearch) {
             onSearch(query)
@@ -57,7 +57,7 @@ const ProductPrices = ({
         amount: 0,
     })) as MoneyAmount[]
 
-    const getVariantActions = (variant: any) => {
+    const getVariantActions = (variant) => {
         return [
             {
                 label: 'Edit prices',
@@ -77,12 +77,12 @@ const ProductPrices = ({
         ]
     }
 
-    const handleSubmit = (values: any) => {
+    const handleSubmit = (values) => {
         values.variants.forEach((variantId: string) => {
             const prices: CreatePriceListPricesFormValues[number] =
                 values.prices
-                    .filter((pr: any) => pr.amount > 0)
-                    .map((pr: any) => ({
+                    .filter((pr) => pr.amount > 0)
+                    .map((pr) => ({
                         amount: pr.amount,
                         currency_code: pr.currency_code,
                     }))
@@ -103,14 +103,14 @@ const ProductPrices = ({
                     <div className="mb-2">
                         <InputField
                             placeholder="Search by name or SKU..."
-                            startAdornment={<SearchIcon />}
+                            prefix={<SearchIcon />}
                             onChange={onChange}
                         />
                     </div>
                 )}
                 <div>
                     <LoadingContainer isLoading={isLoading}>
-                        {products.map((product: any) => (
+                        {products.map((product) => (
                             <div className="mt-2">
                                 <ProductVariantTree
                                     product={product}
@@ -133,6 +133,7 @@ const ProductPrices = ({
                     Add Products Manually
                 </Button>
             </div>
+
             {/* {onFileChosen && (
         <div className="mt-3">
           <FileUploadField
@@ -149,6 +150,7 @@ const ProductPrices = ({
           />
         </div>
       )} */}
+
             {showAdd && (
                 <AddProductsModal
                     onSave={setProducts}
@@ -171,9 +173,9 @@ const ProductPrices = ({
                             prices={
                                 prices
                                     ? mergeExistingWithDefault(
-                                        prices[selectedVariant.id],
-                                        defaultPrices
-                                    )
+                                          prices[selectedVariant.id],
+                                          defaultPrices
+                                      )
                                     : defaultPrices
                             }
                             defaultVariant={selectedVariant}

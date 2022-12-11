@@ -10,7 +10,6 @@ import {
     PriceListFormValues,
     PriceListStatus,
     PriceListType,
-    PriceProps,
 } from '../types'
 
 export const mapPriceListToFormValues = (
@@ -29,11 +28,12 @@ export const mapPriceListToFormValues = (
             variant_id: p.variant_id,
             currency_code: p.currency_code,
             region_id: p.region_id,
-        })) as unknown as PriceProps[],
+        })),
         customer_groups: priceList.customer_groups.map((pl) => ({
             label: pl.name,
             value: pl.id,
         })),
+        includes_tax: priceList.includes_tax,
     }
 }
 
@@ -41,7 +41,7 @@ export const mapFormValuesToCreatePriceList = (
     values: CreatePriceListFormValues,
     status: PriceListStatus
 ): AdminPostPriceListsPriceListReq => {
-    let prices: any
+    let prices
     if (values.prices) {
         prices = Object.entries(values.prices)
             .map(([variantId, price]) =>
@@ -86,7 +86,7 @@ export const mapFormValuesToUpdatePriceListDetails = (
 }
 
 export const mapFormValuesToUpdatePriceListPrices = (
-    values: CreatePriceListFormValues
+    values: PriceListFormValues & { prices: CreatePriceListPricesFormValues }
 ): AdminPostPriceListsPriceListPriceListReq | void => {
     let prices
     if (values.prices) {

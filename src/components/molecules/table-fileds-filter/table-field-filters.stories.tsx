@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import { ComponentMeta } from '@storybook/react'
 import React from 'react'
 import clsx from 'clsx'
 
@@ -9,7 +9,7 @@ export default {
     component: TableFieldsFilters,
 } as ComponentMeta<typeof TableFieldsFilters>
 
-const Template: ComponentStory<typeof TableFieldsFilters> = (args) => <TableFieldsFilters {...args} />
+const Template = (args) => <TableFieldsFilters {...args} />
 
 export const Default = Template.bind({})
 Default.args = {

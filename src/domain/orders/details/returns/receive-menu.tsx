@@ -72,7 +72,7 @@ const ReceiveMenu: React.FC<ReceiveMenuProps> = ({
     }, [order, returnRequest])
 
     useEffect(() => {
-        const returns: any = {}
+        const returns = {}
 
         returnRequest.items.forEach((i: ReturnItem) => {
             const item = allItems.find((l) => l.id === i.item_id)
@@ -121,7 +121,7 @@ const ReceiveMenu: React.FC<ReceiveMenuProps> = ({
         const shippingTotal =
             (returnRequest.shipping_method &&
                 returnRequest.shipping_method.price *
-                (1 + shippingTaxRate / 100)) ||
+                    (1 + shippingTaxRate / 100)) ||
             0
 
         const total = itemTotal - shippingTotal
@@ -202,7 +202,7 @@ const ReceiveMenu: React.FC<ReceiveMenuProps> = ({
                         <>
                             {returnRequest.shipping_method &&
                                 returnRequest.shipping_method.price !==
-                                undefined && (
+                                    undefined && (
                                     <div className="my-4 flex justify-between">
                                         <span className="inter-base-semibold">
                                             Shipping cost
@@ -246,7 +246,7 @@ const ReceiveMenu: React.FC<ReceiveMenuProps> = ({
                                         </div>
                                     </div>
                                     {refundEdited && (
-                                        <CurrencyInput
+                                        <CurrencyInput.Root
                                             className="mt-2"
                                             size="small"
                                             currentCurrency={
@@ -254,12 +254,12 @@ const ReceiveMenu: React.FC<ReceiveMenuProps> = ({
                                             }
                                             readOnly
                                         >
-                                            <CurrencyInput.AmountInput
+                                            <CurrencyInput.Amount
                                                 label={'Amount'}
                                                 amount={refundAmount}
                                                 onChange={handleRefundUpdated}
                                             />
-                                        </CurrencyInput>
+                                        </CurrencyInput.Root>
                                     )}
                                 </div>
                             )}

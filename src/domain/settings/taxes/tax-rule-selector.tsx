@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react'
 import Button from '../../../components/fundamentals/button'
-import RadioGroup from '../../../components/organisms/radio-group'
 import Modal from '../../../components/molecules/modal'
 import { LayeredModalContext } from '../../../components/molecules/modal/layered-modal'
+import RadioGroup from '../../../components/organisms/radio-group'
 import { ProductSelector } from './product-selector'
 import { ProductTypeSelector } from './product-type-selector'
 import { ShippingOptionSelector } from './shipping-option-selector'
@@ -15,9 +15,8 @@ enum TaxRuleType {
 
 type TaxRuleSelectorProps = {
     regionId: string
-    onSubmit: (rule: any) => void
+    onSubmit: (rule) => void
     selectedItems?: any
-    isLargeModal?: boolean
     type?: TaxRuleType
     items?: string[]
 }
@@ -32,7 +31,6 @@ const TaxRuleSelector: React.FC<TaxRuleSelectorProps> = ({
     type,
     items,
     onSubmit,
-    isLargeModal = true,
 }) => {
     const isLocked = type && items
 
@@ -50,7 +48,7 @@ const TaxRuleSelector: React.FC<TaxRuleSelectorProps> = ({
         pop()
     }
 
-    const handleTypeChange = (t: any) => {
+    const handleTypeChange = (t) => {
         if (t !== selectedType) {
             setSelectedType(t)
             setSelectedRule({
@@ -60,7 +58,7 @@ const TaxRuleSelector: React.FC<TaxRuleSelectorProps> = ({
         }
     }
 
-    const handleItemChanges = (items: any) => {
+    const handleItemChanges = (items) => {
         setSelectedRule((prev) => {
             return {
                 ...prev,
@@ -71,7 +69,7 @@ const TaxRuleSelector: React.FC<TaxRuleSelectorProps> = ({
 
     return (
         <>
-            <Modal.Content isLargeModal={isLargeModal}>
+            <Modal.Content>
                 <div className="min-h-[680px]">
                     {!isLocked && (
                         <>
@@ -125,7 +123,7 @@ const TaxRuleSelector: React.FC<TaxRuleSelectorProps> = ({
                     )}
                 </div>
             </Modal.Content>
-            <Modal.Footer isLargeModal={isLargeModal}>
+            <Modal.Footer>
                 <div className="flex w-full justify-end gap-x-xsmall">
                     <Button
                         variant="ghost"

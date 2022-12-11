@@ -54,10 +54,10 @@ function AddProducts() {
 
     return (
         <div>
-            <span className="text-gray-500">
+            <sapn className="text-gray-500">
                 Select products that will be available via this channel. You can
                 assign products to multiple channels.
-            </span>
+            </sapn>
             <Button
                 size="small"
                 type="button"
@@ -94,10 +94,7 @@ const AddSalesChannelModal = ({ onClose }: AddSalesChannelModalProps) => {
 
     async function save() {
         await createSalesChannel(
-            {
-                name: name as string,
-                description: description as string,
-            },
+            { name, description },
             {
                 onSuccess: ({ sales_channel }) => {
                     notification(
@@ -120,8 +117,8 @@ const AddSalesChannelModal = ({ onClose }: AddSalesChannelModalProps) => {
     async function saveAsDraft() {
         await createSalesChannel(
             {
-                name: name as string,
-                description: description as string,
+                name,
+                description,
                 is_disabled: true,
             },
             {
@@ -150,7 +147,7 @@ const AddSalesChannelModal = ({ onClose }: AddSalesChannelModalProps) => {
                     <Button
                         size="small"
                         variant="ghost"
-                        onClick={(e: any) => onClose('')}
+                        onClick={onClose}
                         className="border rounded-rounded w-8 h-8"
                     >
                         <CrossIcon size={20} />
@@ -195,8 +192,8 @@ const AddSalesChannelModal = ({ onClose }: AddSalesChannelModalProps) => {
                                 forceMountContent
                             >
                                 <General
-                                    name={name as string}
-                                    description={description as string}
+                                    name={name}
+                                    description={description}
                                     setName={setName}
                                     setDescription={setDescription}
                                 />

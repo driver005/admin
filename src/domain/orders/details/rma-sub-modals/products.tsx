@@ -3,15 +3,16 @@ import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { usePagination, useRowSelect, useTable } from 'react-table'
 import Spinner from '../../../../components/atoms/spinner'
 import Button from '../../../../components/fundamentals/button'
-import ImagePlaceholder from '../../../../components/fundamentals/icons/image-placeholder'
+import ImagePlaceholder from '../../../../components/fundamentals/image-placeholder'
 import StatusIndicator from '../../../../components/fundamentals/status-indicator'
 import IndeterminateCheckbox from '../../../../components/molecules/indeterminate-checkbox'
 import Modal from '../../../../components/molecules/modal'
 import { LayeredModalContext } from '../../../../components/molecules/modal/layered-modal'
-import Table, { TablePagination } from '../../../../components/molecules/table'
+import Table from '../../../../components/molecules/table'
+import TableContainer from '../../../../components/organisms/table-container'
 import { useDebounce } from '../../../../hooks/use-debounce'
 
-const getProductStatusVariant = (status: any) => {
+const getProductStatusVariant = (status) => {
     switch (status) {
         case 'proposed':
             return 'warning'
@@ -26,15 +27,13 @@ const getProductStatusVariant = (status: any) => {
 }
 
 type RMASelectProductSubModalProps = {
-    onSubmit: (selectItems: any) => void
+    onSubmit: (selectItems) => void
     selectedItems?: any
-    isLargeModal?: boolean
 }
 
 const RMASelectProductSubModal: React.FC<RMASelectProductSubModalProps> = ({
     onSubmit,
     selectedItems,
-    isLargeModal = true,
 }) => {
     const PAGE_SIZE = 12
     const { pop } = useContext(LayeredModalContext)
@@ -64,7 +63,7 @@ const RMASelectProductSubModal: React.FC<RMASelectProductSubModalProps> = ({
             {
                 Header: 'Name',
                 accessor: 'title',
-                Cell: ({ row: { original } }: any) => {
+                Cell: ({ row: { original } }) => {
                     return (
                         <div className="flex items-center">
                             <div className="h-[40px] w-[30px] my-1.5 flex items-center mr-4">
@@ -74,9 +73,7 @@ const RMASelectProductSubModal: React.FC<RMASelectProductSubModalProps> = ({
                                         className="h-full object-cover rounded-soft"
                                     />
                                 ) : (
-                                    <div className="flex items-center justify-center w-full h-full rounded-soft bg-grey-10">
-                                        <ImagePlaceholder size={16} />
-                                    </div>
+                                    <ImagePlaceholder />
                                 )}
                             </div>
                             <div className="flex flex-col">
@@ -90,7 +87,7 @@ const RMASelectProductSubModal: React.FC<RMASelectProductSubModalProps> = ({
             {
                 Header: 'Status',
                 accessor: 'status',
-                Cell: ({ row: { original } }: any) => (
+                Cell: ({ row: { original } }) => (
                     <StatusIndicator
                         title={`${original.product.status
                             .charAt(0)
@@ -104,7 +101,7 @@ const RMASelectProductSubModal: React.FC<RMASelectProductSubModalProps> = ({
             {
                 Header: <div className="text-right">In Stock</div>,
                 accessor: 'inventory_quantity',
-                Cell: ({ row: { original } }: any) => (
+                Cell: ({ row: { original } }) => (
                     <div className="text-right">
                         {original.inventory_quantity}
                     </div>
@@ -127,13 +124,13 @@ const RMASelectProductSubModal: React.FC<RMASelectProductSubModalProps> = ({
         state: { pageIndex, pageSize, selectedRowIds },
     } = useTable(
         {
-            columns: columns as any,
+            columns,
             data: variants || [],
             manualPagination: true,
             initialState: {
                 pageIndex: currentPage,
                 pageSize: PAGE_SIZE,
-                selectedRowIds: selectedItems.reduce((prev: any, { id }: any) => {
+                selectedRowIds: selectedItems.reduce((prev, { id }) => {
                     prev[id] = true
                     return prev
                 }, {}),
@@ -163,7 +160,7 @@ const RMASelectProductSubModal: React.FC<RMASelectProductSubModalProps> = ({
                     },
                     // The cell can use the individual row's getToggleRowSelectedProps method
                     // to the render a checkbox
-                    Cell: ({ row }: any) => {
+                    Cell: ({ row }) => {
                         return (
                             <div>
                                 <IndeterminateCheckbox
@@ -190,7 +187,7 @@ const RMASelectProductSubModal: React.FC<RMASelectProductSubModalProps> = ({
                 (v) =>
                     selectedVariants.findIndex((sv) => sv.id === v.id) < 0 &&
                     Object.keys(selectedRowIds).findIndex((id) => id === v.id) >
-                    -1
+                        -1
             ) || []),
         ])
     }, [selectedRowIds])
@@ -211,7 +208,7 @@ const RMASelectProductSubModal: React.FC<RMASelectProductSubModalProps> = ({
         }
     }
 
-    const handleSearch = (q: any) => {
+    const handleSearch = (q) => {
         setOffset(0)
         setCurrentPage(0)
         setQuery(q)
@@ -224,8 +221,24 @@ const RMASelectProductSubModal: React.FC<RMASelectProductSubModalProps> = ({
 
     return (
         <>
-            <Modal.Content isLargeModal={isLargeModal}>
-                <div className="min-h-[680px]">
+            <Modal.Content>
+                <TableContainer
+                    isLoading={isLoading}
+                    numberOfRows={PAGE_SIZE}
+                    hasPagination
+                    pagingState={{
+                        count: count!,
+                        offset: offset,
+                        pageSize: offset + rows.length,
+                        title: 'Products',
+                        currentPage: pageIndex + 1,
+                        pageCount: pageCount,
+                        nextPage: handleNext,
+                        prevPage: handlePrev,
+                        hasNext: canNextPage,
+                        hasPrev: canPreviousPage,
+                    }}
+                >
                     <Table
                         immediateSearchFocus
                         enableSearch
@@ -235,7 +248,17 @@ const RMASelectProductSubModal: React.FC<RMASelectProductSubModalProps> = ({
                     >
                         <Table.Body {...getTableBodyProps()}>
                             {isLoading ? (
-                                <Spinner size="large" />
+                                <Table.Row>
+                                    <Table.Cell
+                                        colSpan={columns.length}
+                                        className="flex items-center justify-center"
+                                    >
+                                        <Spinner
+                                            size="large"
+                                            variant="secondary"
+                                        />
+                                    </Table.Cell>
+                                </Table.Row>
                             ) : (
                                 rows.map((row, i) => {
                                     prepareRow(row)
@@ -256,22 +279,9 @@ const RMASelectProductSubModal: React.FC<RMASelectProductSubModalProps> = ({
                             )}
                         </Table.Body>
                     </Table>
-                    <TablePagination
-                        count={count!}
-                        limit={PAGE_SIZE}
-                        offset={offset}
-                        pageSize={offset + rows.length}
-                        title="Products"
-                        currentPage={pageIndex + 1}
-                        pageCount={pageCount}
-                        nextPage={handleNext}
-                        prevPage={handlePrev}
-                        hasNext={canNextPage}
-                        hasPrev={canPreviousPage}
-                    />
-                </div>
+                </TableContainer>
             </Modal.Content>
-            <Modal.Footer isLargeModal={isLargeModal}>
+            <Modal.Footer>
                 <div className="flex w-full justify-end gap-x-xsmall">
                     <Button
                         variant="ghost"

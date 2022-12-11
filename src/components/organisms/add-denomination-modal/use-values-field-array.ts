@@ -1,4 +1,4 @@
-import { Control, useFieldArray, useWatch } from 'react-hook-form'
+import { useFieldArray, UseFieldArrayOptions, useWatch } from 'react-hook-form'
 
 type UseValuesFieldArrayOptions = {
     defaultAmount: number
@@ -6,7 +6,6 @@ type UseValuesFieldArrayOptions = {
 }
 
 type ValuesFormValue = {
-    default_price: number
     price: {
         currency_code: string
         amount: number
@@ -15,37 +14,28 @@ type ValuesFormValue = {
 
 export const useValuesFieldArray = <TKeyName extends string = 'id'>(
     currencyCodes: string[],
-    {
-        control,
-        name,
-        keyName
-    }: {
-        control: Control<any>
-        name: string
-        keyName: string
-    },
+    { control, name, keyName }: UseFieldArrayOptions<TKeyName>,
     options: UseValuesFieldArrayOptions = {
         defaultAmount: 1000,
         defaultCurrencyCode: 'usd',
     }
 ) => {
     const { defaultAmount } = options
-    const { fields, append, remove } = useFieldArray(
+    const { fields, append, remove } = useFieldArray<ValuesFormValue, TKeyName>(
         {
-            control: control,
-            name: name,
-            keyName: keyName,
+            control,
+            name,
+            keyName,
         }
     )
-
     const watchedFields = useWatch({
         control,
-        name: name,
+        name,
         defaultValue: fields,
     })
 
     const selectedCurrencies = watchedFields.map(
-        (field: any) => field?.price?.currency_code
+        (field) => field?.price?.currency_code
     )
     const availableCurrencies = currencyCodes?.filter(
         (currency) => !selectedCurrencies.includes(currency)
@@ -68,7 +58,7 @@ export const useValuesFieldArray = <TKeyName extends string = 'id'>(
         })
     }
 
-    const deletePrice = (index: number) => {
+    const deletePrice = (index) => {
         return () => {
             remove(index)
         }

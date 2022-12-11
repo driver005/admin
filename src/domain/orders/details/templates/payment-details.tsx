@@ -1,17 +1,7 @@
 import React from 'react'
 import { DisplayTotal } from './display-total'
 
-interface PaymentDetailsProps {
-    currency: string
-    swapAmount: number
-    manualRefund: number
-    swapRefund: number
-    returnRefund: number
-    paidTotal: number
-    refundedTotal: number
-}
-
-export const PaymentDetails: React.FC<PaymentDetailsProps> = ({
+export const PaymentDetails = ({
     currency,
     swapAmount,
     manualRefund,

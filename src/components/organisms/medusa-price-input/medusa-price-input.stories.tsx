@@ -1,9 +1,9 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import { ComponentMeta } from '@storybook/react'
 import React from 'react'
 import { currencies } from '../../../utils/currencies'
 import MedusaPriceInput from './'
 
-function C(args: any) {
+function C(args) {
     return (
         <MedusaPriceInput
             {...args}
@@ -31,7 +31,7 @@ export default {
     },
 } as ComponentMeta<typeof MedusaPriceInput>
 
-const Template: ComponentStory<typeof C> = (args) => <C {...args} />
+const Template = (args) => <C {...args} />
 
 export const Default = Template.bind({})
 Default.args = {

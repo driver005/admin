@@ -9,13 +9,13 @@ export const useCustomerColumns = () => {
             {
                 Header: 'Date added',
                 accessor: 'created_at', // accessor is the "key" in the data
-                Cell: ({ cell: { value } }: any) =>
+                Cell: ({ cell: { value } }) =>
                     moment(value).format('DD MMM YYYY'),
             },
             {
                 Header: 'Name',
                 accessor: 'customer',
-                Cell: ({ row }: any) => (
+                Cell: ({ row }) => (
                     <CustomerAvatarItem
                         customer={row.original}
                         color={getColor(row.index)}
@@ -33,7 +33,7 @@ export const useCustomerColumns = () => {
             {
                 accessor: 'orders',
                 Header: () => <div className="text-right">Orders</div>,
-                Cell: ({ cell: { value } }: any) => (
+                Cell: ({ cell: { value } }) => (
                     <div className="text-right">{value?.length || 0}</div>
                 ),
             },

@@ -15,9 +15,9 @@ export const merge = <T extends Idable, U extends Idable>(
     return merged
 }
 
-const normalize = <T extends {}>(arr: T[], key: any) => {
+const normalize = <T extends {}>(arr: T[], key) => {
     return arr.reduce(
-        (obj: any, curr: any) => ((obj[curr[key]] = { ...curr }), obj),
+        (obj, curr) => ((obj[curr[key]] = { ...curr }), obj),
         {} as T
     )
 }

@@ -2,7 +2,6 @@ import React from 'react'
 import IconTooltip from '../icon-tooltip'
 
 type SectionProps = {
-    children: React.ReactNode
     title: string
     description: string
     tooltip?: string

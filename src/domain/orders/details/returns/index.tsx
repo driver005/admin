@@ -42,7 +42,7 @@ const ReturnMenu: React.FC<ReturnMenuProps> = ({ order, onDismiss }) => {
 
     const [noNotification, setNoNotification] = useState(order.no_notification)
     const [shippingPrice, setShippingPrice] = useState<number>()
-    const [shippingMethod, setShippingMethod]: any = useState<Option | null>(null)
+    const [shippingMethod, setShippingMethod] = useState<Option | null>(null)
 
     const [allItems, setAllItems] = useState<Omit<LineItem, 'beforeInsert'>[]>(
         []
@@ -88,7 +88,7 @@ const ReturnMenu: React.FC<ReturnMenuProps> = ({ order, onDismiss }) => {
     }, [toReturn, shippingPrice])
 
     const onSubmit = async () => {
-        const items = Object.entries(toReturn).map(([key, value]: any) => {
+        const items = Object.entries(toReturn).map(([key, value]) => {
             const toSet = {
                 reason_id: value.reason?.value.id,
                 ...value,
@@ -101,7 +101,7 @@ const ReturnMenu: React.FC<ReturnMenuProps> = ({ order, onDismiss }) => {
             }
         })
 
-        const data: any = {
+        const data = {
             items,
             refund: Math.round(refundAmount),
             no_notification:
@@ -111,7 +111,7 @@ const ReturnMenu: React.FC<ReturnMenuProps> = ({ order, onDismiss }) => {
         }
 
         if (shippingMethod) {
-            const taxRate = shippingMethod.tax_rates.reduce((acc: any, curr: any) => {
+            const taxRate = shippingMethod.tax_rates.reduce((acc, curr) => {
                 return acc + curr.rate / 100
             }, 0)
 
@@ -140,15 +140,15 @@ const ReturnMenu: React.FC<ReturnMenuProps> = ({ order, onDismiss }) => {
             .finally(() => setSubmitting(false))
     }
 
-    const handleRefundUpdated = (value: any) => {
+    const handleRefundUpdated = (value) => {
         if (value < order.refundable_amount && value >= 0) {
             setRefundAmount(value)
         }
     }
 
-    const handleShippingSelected = (selectedItem: any) => {
+    const handleShippingSelected = (selectedItem) => {
         setShippingMethod(selectedItem)
-        const method: any = shippingOptions?.find((o) => selectedItem.value === o.id)
+        const method = shippingOptions?.find((o) => selectedItem.value === o.id)
 
         if (method) {
             setShippingPrice(method.price_incl_tax)
@@ -157,7 +157,7 @@ const ReturnMenu: React.FC<ReturnMenuProps> = ({ order, onDismiss }) => {
 
     useEffect(() => {
         if (!useCustomShippingPrice && shippingMethod) {
-            const method: any = shippingOptions?.find(
+            const method = shippingOptions?.find(
                 (o) => shippingMethod.value === o.id
             )
 
@@ -167,7 +167,7 @@ const ReturnMenu: React.FC<ReturnMenuProps> = ({ order, onDismiss }) => {
         }
     }, [useCustomShippingPrice, shippingMethod])
 
-    const handleUpdateShippingPrice = (value: any) => {
+    const handleUpdateShippingPrice = (value) => {
         if (value >= 0) {
             setShippingPrice(value)
         }
@@ -204,7 +204,7 @@ const ReturnMenu: React.FC<ReturnMenuProps> = ({ order, onDismiss }) => {
                                 value={shippingMethod}
                                 onChange={handleShippingSelected}
                                 options={
-                                    shippingOptions?.map((o: any) => ({
+                                    shippingOptions?.map((o) => ({
                                         label: o.name,
                                         value: o.id,
                                         tax_rates: o.tax_rates,
@@ -264,18 +264,18 @@ const ReturnMenu: React.FC<ReturnMenuProps> = ({ order, onDismiss }) => {
                                 </div>
                             </div>
                             {refundEdited && (
-                                <CurrencyInput
+                                <CurrencyInput.Root
                                     className="mt-2"
                                     size="small"
                                     currentCurrency={order.currency_code}
                                     readOnly
                                 >
-                                    <CurrencyInput.AmountInput
+                                    <CurrencyInput.Amount
                                         label={'Amount'}
                                         amount={refundAmount}
                                         onChange={handleRefundUpdated}
                                     />
-                                </CurrencyInput>
+                                </CurrencyInput.Root>
                             )}
                         </div>
                     )}
@@ -287,8 +287,9 @@ const ReturnMenu: React.FC<ReturnMenuProps> = ({ order, onDismiss }) => {
                             onClick={() => setNoNotification(!noNotification)}
                         >
                             <div
-                                className={`w-5 h-5 flex justify-center text-grey-0 border-grey-30 border rounded-base ${!noNotification && 'bg-violet-60'
-                                    }`}
+                                className={`w-5 h-5 flex justify-center text-grey-0 border-grey-30 border rounded-base ${
+                                    !noNotification && 'bg-violet-60'
+                                }`}
                             >
                                 <span className="self-center">
                                     {!noNotification && <CheckIcon size={16} />}

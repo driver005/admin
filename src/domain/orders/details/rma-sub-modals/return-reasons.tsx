@@ -10,12 +10,12 @@ import Select from '../../../../components/molecules/select'
 import Medusa from '../../../../services/api'
 
 type RMAReturnReasonSubModalProps = {
-    onSubmit: (reason: any, note: any, images: any) => void
+    onSubmit: (reason, note, images) => void
     reason?: any
     existingNote?: string
     customReturnOptions?: any[]
     addImage?: boolean
-    images?: string[]
+    images: string[]
     isLargeModal?: boolean
 }
 
@@ -26,7 +26,6 @@ const RMAReturnReasonSubModal: React.FC<RMAReturnReasonSubModalProps> = ({
     customReturnOptions = undefined,
     addImage,
     images,
-    isLargeModal = true,
 }) => {
     const { pop } = useContext(LayeredModalContext)
     const { return_reasons } = useAdminReturnReasons()
@@ -36,27 +35,27 @@ const RMAReturnReasonSubModal: React.FC<RMAReturnReasonSubModalProps> = ({
         reason ? { value: reason, label: reason.label } : null
     )
 
-    const onFileChosen = (file: any) => {
+    const onFileChosen = (file) => {
         setFiles((files) => [...files, ...file])
     }
 
-    const removeFileFromList = (file: any) => {
+    const removeFileFromList = (file) => {
         const newFiles = [...files]
         newFiles.splice(newFiles.indexOf(file), 1)
         setFiles(newFiles)
     }
 
-    const handleImageDelete = (url: any) => {
+    const handleImageDelete = (url) => {
         Medusa.uploads.delete(url)
     }
 
-    const onChange = (value: any) => {
+    const onChange = (value) => {
         setNote(value.target.value)
     }
 
     return (
         <>
-            <Modal.Content isLargeModal={isLargeModal}>
+            <Modal.Content>
                 <div className="h-full">
                     <h2 className="inter-base-semibold mb-4">
                         Reason for Return
@@ -133,7 +132,7 @@ const RMAReturnReasonSubModal: React.FC<RMAReturnReasonSubModalProps> = ({
                     )}
                 </div>
             </Modal.Content>
-            <Modal.Footer isLargeModal={isLargeModal}>
+            <Modal.Footer>
                 <div className="flex w-full justify-end gap-x-xsmall">
                     <Button
                         variant="ghost"
@@ -161,14 +160,7 @@ const RMAReturnReasonSubModal: React.FC<RMAReturnReasonSubModalProps> = ({
     )
 }
 
-interface ImageRow {
-    url: string | undefined
-    onDelete: any
-    name: string | undefined
-    size?: string
-}
-
-const ImageRow: React.FC<ImageRow> = ({ url, onDelete, name, size }) => (
+const ImageRow = ({ url, onDelete, name, size }) => (
     <div className="flex items-center w-full justify-between my-8">
         <div className="flex items-center">
             <div className="w-20 h-20 bg-voilet-60">

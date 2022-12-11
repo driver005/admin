@@ -5,7 +5,9 @@ import {
     useAdminReceiveReturn,
     useAdminStore,
 } from 'medusa-react'
+import { ReturnItem } from '@medusajs/medusa'
 import React, { useEffect, useState } from 'react'
+
 import CreateFulfillmentModal from '../../../domain/orders/details/create-fulfillment'
 import ReceiveMenu from '../../../domain/orders/details/returns/receive-menu'
 import { ExchangeEvent } from '../../../hooks/use-build-timeline'
@@ -21,7 +23,7 @@ import TruckIcon from '../../fundamentals/icons/truck-icon'
 import DeletePrompt from '../../organisms/delete-prompt'
 import { ActionType } from '../actionables'
 import IconTooltip from '../icon-tooltip'
-import { FulfillmentStatus, PaymentStatus, ReturnStatus } from '../status'
+import { FulfillmentStatus, PaymentStatus, ReturnStatus } from '../order-status'
 import EventActionables from './event-actionables'
 import EventContainer, { EventIconColor } from './event-container'
 import EventItemContainer from './event-item-container'
@@ -146,7 +148,7 @@ const Exchange: React.FC<ExchangeProps> = ({ event, refetch }) => {
     const handleProcessSwapPayment = () => {
         Medusa.orders
             .processSwapPayment(event.orderId, event.id)
-            .then(() => {
+            .then((_res) => {
                 notification(
                     'Success',
                     'Payment processed successfully',
@@ -154,7 +156,7 @@ const Exchange: React.FC<ExchangeProps> = ({ event, refetch }) => {
                 )
                 refetch()
             })
-            .catch((err: any) => {
+            .catch((err) => {
                 notification('Error', getErrorMessage(err), 'error')
             })
     }
@@ -333,11 +335,13 @@ function getReturnItems(event: ExchangeEvent) {
                 Return Items
             </span>
             <div>
-                {event.returnItems.map((i) => (
-                    <EventItemContainer
-                        item={{ ...i, quantity: i.requestedQuantity }}
-                    />
-                ))}
+                {event.returnItems
+                    .filter((i) => !!i)
+                    .map((i: ReturnItem) => (
+                        <EventItemContainer
+                            item={{ ...i, quantity: i.requestedQuantity }}
+                        />
+                    ))}
             </div>
         </div>
     )

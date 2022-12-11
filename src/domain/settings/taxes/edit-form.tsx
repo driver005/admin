@@ -1,38 +1,67 @@
-import { useAdminUpdateTaxRate, useAdminUpdateRegion } from 'medusa-react'
-import React, { useState, useEffect } from 'react'
+import { AdminPostTaxRatesTaxRateReq, TaxRate } from '@medusajs/medusa'
+import { useAdminUpdateRegion, useAdminUpdateTaxRate } from 'medusa-react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import Button from '../../../components/fundamentals/button'
 import PlusIcon from '../../../components/fundamentals/icons/plus-icon'
 import Modal from '../../../components/molecules/modal'
+import { ILayeredModalContext } from '../../../components/molecules/modal/layered-modal'
 import useNotification from '../../../hooks/use-notification'
 import { getErrorMessage } from '../../../utils/error-messages'
-import TaxRuleSelector from './tax-rule-selector'
-import { EditTaxRateDetails } from './edit-tax-rate-details'
+import { nestedForm } from '../../../utils/nested-form'
+import {
+    EditTaxRateDetails,
+    EditTaxRateFormType,
+} from './edit-tax-rate-details'
 import { TaxRuleItem } from './tax-rule-item'
+import TaxRuleSelector from './tax-rule-selector'
 
-interface EditTaxRateProps {
-    modalContext: any
-    regionId: any
-    taxRate: any
-    onDismiss: any
+type EditTaxRateProps = {
+    taxRate: TaxRate
+    regionId: string
+    modalContext: ILayeredModalContext
+    onDismiss: () => void
 }
 
-const EditTaxRate: React.FC<EditTaxRateProps> = ({ modalContext, regionId, taxRate, onDismiss }) => {
-    const updateTaxRate = useAdminUpdateTaxRate(taxRate.id)
+export interface EditTaxRateFormData extends SimpleEditFormData {
+    products: string[]
+    product_types: string[]
+    shipping_options: string[]
+}
+
+const EditTaxRate = ({
+    modalContext,
+    regionId,
+    taxRate,
+    onDismiss,
+}: EditTaxRateProps) => {
+    const { mutate, isLoading } = useAdminUpdateTaxRate(taxRate.id)
 
     const [updatedRules, setUpdatedRules] = useState({})
-    const { register, setValue, handleSubmit, watch } = useForm({
+    const form = useForm<EditTaxRateFormData>({
         defaultValues: {
-            ...taxRate,
-            products: taxRate.products.map((p: any) => p.id),
-            product_types: taxRate.product_types.map((p: any) => p.id),
-            shipping_options: taxRate.shipping_options.map((p: any) => p.id),
+            details: {
+                name: taxRate.name,
+                code: taxRate.code || undefined,
+                rate: taxRate.rate || undefined,
+            },
+            products: taxRate.products.map((p) => p.id),
+            product_types: taxRate.product_types.map((p) => p.id),
+            shipping_options: taxRate.shipping_options.map((p) => p.id),
         },
     })
+    const { register, setValue, handleSubmit, watch } = form
     const notification = useNotification()
 
-    const onSave = (data: any) => {
-        const toSubmit = data
+    const onSave = handleSubmit((data) => {
+        const toSubmit: AdminPostTaxRatesTaxRateReq = {
+            name: data.details.name,
+            code: data.details.code,
+            rate: data.details.rate,
+            product_types: data.product_types,
+            products: data.products,
+            shipping_options: data.shipping_options,
+        }
         const conditionalFields = [
             'products',
             'product_types',
@@ -45,7 +74,7 @@ const EditTaxRate: React.FC<EditTaxRateProps> = ({ modalContext, regionId, taxRa
             }
         }
 
-        updateTaxRate.mutate(toSubmit, {
+        mutate(toSubmit, {
             onSuccess: () => {
                 notification(
                     'Success',
@@ -58,7 +87,7 @@ const EditTaxRate: React.FC<EditTaxRateProps> = ({ modalContext, regionId, taxRa
                 notification('Error', getErrorMessage(error), 'error')
             },
         })
-    }
+    })
 
     useEffect(() => {
         register('products')
@@ -66,10 +95,14 @@ const EditTaxRate: React.FC<EditTaxRateProps> = ({ modalContext, regionId, taxRa
         register('shipping_options')
     }, [])
 
-    const rules: any = watch(['products', 'product_types', 'shipping_options'])
+    const [products, product_types, shipping_options] = watch([
+        'products',
+        'product_types',
+        'shipping_options',
+    ])
 
-    const handleOverridesSelected = (rule: any) => {
-        setUpdatedRules((prev: any) => {
+    const handleOverridesSelected = (rule) => {
+        setUpdatedRules((prev) => {
             prev[rule.type] = true
             return prev
         })
@@ -89,128 +122,130 @@ const EditTaxRate: React.FC<EditTaxRateProps> = ({ modalContext, regionId, taxRa
     }
 
     return (
-        <form onSubmit={handleSubmit(onSave)}>
+        <form onSubmit={onSave}>
             <Modal.Content>
-                <EditTaxRateDetails lockName={false} register={register} />
+                <div className="mb-xlarge">
+                    <EditTaxRateDetails form={nestedForm(form, 'details')} />
+                </div>
                 <div>
                     <p className="inter-base-semibold mb-base">Overrides</p>
-                    {(rules.product_types?.length > 0 ||
-                        rules.products?.length > 0 ||
-                        rules.shipping_options?.length > 0) && (
-                            <div className="flex flex-col gap-base">
-                                {rules.products.length > 0 && (
-                                    <TaxRuleItem
-                                        onDelete={() =>
-                                            handleOverridesSelected({
-                                                type: 'products',
-                                                items: [],
-                                            })
-                                        }
-                                        onEdit={() => {
-                                            modalContext.push(
-                                                SelectOverridesScreen(
-                                                    modalContext.pop,
-                                                    regionId,
-                                                    handleOverridesSelected,
-                                                    {
-                                                        items: rules.products,
-                                                        type: 'products',
-                                                    }
-                                                )
+                    {(product_types.length > 0 ||
+                        products.length > 0 ||
+                        shipping_options.length > 0) && (
+                        <div className="flex flex-col gap-base">
+                            {products.length > 0 && (
+                                <TaxRuleItem
+                                    onDelete={() =>
+                                        handleOverridesSelected({
+                                            type: 'products',
+                                            items: [],
+                                        })
+                                    }
+                                    onEdit={() => {
+                                        modalContext.push(
+                                            SelectOverridesScreen(
+                                                modalContext.pop,
+                                                regionId,
+                                                handleOverridesSelected,
+                                                {
+                                                    items: products,
+                                                    type: 'products',
+                                                }
                                             )
-                                        }}
-                                        index={1}
-                                        name="Product Rules"
-                                        description={`Applies to ${rules.products.length
-                                            } product${rules.products.length > 1 ? 's' : ''
-                                            }`}
-                                    />
-                                )}
-                                {rules.product_types.length > 0 && (
-                                    <TaxRuleItem
-                                        onDelete={() =>
-                                            handleOverridesSelected({
-                                                type: 'product_types',
-                                                items: [],
-                                            })
-                                        }
-                                        onEdit={() => {
-                                            modalContext.push(
-                                                SelectOverridesScreen(
-                                                    modalContext.pop,
-                                                    regionId,
-                                                    handleOverridesSelected,
-                                                    {
-                                                        items: rules.product_types,
-                                                        type: 'product_types',
-                                                    }
-                                                )
-                                            )
-                                        }}
-                                        index={2}
-                                        name="Product Type Rules"
-                                        description={`Applies to ${rules.product_types.length
-                                            } product type${rules.product_types.length > 1
-                                                ? 's'
-                                                : ''
-                                            }`}
-                                    />
-                                )}
-                                {rules.shipping_options.length > 0 && (
-                                    <TaxRuleItem
-                                        onDelete={() =>
-                                            handleOverridesSelected({
-                                                type: 'shipping_options',
-                                                items: [],
-                                            })
-                                        }
-                                        onEdit={() => {
-                                            modalContext.push(
-                                                SelectOverridesScreen(
-                                                    modalContext.pop,
-                                                    regionId,
-                                                    handleOverridesSelected,
-                                                    {
-                                                        items: rules.shipping_options,
-                                                        type: 'shipping_options',
-                                                    }
-                                                )
-                                            )
-                                        }}
-                                        index={3}
-                                        name="Shipping Option Rules"
-                                        description={`Applies to ${rules.shipping_options.length
-                                            } shipping option${rules.shipping_options.length > 1
-                                                ? 's'
-                                                : ''
-                                            }`}
-                                    />
-                                )}
-                            </div>
-                        )}
-                    {!(
-                        rules.product_types?.length &&
-                        rules.products?.length &&
-                        rules.shipping_options?.length
-                    ) && (
-                            <Button
-                                type="button"
-                                onClick={() => {
-                                    modalContext.push(
-                                        SelectOverridesScreen(
-                                            modalContext.pop,
-                                            regionId,
-                                            handleOverridesSelected
                                         )
+                                    }}
+                                    index={1}
+                                    name="Product Rules"
+                                    description={`Applies to ${
+                                        products.length
+                                    } product${products.length > 1 ? 's' : ''}`}
+                                />
+                            )}
+                            {product_types.length > 0 && (
+                                <TaxRuleItem
+                                    onDelete={() =>
+                                        handleOverridesSelected({
+                                            type: 'product_types',
+                                            items: [],
+                                        })
+                                    }
+                                    onEdit={() => {
+                                        modalContext.push(
+                                            SelectOverridesScreen(
+                                                modalContext.pop,
+                                                regionId,
+                                                handleOverridesSelected,
+                                                {
+                                                    items: product_types,
+                                                    type: 'product_types',
+                                                }
+                                            )
+                                        )
+                                    }}
+                                    index={2}
+                                    name="Product Type Rules"
+                                    description={`Applies to ${
+                                        product_types.length
+                                    } product type${
+                                        product_types.length > 1 ? 's' : ''
+                                    }`}
+                                />
+                            )}
+                            {shipping_options.length > 0 && (
+                                <TaxRuleItem
+                                    onDelete={() =>
+                                        handleOverridesSelected({
+                                            type: 'shipping_options',
+                                            items: [],
+                                        })
+                                    }
+                                    onEdit={() => {
+                                        modalContext.push(
+                                            SelectOverridesScreen(
+                                                modalContext.pop,
+                                                regionId,
+                                                handleOverridesSelected,
+                                                {
+                                                    items: shipping_options,
+                                                    type: 'shipping_options',
+                                                }
+                                            )
+                                        )
+                                    }}
+                                    index={3}
+                                    name="Shipping Option Rules"
+                                    description={`Applies to ${
+                                        shipping_options.length
+                                    } shipping option${
+                                        shipping_options.length > 1 ? 's' : ''
+                                    }`}
+                                />
+                            )}
+                        </div>
+                    )}
+                    {!(
+                        product_types.length &&
+                        products.length &&
+                        shipping_options.length
+                    ) && (
+                        <Button
+                            type="button"
+                            onClick={() => {
+                                modalContext.push(
+                                    SelectOverridesScreen(
+                                        modalContext.pop,
+                                        regionId,
+                                        handleOverridesSelected
                                     )
-                                }}
-                                className="w-full mt-base"
-                                size="medium"
-                                variant="secondary"
-                            >
-                                <PlusIcon /> Add Overrides
-                            </Button>
-                        )}
+                                )
+                            }}
+                            className="w-full mt-base"
+                            size="medium"
+                            variant="secondary"
+                        >
+                            <PlusIcon /> Add Overrides
+                        </Button>
+                    )}
                 </div>
             </Modal.Content>
             <Modal.Footer>
@@ -229,6 +264,8 @@ const EditTaxRate: React.FC<EditTaxRateProps> = ({ modalContext, regionId, taxRa
                         variant="primary"
                         size="small"
                         className="w-eventButton justify-center"
+                        loading={isLoading}
+                        disabled={isLoading}
                     >
                         Save
                     </Button>
@@ -239,9 +276,9 @@ const EditTaxRate: React.FC<EditTaxRateProps> = ({ modalContext, regionId, taxRa
 }
 
 const SelectOverridesScreen = (
-    pop: any,
-    regionId: string,
-    onOverridesSelected: any,
+    pop,
+    regionId,
+    onOverridesSelected,
     options = {}
 ) => {
     return {
@@ -257,29 +294,36 @@ const SelectOverridesScreen = (
     }
 }
 
-interface SimpleEditFormProps {
-    onDismiss: any
-    taxRate: any
-
+type SimpleEditFormProps = {
+    onDismiss: () => void
+    taxRate: TaxRate
 }
 
-export const SimpleEditForm: React.FC<SimpleEditFormProps> = ({ onDismiss, taxRate }) => {
-    const updateRegion = useAdminUpdateRegion(taxRate.id)
+export interface SimpleEditFormData {
+    details: EditTaxRateFormType
+}
 
-    const { register, handleSubmit } = useForm({
+export const SimpleEditForm = ({ onDismiss, taxRate }: SimpleEditFormProps) => {
+    const { mutate, isLoading } = useAdminUpdateRegion(taxRate.id)
+
+    const form = useForm<SimpleEditFormData>({
         defaultValues: {
-            rate: taxRate.rate,
-            code: taxRate.code,
+            details: {
+                name: taxRate.name,
+                rate: taxRate.rate || undefined,
+                code: taxRate.code || undefined,
+            },
         },
     })
+    const { handleSubmit } = form
     const notification = useNotification()
 
-    const onSave = (data: any) => {
+    const onSave = (data: SimpleEditFormData) => {
         const toSubmit = {
-            tax_rate: parseFloat(data.rate),
-            tax_code: data.code,
+            tax_rate: data.details.rate,
+            tax_code: data.details.code,
         }
-        updateRegion.mutate(toSubmit, {
+        mutate(toSubmit, {
             onSuccess: () => {
                 notification(
                     'Success',
@@ -297,7 +341,10 @@ export const SimpleEditForm: React.FC<SimpleEditFormProps> = ({ onDismiss, taxRa
     return (
         <form onSubmit={handleSubmit(onSave)}>
             <Modal.Content>
-                <EditTaxRateDetails lockName register={register} />
+                <EditTaxRateDetails
+                    form={nestedForm(form, 'details')}
+                    lockName
+                />
             </Modal.Content>
             <Modal.Footer>
                 <div className="flex items-center justify-end w-full">
@@ -315,6 +362,7 @@ export const SimpleEditForm: React.FC<SimpleEditFormProps> = ({ onDismiss, taxRa
                         variant="primary"
                         size="small"
                         className="w-eventButton justify-center"
+                        loading={isLoading}
                     >
                         Save
                     </Button>

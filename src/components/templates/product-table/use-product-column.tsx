@@ -5,18 +5,12 @@ import { defaultChannelsSorter } from '../../../utils/sales-channel-compare-oper
 import Tooltip from '../../atoms/tooltip'
 import ListIcon from '../../fundamentals/icons/list-icon'
 import TileIcon from '../../fundamentals/icons/tile-icon'
-import ImagePlaceholder from '../../fundamentals/icons/image-placeholder'
+import ImagePlaceholder from '../../fundamentals/image-placeholder'
 import StatusIndicator from '../../fundamentals/status-indicator'
 
-interface useProductTableColumnProp {
-    setTileView: any
-    setListView: any
-    showList: any
-}
-
-const useProductTableColumn = ({ setTileView, setListView, showList }: useProductTableColumnProp) => {
-    const getProductStatus = (title: any) => {
-        switch (title) {
+const useProductTableColumn = ({ setTileView, setListView, showList }) => {
+    const getProductStatus = (status) => {
+        switch (status) {
             case 'proposed':
                 return (
                     <StatusIndicator title={'Proposed'} variant={'warning'} />
@@ -30,13 +24,13 @@ const useProductTableColumn = ({ setTileView, setListView, showList }: useProduc
             case 'draft':
                 return <StatusIndicator title={'Draft'} variant={'default'} />
             default:
-                return <StatusIndicator title={title} variant={'default'} />
+                return <StatusIndicator title={status} variant={'default'} />
         }
     }
 
     const { store } = useAdminStore()
 
-    const getProductSalesChannels = (salesChannels: any) => {
+    const getProductSalesChannels = (salesChannels) => {
         if (salesChannels?.length) {
             salesChannels.sort(
                 defaultChannelsSorter(store?.default_sales_channel_id || '')
@@ -48,7 +42,7 @@ const useProductTableColumn = ({ setTileView, setListView, showList }: useProduc
                         <Tooltip
                             content={
                                 <div className="flex flex-col">
-                                    {salesChannels.slice(1).map((sc: any) => (
+                                    {salesChannels.slice(1).map((sc) => (
                                         <span>{sc.name}</span>
                                     ))}
                                 </div>
@@ -71,7 +65,7 @@ const useProductTableColumn = ({ setTileView, setListView, showList }: useProduc
             {
                 Header: 'Name',
                 accessor: 'title',
-                Cell: ({ row: { original } }: any) => {
+                Cell: ({ row: { original } }) => {
                     return (
                         <div className="flex items-center">
                             <div className="h-[40px] w-[30px] my-1.5 flex items-center mr-4">
@@ -81,9 +75,7 @@ const useProductTableColumn = ({ setTileView, setListView, showList }: useProduc
                                         className="h-full object-cover rounded-soft"
                                     />
                                 ) : (
-                                    <div className="flex items-center justify-center w-full h-full rounded-soft bg-grey-10">
-                                        <ImagePlaceholder size={16} />
-                                    </div>
+                                    <ImagePlaceholder />
                                 )}
                             </div>
                             {original.title}
@@ -114,7 +106,7 @@ const useProductTableColumn = ({ setTileView, setListView, showList }: useProduc
                 Cell: ({ cell: { value } }) => (
                     <div>
                         {value.reduce(
-                            (acc: any, next: any) => acc + next.inventory_quantity,
+                            (acc, next) => acc + next.inventory_quantity,
                             0
                         )}
                         {' in stock for '}

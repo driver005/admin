@@ -1,12 +1,10 @@
-// @ts-ignore
-// TODO: add types for confetti-js
 import ConfettiGenerator from 'confetti-js'
-import { Link, navigate } from 'gatsby'
 import { useAdminAcceptInvite } from 'medusa-react'
 import qs from 'qs'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { decodeToken } from 'react-jwt'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Button from '../components/fundamentals/button'
 import LongArrowRightIcon from '../components/fundamentals/icons/long-arrow-right-icon'
 import MedusaIcon from '../components/fundamentals/icons/medusa-icon'
@@ -24,7 +22,8 @@ type formValues = {
     last_name: string
 }
 
-const InvitePage = ({ location }: any) => {
+const InvitePage = () => {
+    const location = useLocation()
     const parsed = qs.parse(location.search.substring(1))
     const [signUp, setSignUp] = useState(false)
 
@@ -73,6 +72,7 @@ const InvitePage = ({ location }: any) => {
     })
 
     const accept = useAdminAcceptInvite()
+    const navigate = useNavigate()
     const notification = useNotification()
 
     const handleAcceptInvite = (data: formValues) => {
@@ -148,25 +148,32 @@ const InvitePage = ({ location }: any) => {
                                         </span>
                                         <SigninInput
                                             placeholder="First name"
-                                            {...register('first_name', { required: true })}
+                                            {...register('first_name', {
+                                                required: true,
+                                            })}
                                             autoComplete="given-name"
                                         />
                                         <SigninInput
                                             placeholder="Last name"
-                                            {...register('last_name', { required: true })}
+                                            {...register('last_name', {
+                                                required: true,
+                                            })}
                                             autoComplete="family-name"
                                         />
                                         <SigninInput
                                             placeholder="Password"
                                             type={'password'}
-
-                                            {...register('password', { required: true })}
+                                            {...register('password', {
+                                                required: true,
+                                            })}
                                             autoComplete="new-password"
                                         />
                                         <SigninInput
                                             placeholder="Repeat password"
                                             type={'password'}
-                                            {...register('repeat_password', { required: true })}
+                                            {...register('repeat_password', {
+                                                required: true,
+                                            })}
                                             autoComplete="new-password"
                                         />
                                         {passwordMismatch && (

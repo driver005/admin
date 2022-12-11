@@ -1,7 +1,6 @@
-import { RouteComponentProps, Router } from '@reach/router'
-import { navigate } from 'gatsby'
 import { useAdminCreateBatchJob } from 'medusa-react'
-import React, { useMemo } from 'react'
+import React, { useContext, useMemo } from 'react'
+import { Route, Routes, useNavigate } from 'react-router-dom'
 import Button from '../../components/fundamentals/button'
 import ExportIcon from '../../components/fundamentals/icons/export-icon'
 import BodyCard from '../../components/organisms/body-card'
@@ -12,12 +11,15 @@ import useNotification from '../../hooks/use-notification'
 import useToggleState from '../../hooks/use-toggle-state'
 import { getErrorMessage } from '../../utils/error-messages'
 import Details from './details'
+import { PollingContext } from '../../context/polling'
 
 const VIEWS = ['orders', 'drafts']
 
-const OrderIndex: React.FC<RouteComponentProps> = () => {
+const OrderIndex = () => {
     const view = 'orders'
 
+    const { resetInterval } = useContext(PollingContext)
+    const navigate = useNavigate()
     const createBatchJob = useAdminCreateBatchJob()
     const notification = useNotification()
 
@@ -49,6 +51,7 @@ const OrderIndex: React.FC<RouteComponentProps> = () => {
 
         createBatchJob.mutate(reqObj, {
             onSuccess: () => {
+                resetInterval()
                 notification(
                     'Success',
                     'Successfully initiated export',
@@ -79,6 +82,7 @@ const OrderIndex: React.FC<RouteComponentProps> = () => {
                                 activeView={view}
                             />
                         }
+                        className="h-fit"
                         customActionable={actions}
                     >
                         <OrderTable />
@@ -99,10 +103,10 @@ const OrderIndex: React.FC<RouteComponentProps> = () => {
 
 const Orders = () => {
     return (
-        <Router>
-            <OrderIndex path="/" />
-            <Details path=":id" />
-        </Router>
+        <Routes>
+            <Route index element={<OrderIndex />} />
+            <Route path="/:id" element={<Details />} />
+        </Routes>
     )
 }
 

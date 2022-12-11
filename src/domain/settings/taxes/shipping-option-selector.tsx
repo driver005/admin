@@ -2,13 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { useAdminShippingOptions } from 'medusa-react'
 import { SelectableTable } from './selectable-table'
 
-interface ShippingOptionSelectorProps {
-    regionId: string
-    items: any
-    onChange: any
-}
-
-export const ShippingOptionSelector: React.FC<ShippingOptionSelectorProps> = ({ regionId, items, onChange }) => {
+export const ShippingOptionSelector = ({ regionId, items, onChange }) => {
     const PAGE_SIZE = 12
 
     const [pagination, setPagination] = useState({
@@ -25,7 +19,7 @@ export const ShippingOptionSelector: React.FC<ShippingOptionSelectorProps> = ({ 
             {
                 Header: 'Name',
                 accessor: 'name',
-                Cell: ({ row: { original } }: any) => {
+                Cell: ({ row: { original } }) => {
                     return <div className="w-[200px]">{original.name}</div>
                 },
             },

@@ -18,7 +18,7 @@ export const FilterTab: React.FC<FilterTabProps> = ({
     removable,
     onRemove,
 }) => {
-    const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const handleClick = (e) => {
         if (typeof onClick !== 'undefined') {
             onClick(e)
         }
@@ -30,7 +30,7 @@ export const FilterTab: React.FC<FilterTabProps> = ({
         }
     }
 
-    const handleKeyPress = (e: any) => {
+    const handleKeyPress = (e) => {
         if (removable && onRemove) {
             if (e.key === 'Backspace') {
                 onRemove()

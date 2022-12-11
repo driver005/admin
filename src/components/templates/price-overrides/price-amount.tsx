@@ -6,12 +6,7 @@ import EyeIcon from '../../fundamentals/icons/eye-icon'
 import EyeOffIcon from '../../fundamentals/icons/eye-off-icon'
 import MedusaPriceInput from '../../organisms/medusa-price-input'
 
-interface PriceAmount {
-    value: any
-    onChange: any
-}
-
-const PriceAmount: React.FC<PriceAmount> = ({ value, onChange }) => {
+const PriceAmount = ({ value, onChange }) => {
     const { state: showRegions, toggle } = useToggleState()
 
     const currencyName = currencies[value.currency_code?.toUpperCase()]?.name

@@ -7,7 +7,6 @@ import ChevronDownIcon from '../../fundamentals/icons/chevron-down'
 import RefreshIcon from '../../fundamentals/icons/refresh-icon'
 
 type FormToasterContainerProps = {
-    children: React.ReactNode
     toast?: Toast
     isLoading?: boolean
     loadingMessage?: string
@@ -16,7 +15,6 @@ type FormToasterContainerProps = {
 }
 
 type MultiActionButtonProps = {
-    children: React.ReactNode
     actions: {
         onClick: () => void | Promise<void>
         label: string
@@ -26,7 +24,7 @@ type MultiActionButtonProps = {
 }
 
 const FormToasterContainer: React.FC<FormToasterContainerProps> & {
-    Actions: React.FC<{ children: React.ReactNode }>
+    Actions: React.FC
     DiscardButton: React.FC<HTMLAttributes<HTMLButtonElement>>
     ActionButton: React.FC<HTMLAttributes<HTMLButtonElement>>
     MultiActionButton: React.FC<MultiActionButtonProps>
@@ -38,49 +36,49 @@ const FormToasterContainer: React.FC<FormToasterContainerProps> & {
     unsavedChangesMessage = 'You have unsaved changes',
     icon = <RefreshIcon size="20" />,
 }) => {
-        const content = useMemo(() => {
-            if (isLoading) {
-                return (
+    const content = useMemo(() => {
+        if (isLoading) {
+            return (
+                <div className="flex items-center p-base gap-x-base">
+                    <span>
+                        <Spinner />
+                    </span>
+                    <span className="inter-small-regular">
+                        {loadingMessage}
+                    </span>
+                </div>
+            )
+        } else {
+            return (
+                <>
                     <div className="flex items-center p-base gap-x-base">
-                        <span>
-                            <Spinner />
-                        </span>
+                        <span>{icon}</span>
                         <span className="inter-small-regular">
-                            {loadingMessage}
+                            {unsavedChangesMessage}
                         </span>
                     </div>
-                )
-            } else {
-                return (
-                    <>
-                        <div className="flex items-center p-base gap-x-base">
-                            <span>{icon}</span>
-                            <span className="inter-small-regular">
-                                {unsavedChangesMessage}
-                            </span>
-                        </div>
-                        {children}
-                    </>
-                )
-            }
-        }, [isLoading, children])
+                    {children}
+                </>
+            )
+        }
+    }, [isLoading, children])
 
-        return (
-            <div
-                className={clsx({
-                    'animate-enter': toast?.visible,
-                    'animate-leave': !toast?.visible,
-                })}
-                {...toast?.ariaProps}
-            >
-                <div className="flex items-center rounded-rounded bg-grey-90 h-[72px] w-[344px] text-grey-0 justify-between">
-                    {content}
-                </div>
+    return (
+        <div
+            className={clsx({
+                'animate-enter': toast?.visible,
+                'animate-leave': !toast?.visible,
+            })}
+            {...toast?.ariaProps}
+        >
+            <div className="flex items-center rounded-rounded bg-grey-90 h-[72px] w-[344px] text-grey-0 justify-between">
+                {content}
             </div>
-        )
-    }
+        </div>
+    )
+}
 
-const Actions: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const Actions: React.FC = ({ children }) => {
     return (
         <div className="border-l border-grey-70 h-full">
             {Children.map(children, (child) => {

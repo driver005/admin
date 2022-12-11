@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 type useScrollProps = {
     threshold?: number
@@ -7,8 +7,8 @@ type useScrollProps = {
 export const useScroll = ({ threshold = 0 }: useScrollProps) => {
     const [isScrolled, setIsScrolled] = useState(false)
 
-    const scrollListener = (e: React.UIEvent<HTMLDivElement>) => {
-        const currentScrollY = e.currentTarget.scrollTop
+    const scrollListener = (e) => {
+        const currentScrollY = e.target.scrollTop
         if (currentScrollY > threshold) {
             setIsScrolled(true)
         } else {

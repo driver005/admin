@@ -1,27 +1,37 @@
-import { navigate } from 'gatsby'
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState, ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { AccountContext } from '../../../context/account'
+import Spinner from '../../atoms/spinner'
 
-const PrivateRoute = ({ component: Component, location, ...rest }: any) => {
-    const [loading, setLoading] = useState(false)
+type PrivateRouteProps = {
+    children: ReactNode
+}
+
+const PrivateRoute = ({ children }: PrivateRouteProps) => {
     const account = useContext(AccountContext)
+    const [loading, setLoading] = useState(true)
+    const navigate = useNavigate()
 
-    if (account.isLoggedIn) {
-        return <Component {...rest} />
-    } else if (!loading) {
+    useEffect(() => {
         account
             .session()
-            .then((_data: any) => {
+            .then(() => {
                 setLoading(false)
             })
-            .catch((_err: any) => {
-                console.log(_err)
+            .catch(() => {
                 navigate('/login')
             })
+    }, [])
+
+    if (account.isLoggedIn && !loading) {
+        return <>{children}</>
     }
-    return <div>
-        {'Loading...'}
-    </div>
+
+    return (
+        <div className="h-screen w-full flex items-center justify-center">
+            <Spinner variant="secondary" />
+        </div>
+    )
 }
 
 export default PrivateRoute

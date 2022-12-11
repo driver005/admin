@@ -1,15 +1,15 @@
-import { RouteComponentProps, useLocation } from '@reach/router'
 import { useAdminDraftOrders } from 'medusa-react'
-import React, { useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { usePagination, useTable } from 'react-table'
-import Spinner from '../../atoms/spinner'
-import Table, { TablePagination } from '../../molecules/table'
+import Table from '../../molecules/table'
+import TableContainer from '../../organisms/table-container'
 import useDraftOrderTableColumns from './use-draft-order-column'
 import { useDraftOrderFilters } from './use-draft-order-filters'
 
 const DEFAULT_PAGE_SIZE = 15
 
-const DraftOrderTable: React.FC<RouteComponentProps> = () => {
+const DraftOrderTable = () => {
     const location = useLocation()
 
     const {
@@ -28,7 +28,9 @@ const DraftOrderTable: React.FC<RouteComponentProps> = () => {
     const [numPages, setNumPages] = useState(0)
 
     const { draft_orders, isLoading, isRefetching, count } =
-        useAdminDraftOrders(queryObject)
+        useAdminDraftOrders(queryObject, {
+            keepPreviousData: true,
+        })
 
     useEffect(() => {
         const controlledPageCount = Math.ceil(count! / queryObject.limit)
@@ -53,7 +55,7 @@ const DraftOrderTable: React.FC<RouteComponentProps> = () => {
         state: { pageIndex },
     } = useTable(
         {
-            columns: columns as any,
+            columns,
             data: draft_orders || [],
             manualPagination: true,
             initialState: {
@@ -96,73 +98,74 @@ const DraftOrderTable: React.FC<RouteComponentProps> = () => {
     }
 
     return (
-        <div className="w-full h-full overflow-y-auto flex flex-col justify-between">
-            {isLoading || isRefetching || !draft_orders ? (
-                <div className="w-full pt-2xlarge flex items-center justify-center">
-                    <Spinner size={'large'} variant={'secondary'} />
-                </div>
-            ) : (
-                <>
-                    <Table
-                        filteringOptions={[]}
-                        enableSearch
-                        handleSearch={setQuery}
-                        searchValue={query}
-                        {...getTableProps()}
-                    >
-                        <Table.Head>
-                            {headerGroups?.map((headerGroup, index) => (
-                                <Table.HeadRow
-                                    {...headerGroup.getHeaderGroupProps()}
-                                >
-                                    {headerGroup.headers.map(
-                                        (col, headerIndex) => (
-                                            <Table.HeadCell
-                                                className="w-[100px]"
-                                                {...col.getHeaderProps()}
-                                            >
-                                                {col.render('Header')}
-                                            </Table.HeadCell>
-                                        )
-                                    )}
-                                </Table.HeadRow>
-                            ))}
-                        </Table.Head>
-                        <Table.Body {...getTableBodyProps()}>
-                            {rows.map((row) => {
-                                prepareRow(row)
-                                return (
-                                    <Table.Row
-                                        color={'inherit'}
-                                        linkTo={`/a/draft-orders/${row.original.id}`}
-                                        {...row.getRowProps()}
-                                    >
-                                        {row.cells.map((cell, index) => {
-                                            return cell.render('Cell', {
-                                                index,
-                                            })
-                                        })}
-                                    </Table.Row>
-                                )
-                            })}
-                        </Table.Body>
-                    </Table>
-                    <TablePagination
-                        count={count!}
-                        limit={queryObject.limit}
-                        offset={queryObject.offset}
-                        pageSize={queryObject.offset + rows.length}
-                        title="Draft Orders"
-                        currentPage={pageIndex + 1}
-                        pageCount={pageCount}
-                        nextPage={handleNext}
-                        prevPage={handlePrev}
-                        hasNext={canNextPage}
-                        hasPrev={canPreviousPage}
-                    />
-                </>
-            )}
-        </div>
+        <TableContainer
+            hasPagination
+            numberOfRows={DEFAULT_PAGE_SIZE}
+            pagingState={{
+                count: count!,
+                offset: queryObject.offset,
+                pageSize: queryObject.offset + rows.length,
+                title: 'Draft Orders',
+                currentPage: pageIndex + 1,
+                pageCount: pageCount,
+                nextPage: handleNext,
+                prevPage: handlePrev,
+                hasNext: canNextPage,
+                hasPrev: canPreviousPage,
+            }}
+            isLoading={isLoading || isRefetching}
+        >
+            <Table
+                filteringOptions={[]}
+                enableSearch
+                handleSearch={setQuery}
+                searchValue={query}
+                {...getTableProps()}
+            >
+                <Table.Head>
+                    {headerGroups?.map((headerGroup) => {
+                        return (
+                            <Table.HeadRow
+                                {...headerGroup.getHeaderGroupProps()}
+                            >
+                                {headerGroup.headers.map((col, index) => {
+                                    return (
+                                        <Table.HeadCell
+                                            className="w-[100px]"
+                                            {...col.getHeaderProps()}
+                                        >
+                                            {col.render('Header', {
+                                                customIndex: index,
+                                            })}
+                                        </Table.HeadCell>
+                                    )
+                                })}
+                            </Table.HeadRow>
+                        )
+                    })}
+                </Table.Head>
+                <Table.Body {...getTableBodyProps()}>
+                    {rows.map((row) => {
+                        prepareRow(row)
+                        return (
+                            <Table.Row
+                                color={'inherit'}
+                                linkTo={`/a/draft-orders/${row.original.id}`}
+                                {...row.getRowProps()}
+                            >
+                                {row.cells.map((cell, index) => {
+                                    return (
+                                        <Fragment key={index}>
+                                            {cell.render('Cell')}
+                                        </Fragment>
+                                    )
+                                })}
+                            </Table.Row>
+                        )
+                    })}
+                </Table.Body>
+            </Table>
+        </TableContainer>
     )
 }
 

@@ -1,6 +1,6 @@
 import React from 'react'
 
-export const TrackingLink = ({ trackingLink }: any) => {
+export const TrackingLink = ({ trackingLink }) => {
     if (trackingLink.url) {
         return (
             <a

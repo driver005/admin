@@ -13,13 +13,7 @@ import useNotification from '../../../../hooks/use-notification'
 import { getErrorMessage } from '../../../../utils/error-messages'
 import { TrackingLink } from './tracking-link'
 
-interface FormattedFulfillmentProps {
-    setFullfilmentToShip: any
-    order: any
-    fulfillmentObj: any
-}
-
-export const FormattedFulfillment: React.FC<FormattedFulfillmentProps> = ({
+export const FormattedFulfillment = ({
     setFullfilmentToShip,
     order,
     fulfillmentObj,
@@ -121,13 +115,13 @@ export const FormattedFulfillment: React.FC<FormattedFulfillmentProps> = ({
                     {fulfillment.canceled_at
                         ? 'Fulfillment has been canceled'
                         : `${fulfillmentObj.title} Fulfilled by ${capitalize(
-                            fulfillment.provider_id
-                        )}`}
+                              fulfillment.provider_id
+                          )}`}
                 </div>
                 <div className="flex text-grey-50">
                     {!fulfillment.shipped_at ? 'Not shipped' : 'Tracking'}
                     {hasLinks &&
-                        fulfillment.tracking_links.map((tl: any, j: any) => (
+                        fulfillment.tracking_links.map((tl, j) => (
                             <TrackingLink key={j} trackingLink={tl} />
                         ))}
                 </div>

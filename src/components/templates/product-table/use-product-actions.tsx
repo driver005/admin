@@ -1,9 +1,9 @@
-import { navigate } from 'gatsby'
+import { Product } from '@medusajs/medusa'
 import { useAdminDeleteProduct, useAdminUpdateProduct } from 'medusa-react'
 import * as React from 'react'
+import { useNavigate } from 'react-router-dom'
 import useImperativeDialog from '../../../hooks/use-imperative-dialog'
 import useNotification from '../../../hooks/use-notification'
-import { ProductStatus } from '../../../types/shared'
 import { getErrorMessage } from '../../../utils/error-messages'
 import DuplicateIcon from '../../fundamentals/icons/duplicate-icon'
 import EditIcon from '../../fundamentals/icons/edit-icon'
@@ -13,7 +13,8 @@ import UnpublishIcon from '../../fundamentals/icons/unpublish-icon'
 import { ActionType } from '../../molecules/actionables'
 import useCopyProduct from './use-copy-product'
 
-const useProductActions = (product: any) => {
+const useProductActions = (product: Product) => {
+    const navigate = useNavigate()
     const notification = useNotification()
     const dialog = useImperativeDialog()
     const copyProduct = useCopyProduct()
@@ -44,17 +45,16 @@ const useProductActions = (product: any) => {
                     product.status === 'published' ? 'draft' : 'published'
                 updateProduct.mutate(
                     {
-                        status: ProductStatus[newStatus === 'draft' ? 'DRAFT' : 'PUBLISHED'],
-                        images: product.images,
-                        sales_channels: product.sales_channels
+                        status: newStatus,
                     },
                     {
                         onSuccess: () => {
                             notification(
                                 'Success',
-                                `Successfully ${product.status === 'published'
-                                    ? 'unpublished'
-                                    : 'published'
+                                `Successfully ${
+                                    product.status === 'published'
+                                        ? 'unpublished'
+                                        : 'published'
                                 } product`,
                                 'success'
                             )

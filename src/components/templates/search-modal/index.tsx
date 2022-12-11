@@ -20,13 +20,13 @@ import OrderResults from './results/order-results'
 import CrossIcon from '../../fundamentals/icons/cross-icon'
 import Tooltip from '../../atoms/tooltip'
 
-const getTotal = (...lists: any) =>
-    lists.reduce((total: any, list: any[] = []) => total + list.length, 0)
+const getTotal = (...lists) =>
+    lists.reduce((total, list = []) => total + list.length, 0)
 
-const SearchModal = ({ handleClose }: any) => {
+const SearchModal = ({ handleClose }) => {
     const [q, setQ] = React.useState('')
     const query = useDebounce(q, 500)
-    const onChange = (e: any) => setQ(e.target.value)
+    const onChange = (e) => setQ(e.target.value)
     const handleClear = () => {
         setQ('')
     }

@@ -22,7 +22,7 @@ const NoteInput: React.FC<NoteInputProps> = ({ onSubmit }) => {
     }
 
     const onKeyDownHandler = useCallback(
-        (event: any) => {
+        (event) => {
             switch (event.key) {
                 case 'Enter':
                     event.preventDefault()

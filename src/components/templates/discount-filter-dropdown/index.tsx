@@ -17,18 +17,7 @@ const dateFilters = [
     'is equal to',
 ]
 
-interface DiscountFiltersProps {
-    tabs?: any
-    activeTab: any
-    onTabClick?: any
-    onSaveTab?: any
-    onRemoveTab?: any
-    filters: any
-    submitFilters: any
-    clearFilters: any
-}
-
-const DiscountFilters: React.FC<DiscountFiltersProps> = ({
+const DiscountFilters = ({
     tabs,
     activeTab,
     onTabClick,
@@ -41,7 +30,7 @@ const DiscountFilters: React.FC<DiscountFiltersProps> = ({
     const [tempState, setTempState] = useState(filters)
     const [name, setName] = useState('')
 
-    const handleRemoveTab = (val: any) => {
+    const handleRemoveTab = (val) => {
         if (onRemoveTab) {
             onRemoveTab(val)
         }
@@ -71,15 +60,15 @@ const DiscountFilters: React.FC<DiscountFiltersProps> = ({
         clearFilters()
     }
 
-    const setSingleFilter = (filterKey: any, filterVal: any) => {
-        setTempState((prevState: any) => ({
+    const setSingleFilter = (filterKey, filterVal) => {
+        setTempState((prevState) => ({
             ...prevState,
             [filterKey]: filterVal,
         }))
     }
 
     const numberOfFilters = Object.entries(filters).reduce(
-        (acc: any, [key, value]: any) => {
+        (acc, [key, value]) => {
             if (value?.open) {
                 acc = acc + 1
             }
@@ -118,7 +107,7 @@ const DiscountFilters: React.FC<DiscountFiltersProps> = ({
                     options={dynamicFilters}
                     filters={tempState.isDynamic.filter}
                     open={tempState.isDynamic.open}
-                    setFilter={(val: any) => setSingleFilter('isDynamic', val)}
+                    setFilter={(val) => setSingleFilter('isDynamic', val)}
                 />
                 {/* Backend support missing
         <FilterDropdownItem
@@ -135,7 +124,7 @@ const DiscountFilters: React.FC<DiscountFiltersProps> = ({
                 />
             </FilterDropdownContainer>
             {tabs &&
-                tabs.map((t: any) => (
+                tabs.map((t) => (
                     <TabFilter
                         key={t.value}
                         onClick={() => handleTabClick(t.value)}

@@ -4,25 +4,19 @@ import Actionables, { ActionType } from '../../molecules/actionables'
 type BannerCardProps = {
     actions?: ActionType[]
     title: string
-    children: React.ReactNode
-    thumbnail?: string
+    thumbnail: string | null
 } & React.RefAttributes<HTMLDivElement>
 
 type BannerCardDescriptionProps = {
-    children: React.ReactNode
     cta?: {
         label: string
         onClick: (e: React.MouseEvent<HTMLButtonElement>) => void
     }
 }
 
-type BannerCardFooterProps = {
-    children: React.ReactNode
-}
-
 const BannerCard: React.FC<BannerCardProps> & {
     Description: React.FC<BannerCardDescriptionProps>
-    Footer: React.FC<BannerCardFooterProps>
+    Footer: React.FC
 } = ({ title, thumbnail, actions, children }) => {
     return (
         <div className="rounded-rounded border bg-grey-0 border-grey-20 w-full p-base medium:p-xlarge">
@@ -69,7 +63,7 @@ const Description: React.FC<BannerCardDescriptionProps> = ({
     )
 }
 
-const Footer: React.FC<BannerCardFooterProps> = ({ children }) => {
+const Footer: React.FC = ({ children }) => {
     return <div className="mt-base">{children}</div>
 }
 

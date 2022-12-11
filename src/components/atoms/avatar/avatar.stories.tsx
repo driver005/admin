@@ -1,13 +1,13 @@
-import { ComponentMeta, Story } from '@storybook/react'
+import { ComponentMeta } from '@storybook/react'
 import React from 'react'
-import Avatar, { AvatarProps } from '.'
+import Avatar from '.'
 
 export default {
     title: 'Atoms/Avatar',
     component: Avatar,
 } as ComponentMeta<typeof Avatar>
 
-const Template: Story<AvatarProps> = (args) => (
+const Template = (args) => (
     <div className="h-large w-large">
         <Avatar {...args} />
     </div>

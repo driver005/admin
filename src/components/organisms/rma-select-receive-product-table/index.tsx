@@ -26,7 +26,7 @@ const RMASelectReturnProductTable: React.FC<RMASelectProductTableProps> = ({
     toReturn,
     setToReturn,
 }) => {
-    const handleQuantity = (change: number, item: any) => {
+    const handleQuantity = (change, item) => {
         if (
             (item.quantity === toReturn[item.id].quantity && change > 0) ||
             (toReturn[item.id].quantity === 1 && change < 0)
@@ -88,13 +88,15 @@ const RMASelectReturnProductTable: React.FC<RMASelectProductTableProps> = ({
                     return (
                         <Table.Row
                             className={clsx('border-b-grey-0 hover:bg-grey-0')}
+                            key={item.id}
                         >
                             <Table.Cell>
                                 <div className="items-center ml-1 h-full flex">
                                     <div
                                         onClick={() => handleReturnToggle(item)}
-                                        className={`mr-4 w-5 h-5 flex justify-center text-grey-0 border-grey-30 border cursor-pointer rounded-base ${checked && 'bg-violet-60'
-                                            }`}
+                                        className={`mr-4 w-5 h-5 flex justify-center text-grey-0 border-grey-30 border cursor-pointer rounded-base ${
+                                            checked && 'bg-violet-60'
+                                        }`}
                                     >
                                         <span className="self-center">
                                             {checked && <CheckIcon size={16} />}
@@ -117,7 +119,7 @@ const RMASelectReturnProductTable: React.FC<RMASelectProductTableProps> = ({
                                     <div className="w-[30px] h-[40px] ">
                                         <img
                                             className="h-full w-full object-cover rounded"
-                                            src={item.thumbnail || undefined}
+                                            src={item.thumbnail}
                                         />
                                     </div>
                                     <div className="inter-small-regular text-grey-50 flex flex-col ml-4">

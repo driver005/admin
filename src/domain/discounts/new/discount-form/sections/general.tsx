@@ -5,8 +5,8 @@ import { Controller, useWatch } from 'react-hook-form'
 import Checkbox from '../../../../../components/atoms/checkbox'
 import IconTooltip from '../../../../../components/molecules/icon-tooltip'
 import InputField from '../../../../../components/molecules/input'
-import Select from '../../../../../components/molecules/select'
-import Textarea from '../../../../../components/molecules/textarea'
+import { NextSelect } from '../../../../../components/molecules/select/next-select'
+import TextArea from '../../../../../components/molecules/textarea'
 import CurrencyInput from '../../../../../components/organisms/currency-input'
 import { useDiscountForm } from '../form/discount-form-context'
 
@@ -71,9 +71,9 @@ const General: React.FC<GeneralProps> = ({ discount }) => {
                                     ? value.length > 0
                                     : !!value,
                         }}
-                        render={({ field: { onChange, value } }: any) => {
+                        render={({ field: { onChange, value } }) => {
                             return (
-                                <Select
+                                <NextSelect
                                     value={value || null}
                                     onChange={(value) => {
                                         onChange(
@@ -81,9 +81,9 @@ const General: React.FC<GeneralProps> = ({ discount }) => {
                                         )
                                     }}
                                     label="Choose valid regions"
-                                    isMultiSelect={type !== 'fixed'}
-                                    hasSelectAll={type !== 'fixed'}
-                                    enableSearch
+                                    isMulti={type !== 'fixed'}
+                                    selectAll={type !== 'fixed'}
+                                    isSearchable
                                     required
                                     options={regionOptions}
                                 />
@@ -96,14 +96,16 @@ const General: React.FC<GeneralProps> = ({ discount }) => {
                             className="flex-1"
                             placeholder="SUMMERSALE10"
                             required
-                            {...register('code', { required: 'Code is required' })}
+                            {...register('code', {
+                                required: 'Code is required',
+                            })}
                         />
 
                         {type !== 'free_shipping' && (
                             <>
                                 {type === 'fixed' ? (
                                     <div className="flex-1">
-                                        <CurrencyInput
+                                        <CurrencyInput.Root
                                             size="small"
                                             currentCurrency={
                                                 fixedRegionCurrency
@@ -119,9 +121,11 @@ const General: React.FC<GeneralProps> = ({ discount }) => {
                                                         'Amount is required',
                                                     min: 1,
                                                 }}
-                                                render={({ field: { onChange, value } }: any) => {
+                                                render={({
+                                                    field: { value, onChange },
+                                                }) => {
                                                     return (
-                                                        <CurrencyInput.AmountInput
+                                                        <CurrencyInput.Amount
                                                             label={'Amount'}
                                                             required
                                                             amount={value}
@@ -130,7 +134,7 @@ const General: React.FC<GeneralProps> = ({ discount }) => {
                                                     )
                                                 }}
                                             />
-                                        </CurrencyInput>
+                                        </CurrencyInput.Root>
                                     </div>
                                 ) : (
                                     <div className="flex-1">
@@ -159,7 +163,7 @@ const General: React.FC<GeneralProps> = ({ discount }) => {
                         </span>
                         <span>Uppercase letters and numbers only.</span>
                     </div>
-                    <Textarea
+                    <TextArea
                         label="Description"
                         required
                         placeholder="Summer Sale 2022"
@@ -172,7 +176,7 @@ const General: React.FC<GeneralProps> = ({ discount }) => {
                         <Controller
                             name="is_dynamic"
                             control={control}
-                            render={({ field: { onChange, value } }: any) => {
+                            render={({ field: { onChange, value } }) => {
                                 return (
                                     <Checkbox
                                         label="This is a template discount"

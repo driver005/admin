@@ -4,7 +4,7 @@ import Sidebar from '../organisms/sidebar'
 import Topbar from '../organisms/topbar'
 import { PollingProvider } from '../../context/polling'
 
-const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
     return (
         <div className="flex w-full h-screen inter-base-regular text-grey-90">
             <Toaster
@@ -16,16 +16,16 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 }}
             />
             <Sidebar />
-            <div className="flex flex-col flex-1">
-                <PollingProvider>
+            <PollingProvider>
+                <div className="flex flex-col flex-1">
                     <Topbar />
-                </PollingProvider>
-                <div className="large:px-xlarge py-xlarge bg-grey-5 min-h-content overflow-y-auto">
-                    <main className="xsmall:mx-base small:mx-xlarge medium:mx-4xlarge large:mx-auto large:max-w-7xl large:w-full h-full">
-                        {children}
-                    </main>
+                    <div className="large:px-xlarge py-xlarge bg-grey-5 min-h-content overflow-y-auto">
+                        <main className="xsmall:mx-base small:mx-xlarge medium:mx-4xlarge large:mx-auto large:max-w-7xl large:w-full h-full">
+                            {children}
+                        </main>
+                    </div>
                 </div>
-            </div>
+            </PollingProvider>
         </div>
     )
 }

@@ -3,14 +3,7 @@ import React from 'react'
 import ChevronDownIcon from '../../fundamentals/icons/chevron-down'
 import ChevronUpIcon from '../../fundamentals/icons/chevron-up'
 
-interface SectionCollapsibleProps {
-    title: string
-    length: any
-    children: React.ReactNode
-    [key: string]: any
-}
-
-const SectionCollapsible: React.FC<SectionCollapsibleProps> = ({ title, length, children, ...props }) => {
+const SectionCollapsible = ({ title, length, children, ...props }) => {
     const [open, setOpen] = React.useState(true)
     return (
         <RadixCollapsible.Root open={open} onOpenChange={setOpen} {...props}>

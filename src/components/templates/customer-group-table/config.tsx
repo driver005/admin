@@ -35,7 +35,7 @@ export const CUSTOMER_GROUPS_CUSTOMERS_TABLE_COLUMNS: Column<Customer>[] = [
         Header: ({ getToggleAllPageRowsSelectedProps }) => (
             <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
         ),
-        Cell: ({ row }: any) => {
+        Cell: ({ row }) => {
             return (
                 <Table.Cell
                     onClick={(e) => e.stopPropagation()}
@@ -54,8 +54,8 @@ export const CUSTOMER_GROUPS_CUSTOMERS_TABLE_COLUMNS: Column<Customer>[] = [
                 Name <SortingIcon size={16} />
             </div>
         ),
-        accessor: 'first_name',
-        Cell: ({ row }: any) => (
+        id: 'avatar',
+        Cell: ({ row }) => (
             <CustomerAvatarItem
                 customer={row.original}
                 color={getColor(row.index)}
@@ -73,7 +73,7 @@ export const CUSTOMER_GROUPS_CUSTOMERS_TABLE_COLUMNS: Column<Customer>[] = [
     {
         accessor: 'groups',
         Header: () => <div className="text-left">Segments</div>,
-        Cell: ({ cell: { value } }: any) => (
+        Cell: ({ cell: { value } }) => (
             <CustomersGroupsSummary groups={value} />
         ),
     },
@@ -87,8 +87,8 @@ export const CUSTOMER_GROUPS_CUSTOMERS_LIST_TABLE_COLUMNS: Column<Customer>[] =
                     Name <SortingIcon size={16} />
                 </div>
             ),
-            accessor: 'first_name',
-            Cell: ({ row }: any) => (
+            id: 'avatar',
+            Cell: ({ row }) => (
                 <CustomerAvatarItem
                     customer={row.original}
                     color={getColor(row.index)}
@@ -107,7 +107,7 @@ export const CUSTOMER_GROUPS_CUSTOMERS_LIST_TABLE_COLUMNS: Column<Customer>[] =
             accessor: 'groups',
             disableSortBy: true,
             Header: 'Groups',
-            Cell: ({ cell: { value } }: any) => (
+            Cell: ({ cell: { value } }) => (
                 <CustomersGroupsSummary groups={value} />
             ),
         },

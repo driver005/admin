@@ -5,9 +5,8 @@ import BodyCard from '../../../components/organisms/body-card'
 import InviteModal from '../../../components/organisms/invite-modal'
 import PlusIcon from '../../../components/fundamentals/icons/plus-icon'
 import UserTable from '../../../components/templates/user-table'
-import { RouteComponentProps } from '@reach/router'
 
-const Users: React.FC<RouteComponentProps> = () => {
+const Users: React.FC = () => {
     const [users, setUsers] = useState([])
     const [invites, setInvites] = useState([])
     const [shouldRefetch, setShouldRefetch] = useState(0)
@@ -20,12 +19,12 @@ const Users: React.FC<RouteComponentProps> = () => {
     useEffect(() => {
         Medusa.users
             .list()
-            .then((res: any) => res.data)
-            .then((userData: any) => {
+            .then((res) => res.data)
+            .then((userData) => {
                 Medusa.invites
                     .list()
-                    .then((res: any) => res.data)
-                    .then((inviteData: any) => {
+                    .then((res) => res.data)
+                    .then((inviteData) => {
                         setUsers(userData.users)
                         setInvites(inviteData.invites)
                     })

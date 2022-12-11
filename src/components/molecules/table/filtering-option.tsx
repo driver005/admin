@@ -49,7 +49,7 @@ const FilteringOptions: React.FC<FilteringOptionProps> = ({
                     sideOffset={8}
                     className="bg-grey-0 p-2 border border-grey-20 rounded-rounded shadow-dropdown"
                 >
-                    {options.map((opt: any, idx: number) => (
+                    {options.map((opt, idx) => (
                         <DropdownMenu.DropdownMenuItem
                             key={`${idx}-${opt.title}`}
                             onSelect={() => {

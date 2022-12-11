@@ -1,7 +1,7 @@
 import { Product, ProductVariant } from '@medusajs/medusa'
 import React from 'react'
 import { ActionType } from '../../molecules/actionables'
-import CollapsibleTree from '../../molecules/collapsible-tree'
+import { CollapsibleTree } from '../../molecules/collapsible-tree'
 
 type LeafProps = {
     id: string
@@ -11,7 +11,7 @@ type LeafProps = {
         id: string
         currency_code: string
         amount: number
-        price_list_id?: string
+        price_list_id: string | null
     }[]
 }
 
@@ -73,8 +73,9 @@ const ProductVariantLeaf = ({ sku, title, prices = [] }: LeafProps) => {
             <div className="flex items-center text-grey-50 flex-1 justify-end">
                 <div className="text-grey-50 mr-xsmall">
                     {filteredPrices.length ? (
-                        <span>{`${filteredPrices.length} price${filteredPrices.length > 1 ? 's' : ''
-                            }`}</span>
+                        <span>{`${filteredPrices.length} price${
+                            filteredPrices.length > 1 ? 's' : ''
+                        }`}</span>
                     ) : (
                         <span className="inter-small-semibold text-orange-40">
                             Add prices

@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import { ComponentMeta } from '@storybook/react'
 import React from 'react'
 import OSShortcut from '.'
 
@@ -7,7 +7,7 @@ export default {
     component: OSShortcut,
 } as ComponentMeta<typeof OSShortcut>
 
-const Template: ComponentStory<typeof OSShortcut> = (args) => <OSShortcut {...args} />
+const Template = (args) => <OSShortcut {...args} />
 
 export const CmdK = Template.bind({})
 CmdK.args = {

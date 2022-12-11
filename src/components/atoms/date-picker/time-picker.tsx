@@ -18,10 +18,10 @@ const TimePicker: React.FC<DateTimePickerProps> = ({
     tooltipContent,
     tooltip,
 }) => {
-    const [selectedMinute, setSelectedMinute]: any = useState(
+    const [selectedMinute, setSelectedMinute] = useState(
         new Date(date)?.getUTCMinutes()
     )
-    const [selectedHour, setSelectedHour]: any = useState(
+    const [selectedHour, setSelectedHour] = useState(
         new Date(date)?.getUTCHours()
     )
 

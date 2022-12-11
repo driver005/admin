@@ -1,7 +1,7 @@
 import { CustomerGroup } from '@medusajs/medusa'
-import { navigate } from 'gatsby'
 import { useAdminCustomerGroups } from 'medusa-react'
 import React, { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
     HeaderGroup,
     Row,
@@ -16,9 +16,10 @@ import CustomerGroupContext, {
 } from '../../../domain/customers/groups/context/customer-group-context'
 import useQueryFilters from '../../../hooks/use-query-filters'
 import useSetSearchParams from '../../../hooks/use-set-search-params'
-import DetailsIcon from '../../fundamentals/icons/details-icon'
+import DetailsIcon from '../../fundamentals/details-icon'
 import EditIcon from '../../fundamentals/icons/edit-icon'
-import Table, { TablePagination } from '../../molecules/table'
+import Table from '../../molecules/table'
+import TableContainer from '../../organisms/table-container'
 import { CUSTOMER_GROUPS_TABLE_COLUMNS } from './config'
 
 /**
@@ -91,6 +92,8 @@ type CustomerGroupsTableRowProps = {
  */
 function CustomerGroupsTableRow(props: CustomerGroupsTableRowProps) {
     const { row } = props
+
+    const navigate = useNavigate()
     const { showModal } = useContext(CustomerGroupContext)
 
     const actions = [
@@ -129,22 +132,30 @@ function CustomerGroupsTableRow(props: CustomerGroupsTableRowProps) {
 type CustomerGroupsTableProps = ReturnType<typeof useQueryFilters> & {
     customerGroups: CustomerGroup[]
     count: number
+    isLoading?: boolean
 }
 
 /*
  * Root component of the customer groups table.
  */
 function CustomerGroupsTable(props: CustomerGroupsTableProps) {
-    const { customerGroups, queryObject, count, paginate, setQuery } = props
+    const {
+        customerGroups,
+        queryObject,
+        count,
+        paginate,
+        setQuery,
+        isLoading,
+    } = props
 
     const tableConfig: TableOptions<CustomerGroup> = {
         columns: CUSTOMER_GROUPS_TABLE_COLUMNS,
         data: customerGroups || [],
         initialState: {
-            pageSize: queryObject?.limit,
-            pageIndex: queryObject!.offset / queryObject!.limit,
+            pageSize: queryObject.limit,
+            pageIndex: queryObject.offset / queryObject.limit,
         },
-        pageCount: Math.ceil(count / queryObject!.limit),
+        pageCount: Math.ceil(count / queryObject.limit),
         manualPagination: true,
         autoResetPage: false,
     }
@@ -186,11 +197,27 @@ function CustomerGroupsTable(props: CustomerGroupsTableProps) {
     // ********* RENDER *********
 
     return (
-        <div className="w-full h-full overflow-y-auto flex flex-col justify-between">
+        <TableContainer
+            isLoading={isLoading}
+            hasPagination
+            numberOfRows={queryObject.limit}
+            pagingState={{
+                count: count,
+                offset: queryObject.offset,
+                pageSize: queryObject.offset + table.rows.length,
+                title: 'Customer groups',
+                currentPage: table.state.pageIndex + 1,
+                pageCount: table.pageCount,
+                nextPage: handleNext,
+                prevPage: handlePrev,
+                hasNext: table.canNextPage,
+                hasPrev: table.canPreviousPage,
+            }}
+        >
             <Table
                 enableSearch
                 handleSearch={handleSearch}
-                searchValue={queryObject!.q}
+                searchValue={queryObject.q}
                 {...table.getTableProps()}
             >
                 {/* HEAD */}
@@ -218,22 +245,7 @@ function CustomerGroupsTable(props: CustomerGroupsTableProps) {
                     })}
                 </Table.Body>
             </Table>
-
-            {/* PAGINATION */}
-            <TablePagination
-                count={count}
-                limit={queryObject!.limit}
-                offset={queryObject!.offset}
-                pageSize={queryObject!.offset + table.rows.length}
-                title="Customers"
-                currentPage={table.state.pageIndex + 1}
-                pageCount={table.pageCount}
-                nextPage={handleNext}
-                prevPage={handlePrev}
-                hasNext={table.canNextPage}
-                hasPrev={table.canPreviousPage}
-            />
-        </div>
+        </TableContainer>
     )
 }
 
@@ -250,9 +262,9 @@ function CustomerGroupsTableContainer() {
         count = 0,
     } = useAdminCustomerGroups(params.queryObject)
 
-    useSetSearchParams(params.representationObject as any)
+    useSetSearchParams(params.representationObject)
 
-    const showPlaceholder = !customer_groups?.length && !params?.queryObject?.q
+    const showPlaceholder = !customer_groups?.length && !params.queryObject.q
 
     if (showPlaceholder) {
         if (!isLoading) {
@@ -266,6 +278,7 @@ function CustomerGroupsTableContainer() {
         <CustomerGroupsTable
             count={count}
             customerGroups={customer_groups || []}
+            isLoading={isLoading}
             {...params}
         />
     )

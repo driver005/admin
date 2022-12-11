@@ -54,7 +54,7 @@ const ConditionItem = <Type extends DiscountConditionType>({
         }
     )
 
-    const { updateCondition }: any = useDiscountForm()
+    const { updateCondition } = useDiscountForm()
 
     const [showEdit, setShowEdit] = useState(false)
 
@@ -221,7 +221,6 @@ const ConditionItem = <Type extends DiscountConditionType>({
                                         type,
                                         items: [],
                                         operator: DiscountConditionOperator.IN,
-                                        shouldDelete: true,
                                     }),
                                 icon: <TrashIcon size={16} />,
                                 variant: 'danger',

@@ -27,7 +27,7 @@ const PricesSection = ({ isEdit = false, id }: PricesSectionProps) => {
     const [selectedProducts, setSelectedProducts] = React.useState<Product[]>(
         []
     )
-    const mergedProducts = merge(products as Product[], selectedProducts)
+    const mergedProducts = merge(products, selectedProducts)
 
     return (
         <Accordion.Item
