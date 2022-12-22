@@ -5,6 +5,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { Route, Routes, useNavigate } from 'react-router-dom'
 import { WRITE_KEY } from '../components/constants/analytics'
 import PrivateRoute from '../components/fundamentals/private-route'
+import SentryRoute from '../components/fundamentals/sentry-route'
 import SEO from '../components/seo'
 import Layout from '../components/templates/layout'
 import AnalyticsProvider from '../context/analytics'
@@ -56,6 +57,7 @@ const DashboardRoutes = () => {
                             path="sales-channels/*"
                             element={<SalesChannels />}
                         />
+                        <Route path="sentry/*" element={<SentryRoute />} />
                     </Routes>
                 </Layout>
             </DndProvider>
